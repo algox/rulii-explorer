@@ -38,3 +38,4 @@ build/
 .DS_Store
 ### IntelliJ IDEA (not committed, matching rulii) ###
 .idea/
+/docs/
