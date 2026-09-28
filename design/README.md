@@ -4,8 +4,10 @@ The approved design for rulii explorer R1 (milestone M2, completed 2026-09-28): 
 **B · Lavender**, its design system, and hi-fi designs of every R1 screen and state.
 
 - **Live canvas** (view, compare, toggle themes): https://claude.ai/artifact/PBLj4xrfvm7noBZ7o6KWs4
-- **Requirements** it answers: [REQUIREMENTS.md](../docs/REQUIREMENTS.md) §6 (visual quality)
-- **Solution context**: [SOLUTION.md](../docs/SOLUTION.md) §11 (design process, brand palette)
+- **Requirements** it answers: REQUIREMENTS.md §6 (visual quality)
+- **Solution context**: SOLUTION.md §11 (design process, brand palette)
+
+REQUIREMENTS.md and SOLUTION.md live in the local `docs/` folder, which is not in git.
 
 ## Contents
 
