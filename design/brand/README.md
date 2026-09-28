@@ -2,7 +2,7 @@
 
 Vector (SVG) redraws of the rulii logo from rulii.com (`rulii-docs/assets/images/logo.png`
 and `rulii-logo.png`). The geometry and gradient colours were measured from those PNGs. The
-brand palette is documented in [SOLUTION.md §11.1](../docs/SOLUTION.md).
+brand palette is documented in [SOLUTION.md §11.1](../../docs/SOLUTION.md).
 
 | File | Use |
 |---|---|

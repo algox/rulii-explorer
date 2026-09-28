@@ -1,0 +1,51 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "A-Flow.dc.html": { "h": 900, "is_interactive": true, "title": "A · Flow + detail", "w": 1440, "x": 1520, "y": 0 },
+    "B-Flow.dc.html": { "h": 900, "is_interactive": true, "title": "Chosen · B Flow + detail", "w": 1440, "x": 1520, "y": 1400 },
+    "B-Overview.dc.html": { "h": 900, "is_interactive": true, "title": "Chosen · B Overview", "w": 1440, "x": 0, "y": 1400 },
+    "C-Flow.dc.html": { "h": 900, "is_interactive": true, "title": "C · Flow + detail", "w": 1440, "x": 1520, "y": 2800 },
+    "C-Overview.dc.html": { "h": 900, "is_interactive": true, "title": "C · Overview", "w": 1440, "x": 0, "y": 2800 },
+    "DS-Components.dc.html": { "h": 1800, "is_interactive": true, "title": "Design system · Components", "w": 1440, "x": 1520, "y": 5600 },
+    "DS-Foundations.dc.html": { "h": 1800, "is_interactive": true, "title": "Design system · Foundations", "w": 1440, "x": 0, "y": 5600 },
+    "DS-Graph.dc.html": { "h": 1800, "is_interactive": true, "title": "Design system · Graph language", "w": 1440, "x": 3040, "y": 5600 },
+    "Lavender-Flow.dc.html": { "h": 900, "is_interactive": true, "title": "Compact · Flow + detail", "w": 1440, "x": 1520, "y": 4200 },
+    "Lavender-Overview.dc.html": { "h": 900, "is_interactive": true, "title": "Compact · Overview", "w": 1440, "x": 0, "y": 4200 },
+    "Main.dc.html": { "h": 900, "is_interactive": true, "title": "A · Overview", "w": 1440, "x": 0, "y": 0 },
+    "S-Rule.dc.html": { "h": 900, "is_interactive": true, "title": "Rule · MinTotalRule", "w": 1440, "x": 0, "y": 8000 },
+    "S-Validator.dc.html": { "h": 900, "is_interactive": true, "title": "Validation rule · EmailFormatRule", "w": 1440, "x": 1520, "y": 8000 },
+    "S-Compiled.dc.html": { "h": 900, "is_interactive": true, "title": "Compiled rule · FraudScoreRule", "w": 1440, "x": 3040, "y": 8000 },
+    "S-RuleSet.dc.html": { "h": 900, "is_interactive": true, "title": "Rule set · orderValidationRules", "w": 1440, "x": 4560, "y": 8000 },
+    "S-GraphFocus.dc.html": { "h": 900, "is_interactive": true, "title": "Graph · focus mode", "w": 1440, "x": 0, "y": 9400 },
+    "S-GraphAll.dc.html": { "h": 900, "is_interactive": true, "title": "Graph · whole application", "w": 1440, "x": 1520, "y": 9400 },
+    "S-FlowOutline.dc.html": { "h": 900, "is_interactive": true, "title": "Flow · outline", "w": 1440, "x": 3040, "y": 9400 },
+    "S-Binding.dc.html": { "h": 900, "is_interactive": true, "title": "Binding · order", "w": 1440, "x": 4560, "y": 9400 },
+    "S-Problems.dc.html": { "h": 900, "is_interactive": true, "title": "Problems", "w": 1440, "x": 0, "y": 10800 },
+    "S-Search.dc.html": { "h": 900, "is_interactive": true, "title": "Search · command palette", "w": 1440, "x": 1520, "y": 10800 },
+    "S-Loading.dc.html": { "h": 900, "is_interactive": true, "title": "State · loading", "w": 1440, "x": 3040, "y": 10800 },
+    "S-States.dc.html": { "h": 900, "is_interactive": true, "title": "States · empty, not exposed, sign-in, partial", "w": 1440, "x": 4560, "y": 10800 }
+  },
+  "createdOnFiles": { "at": "2026-09-27T22:45:00Z", "v": 1 },
+  "designSystems": [],
+  "launch": { "view": "canvas" },
+  "notes": {
+    "titleA": { "kind": "title1", "maxW": 2960, "text": "A · Midnight — brand-forward", "w": 240, "x": 0, "y": -300 },
+    "titleB": { "kind": "title1", "maxW": 2960, "text": "Chosen · B Lavender — light and calm", "w": 240, "x": 0, "y": 1100 },
+    "titleC": { "kind": "title1", "maxW": 2960, "text": "C · Graphite — neutral professional", "w": 240, "x": 0, "y": 2500 },
+    "titleChosen": { "kind": "title1", "maxW": 2960, "text": "Compact variant (not chosen) · Lavender look, Graphite density", "w": 240, "x": 0, "y": 3900 },
+    "titleDS": { "kind": "title1", "maxW": 4480, "text": "Design system · B Lavender", "w": 240, "x": 0, "y": 5300 },
+    "titleScreens1": { "kind": "title1", "maxW": 6000, "text": "R1 screens · Rules and rule sets", "x": 0, "y": 7700 },
+    "titleScreens2": { "kind": "title1", "maxW": 6000, "text": "R1 screens · Graphs, outline and bindings", "x": 0, "y": 9100 },
+    "titleScreens3": { "kind": "title1", "maxW": 6000, "text": "R1 screens · Problems, search and states", "x": 0, "y": 10500 }
+  },
+  "order": [
+    "Main.dc.html", "A-Flow.dc.html", "B-Overview.dc.html", "B-Flow.dc.html", "C-Overview.dc.html", "C-Flow.dc.html",
+    "Lavender-Overview.dc.html", "Lavender-Flow.dc.html", "DS-Foundations.dc.html", "DS-Components.dc.html", "DS-Graph.dc.html",
+    "S-Rule.dc.html", "S-Validator.dc.html", "S-Compiled.dc.html", "S-RuleSet.dc.html",
+    "S-GraphFocus.dc.html", "S-GraphAll.dc.html", "S-FlowOutline.dc.html", "S-Binding.dc.html",
+    "S-Problems.dc.html", "S-Search.dc.html", "S-Loading.dc.html", "S-States.dc.html"
+  ],
+  "pages": [],
+  "title": "rulii explorer directions"
+}

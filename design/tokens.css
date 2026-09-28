@@ -1,0 +1,255 @@
+/*
+ * rulii explorer design tokens (direction B · Lavender)
+ *
+ * The single source of truth for colour, type, spacing, shape, elevation and motion.
+ * Every component uses these variables; no one-off values (VQ-1). Built on the rulii
+ * brand palette from rulii.com (VQ-5, SOLUTION.md §11.1). See design/DESIGN-SYSTEM.md.
+ *
+ * Theme: light by default. Dark applies with [data-theme="dark"] on the root, or with the
+ * OS preference unless [data-theme="light"] is set (NFR-30).
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ── Brand (fixed; never themed) ─────────────────────────────────────── */
+  --rx-brand-deep: #301549;
+  --rx-brand: #452C5B;
+  --rx-brand-orange: #F97316;
+  --rx-logo-orange: #F5841D;
+  --rx-logo-pink: #E64E6D;
+  --rx-logo-purple: #833EAE;
+  --rx-brand-lavender: #FAF5FF;
+
+  /* ── Surfaces ────────────────────────────────────────────────────────── */
+  --rx-bg: #FAF5FF;            /* page ground (lavender) */
+  --rx-bar: #FFFFFF;           /* top bar, sidebar */
+  --rx-sunken: #F5EDFC;        /* wells, canvas toolbars, segmented controls */
+  --rx-card: #FFFFFF;          /* cards, panels, popovers */
+  --rx-selected: #EBDDF9;      /* selected row / item fill */
+  --rx-hover: #F3EAFB;         /* hovered row / item fill */
+
+  /* ── Ink ─────────────────────────────────────────────────────────────── */
+  --rx-ink: #301549;           /* primary text: 14.7:1 on bg */
+  --rx-ink-2: #4E3F66;         /* secondary text */
+  --rx-ink-3: #6E5F82;         /* tertiary text, captions: ≥ 5:1 on bg */
+  --rx-ink-inverse: #FFFFFF;
+
+  /* ── Lines ───────────────────────────────────────────────────────────── */
+  --rx-line: #ECE2F6;          /* hairline dividers, card borders */
+  --rx-line-strong: #DCCDEC;   /* control borders, emphasised dividers */
+  --rx-edge: #9A87B2;          /* graph edges */
+
+  /* ── Accent (orange, small doses) ────────────────────────────────────── */
+  --rx-accent: #C2410C;        /* text-safe orange: selection ring, active tab, links */
+  --rx-accent-soft: #FFF0E5;
+  --rx-focus: #833EAE;         /* keyboard focus outline (distinct from selection) */
+
+  /* ── Primary action ──────────────────────────────────────────────────── */
+  --rx-primary: #452C5B;
+  --rx-primary-hover: #301549;
+  --rx-on-primary: #FFFFFF;
+
+  /* ── Artifact types (shape + colour + label; never colour alone) ─────── */
+  --rx-rule: #833EAE;          /* circle */
+  --rx-rule-text: #6B2E94;
+  --rx-rule-soft: #F4EAFB;
+  --rx-rule-line: #DCC3F0;
+  --rx-ruleset: #F5841D;       /* rounded square */
+  --rx-ruleset-text: #B4540A;
+  --rx-ruleset-soft: #FFF3E8;
+  --rx-ruleset-line: #F6C99E;
+  --rx-flow: #0B8A86;          /* hexagon */
+  --rx-flow-text: #07706D;
+  --rx-flow-soft: #E6F6F5;
+  --rx-flow-line: #A9DEDB;
+  --rx-binding: #EEEAF3;       /* neutral chip */
+  --rx-binding-ink: #3E3450;
+
+  /* ── Status ──────────────────────────────────────────────────────────── */
+  --rx-error: #B42318;
+  --rx-error-soft: #FDECEA;
+  --rx-warning: #9A5B00;
+  --rx-warning-soft: #FFF4DB;
+  --rx-info: #5B4E75;
+  --rx-info-soft: #F0EBF6;
+  --rx-success: #1E7A4C;
+  --rx-success-soft: #E5F4EC;
+
+  /* ── Graph canvas ────────────────────────────────────────────────────── */
+  --rx-canvas: #FAF5FF;
+  --rx-canvas-dot: #E4D8F0;
+  --rx-lane: #F3EBFB;          /* async lane fill */
+  --rx-lane-line: #E2D4F0;
+
+  /* ── Code (rulii.com code blocks; the same in both themes) ───────────── */
+  --rx-code-bg: #1A0E2E;
+  --rx-code-text: #A9B7C6;
+  --rx-code-comment: #808080;
+  --rx-code-keyword: #CC7832;  /* operators, and/or, null */
+  --rx-code-number: #6897BB;
+  --rx-code-string: #6A8759;
+  --rx-code-variable: #F5A35C; /* #ctx */
+  --rx-code-method: #FFC66D;
+  --rx-code-placeholder: #C9A3EE; /* ${key:default} */
+
+  /* ── Logo ────────────────────────────────────────────────────────────── */
+  --rx-logo-ink: #301549;      /* wordmark: deep purple on light */
+
+  /* ── Type ────────────────────────────────────────────────────────────── */
+  --rx-font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --rx-font-ui: 'Hanken Grotesk', 'Segoe UI', system-ui, sans-serif;
+  --rx-font-code: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+
+  /* size / line-height pairs */
+  --rx-text-display: 40px;   --rx-leading-display: 1.15;   /* serif, 500, -0.01em */
+  --rx-text-page-title: 38px; --rx-leading-page-title: 1.15; /* serif, 500: artifact detail page headers */
+  --rx-text-title: 26px;     --rx-leading-title: 1.2;      /* serif, 500 */
+  --rx-text-heading: 19px;   --rx-leading-heading: 1.3;    /* serif, 500 */
+  --rx-text-subheading: 15px; --rx-leading-subheading: 1.35; /* serif, 600 */
+  --rx-text-body-lg: 14px;   --rx-leading-body-lg: 1.5;
+  --rx-text-body: 13px;      --rx-leading-body: 1.45;
+  --rx-text-small: 12px;     --rx-leading-small: 1.45;
+  --rx-text-caption: 11px;   --rx-leading-caption: 1.35;   /* 500 */
+  --rx-text-overline: 11px;  --rx-tracking-overline: 0.08em; /* 600, uppercase */
+  --rx-text-code: 12px;      --rx-leading-code: 1.55;
+  --rx-text-code-sm: 11px;
+
+  --rx-weight-regular: 400;
+  --rx-weight-medium: 500;
+  --rx-weight-semibold: 600;
+
+  /* ── Space (4-px rhythm with 2-px half steps) ────────────────────────── */
+  --rx-space-0-5: 2px;
+  --rx-space-1: 4px;
+  --rx-space-1-5: 6px;
+  --rx-space-2: 8px;
+  --rx-space-2-5: 10px;
+  --rx-space-3: 12px;
+  --rx-space-4: 16px;
+  --rx-space-5: 20px;
+  --rx-space-6: 24px;
+  --rx-space-8: 32px;
+  --rx-space-10: 40px;
+
+  /* ── Layout ──────────────────────────────────────────────────────────── */
+  --rx-topbar-h: 64px;
+  --rx-sidebar-w: 264px;
+  --rx-detail-w: 384px;
+  --rx-page-pad: 32px 40px;
+  --rx-card-pad: 16px 20px;
+  --rx-control-sm: 28px;       /* chips, segmented items, canvas tools */
+  --rx-control-md: 34px;       /* buttons */
+  --rx-control-lg: 38px;       /* search field */
+  --rx-row-h: 32px;            /* sidebar and list rows */
+
+  /* ── Shape ───────────────────────────────────────────────────────────── */
+  --rx-radius-xs: 4px;       /* inline chips, kbd */
+  --rx-radius-sm: 6px;       /* controls, segmented items */
+  --rx-radius-md: 8px;       /* buttons, inputs, list items, graph nodes */
+  --rx-radius-lg: 12px;      /* cards, panels */
+  --rx-radius-xl: 16px;      /* hero cards, dialogs */
+  --rx-radius-pill: 999px;
+
+  /* ── Elevation (flat by default; hairlines do most of the work) ──────── */
+  --rx-shadow-1: 0 1px 2px rgba(48, 21, 73, 0.08);                         /* raised control */
+  --rx-shadow-2: 0 4px 16px rgba(48, 21, 73, 0.10), 0 1px 2px rgba(48, 21, 73, 0.06); /* popover, hover card */
+  --rx-shadow-3: 0 16px 48px rgba(48, 21, 73, 0.18), 0 2px 6px rgba(48, 21, 73, 0.08); /* dialog, command palette */
+
+  /* ── Motion (VQ-20; all disabled under prefers-reduced-motion) ───────── */
+  --rx-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --rx-ease-in-out: cubic-bezier(0.45, 0, 0.2, 1);
+  --rx-duration-fast: 120ms;   /* hover, press */
+  --rx-duration-base: 200ms;   /* panels, toggles, cross-fades */
+  --rx-duration-slow: 360ms;   /* camera moves, graph settling */
+
+  /* ── Focus ───────────────────────────────────────────────────────────── */
+  --rx-focus-ring: 0 0 0 2px var(--rx-bg), 0 0 0 4px var(--rx-focus);
+  --rx-selection-ring: 0 0 0 2px var(--rx-accent);
+}
+
+/* ── Dark theme: calm, lifted brand purples (never near-black) ─────────── */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --rx-bg: #221433;
+  --rx-bar: #291A3D;
+  --rx-sunken: #291A3D;
+  --rx-card: #2F2045;
+  --rx-selected: #3A2858;
+  --rx-hover: #34244C;
+  --rx-ink: #F5EFFB;
+  --rx-ink-2: #D6CBE3;
+  --rx-ink-3: #AE9FC2;
+  --rx-ink-inverse: #221433;
+  --rx-line: #3A2A52;
+  --rx-line-strong: #4B3868;
+  --rx-edge: #9985B5;
+  --rx-accent: #FF9A3D;
+  --rx-accent-soft: #43291D;
+  --rx-focus: #CFAAF0;
+  --rx-primary: #CFAAF0;
+  --rx-primary-hover: #E0C6F6;
+  --rx-on-primary: #221433;
+  --rx-rule: #B98AE6;
+  --rx-rule-text: #CFAAF0;
+  --rx-rule-soft: #35224F;
+  --rx-rule-line: #5E4180;
+  --rx-ruleset: #FF9A3D;
+  --rx-ruleset-text: #FFB673;
+  --rx-ruleset-soft: #3E2A22;
+  --rx-ruleset-line: #6E4829;
+  --rx-flow: #3FCBC2;
+  --rx-flow-text: #72DAD3;
+  --rx-flow-soft: #17363A;
+  --rx-flow-line: #2A5E60;
+  --rx-binding: #3A2E4E;
+  --rx-binding-ink: #E0D7EA;
+  --rx-error: #FF8F80;
+  --rx-error-soft: #45222B;
+  --rx-warning: #F5C451;
+  --rx-warning-soft: #3A3016;
+  --rx-info: #CFC3DD;
+  --rx-info-soft: #352A48;
+  --rx-success: #6FD3A0;
+  --rx-success-soft: #1C3A2C;
+  --rx-canvas: #221433;
+  --rx-canvas-dot: #33244A;
+  --rx-lane: #271A3A;
+  --rx-lane-line: #43325C;
+  --rx-logo-ink: #FFFFFF;
+  --rx-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.30);
+  --rx-shadow-2: 0 4px 16px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.25);
+  --rx-shadow-3: 0 16px 48px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.30);
+}
+
+/* OS preference, unless the user picked light explicitly. Keep in sync with the block above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --rx-bg: #221433; --rx-bar: #291A3D; --rx-sunken: #291A3D; --rx-card: #2F2045;
+    --rx-selected: #3A2858; --rx-hover: #34244C;
+    --rx-ink: #F5EFFB; --rx-ink-2: #D6CBE3; --rx-ink-3: #AE9FC2; --rx-ink-inverse: #221433;
+    --rx-line: #3A2A52; --rx-line-strong: #4B3868; --rx-edge: #9985B5;
+    --rx-accent: #FF9A3D; --rx-accent-soft: #43291D; --rx-focus: #CFAAF0;
+    --rx-primary: #CFAAF0; --rx-primary-hover: #E0C6F6; --rx-on-primary: #221433;
+    --rx-rule: #B98AE6; --rx-rule-text: #CFAAF0; --rx-rule-soft: #35224F; --rx-rule-line: #5E4180;
+    --rx-ruleset: #FF9A3D; --rx-ruleset-text: #FFB673; --rx-ruleset-soft: #3E2A22; --rx-ruleset-line: #6E4829;
+    --rx-flow: #3FCBC2; --rx-flow-text: #72DAD3; --rx-flow-soft: #17363A; --rx-flow-line: #2A5E60;
+    --rx-binding: #3A2E4E; --rx-binding-ink: #E0D7EA;
+    --rx-error: #FF8F80; --rx-error-soft: #45222B; --rx-warning: #F5C451; --rx-warning-soft: #3A3016;
+    --rx-info: #CFC3DD; --rx-info-soft: #352A48; --rx-success: #6FD3A0; --rx-success-soft: #1C3A2C;
+    --rx-canvas: #221433; --rx-canvas-dot: #33244A; --rx-lane: #271A3A; --rx-lane-line: #43325C;
+    --rx-logo-ink: #FFFFFF;
+    --rx-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.30);
+    --rx-shadow-2: 0 4px 16px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.25);
+    --rx-shadow-3: 0 16px 48px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.30);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --rx-duration-fast: 0ms;
+    --rx-duration-base: 0ms;
+    --rx-duration-slow: 0ms;
+  }
+}

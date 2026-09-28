@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>rulii explorer · Midnight · Overview</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;font-family:'Sora',system-ui,'Segoe UI',sans-serif}
+a{color:inherit}a:hover{color:inherit}
+button{font-family:inherit}
+input::placeholder{color:#B9A6CF;opacity:1}
+</style>
+</helmet>
+<div style="--chrome: {{t.chrome}}; --side: {{t.side}}; --chrome-line: {{t.chromeLine}}; --chrome2: {{t.chrome2}}; --bg: {{t.bg}}; --panel: {{t.panel}}; --panel2: {{t.panel2}}; --line: {{t.line}}; --ink: {{t.ink}}; --ink2: {{t.ink2}}; --ink3: {{t.ink3}}; --accent: #F97316; --accent-ink: {{t.accentInk}}; --rule: {{t.rule}}; --rule-ink: {{t.ruleInk}}; --set: {{t.set}}; --set-ink: {{t.setInk}}; --flow: {{t.flow}}; --flow-ink: {{t.flowInk}}; --err: {{t.err}}; --err-bg: {{t.errBg}}; --warn: {{t.warn}}; --warn-bg: {{t.warnBg}}; --info: {{t.info}}; --info-bg: {{t.infoBg}}; --map-bg: {{t.mapBg}}; --map-line: {{t.mapLine}}; --k1: {{t.k1}}; --k2: {{t.k2}}; --k3: {{t.k3}}; --k4: {{t.k4}}; --btn-ink: #1C0F2B; --logo-ink: #FFFFFF; width: 1440px; height: 900px; overflow: hidden; display: flex; flex-direction: column; background: var(--bg); color: var(--ink); font-family: 'Sora', system-ui, 'Segoe UI', sans-serif">
+
+<header style="height: 56px; flex-shrink: 0; box-sizing: border-box; display: flex; align-items: center; gap: 20px; padding: 0 16px 0 20px; background: var(--chrome); border-bottom: 1px solid var(--chrome-line)">
+<div style="display: flex; align-items: center; gap: 16px; width: 404px">
+<a href="#" aria-label="rulii explorer home" style="display: flex; align-items: center">
+<svg viewBox="6 0 162 146" style="height: 30px; width: auto; display: block" role="img" aria-label="rulii">
+<defs>
+<linearGradient id="lg-o" gradientUnits="userSpaceOnUse" x1="14" y1="142" x2="116" y2="40"><stop offset="0.10" stop-color="#833EAE"></stop><stop offset="0.30" stop-color="#BB4683"></stop><stop offset="0.47" stop-color="#E1505F"></stop><stop offset="0.65" stop-color="#EB693F"></stop><stop offset="0.85" stop-color="#F5841D"></stop></linearGradient>
+<linearGradient id="lg-m" gradientUnits="userSpaceOnUse" x1="30.5" y1="125" x2="106.25" y2="49.25"><stop offset="0" stop-color="#F0762F"></stop><stop offset="0.22" stop-color="#E55B52"></stop><stop offset="0.37" stop-color="#DA4A6A"></stop><stop offset="0.56" stop-color="#B24589"></stop><stop offset="0.72" stop-color="#9140A3"></stop><stop offset="0.85" stop-color="#833EAE"></stop></linearGradient>
+<linearGradient id="lg-i" gradientUnits="userSpaceOnUse" x1="47.5" y1="105" x2="95.75" y2="56.75"><stop offset="0.03" stop-color="#B34588"></stop><stop offset="0.27" stop-color="#D4496F"></stop><stop offset="0.48" stop-color="#E2535C"></stop><stop offset="0.67" stop-color="#E7604C"></stop><stop offset="0.96" stop-color="#ED6F38"></stop></linearGradient>
+</defs>
+<g fill="none" stroke-width="10"><path d="M14 142V77.5A70 70 0 0 1 84 7.5" stroke="url(#lg-o)"></path><path d="M30.5 125V79.5A53.5 53.5 0 0 1 84 26" stroke="url(#lg-m)"></path><path d="M47.5 105V80.5A36.5 36.5 0 0 1 84 44" stroke="url(#lg-i)"></path></g>
+<g transform="translate(63.5 44.5) scale(0.24)"><g fill="none" style="stroke: var(--logo-ink)" stroke-width="35"><path d="M17.5 247V159.5A71 71 0 0 1 88.5 88.5H106"></path><path d="M88.5 129V157.5A71 71 0 0 0 230.5 157.5V71"></path><path d="M289.5 1V247"></path><path d="M346.5 71V247"></path><path d="M403.5 71V247"></path></g><circle cx="346.5" cy="17.5" r="17.5" fill="#F5841D"></circle><circle cx="403.5" cy="17.5" r="17.5" fill="#833EAE"></circle></g>
+</svg>
+</a>
+<div style="width: 1px; height: 22px; background: var(--chrome-line)"></div>
+<div style="display: flex; align-items: center; gap: 10px">
+<span style="font-size: 14px; font-weight: 600; color: #F4EEFA">order-service</span>
+<span style="display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 11px; background: rgba(249,115,22,0.16); color: #FFB36B; font-size: 11px; font-weight: 500"><span style="width: 6px; height: 6px; border-radius: 3px; background: #F97316"></span>staging</span>
+</div>
+</div>
+<div style="flex-grow: 1; display: flex; justify-content: center">
+<label style="position: relative; display: flex; align-items: center; width: 480px; height: 38px; box-sizing: border-box; padding: 0 10px 0 38px; border-radius: 10px; background: var(--chrome2); border: 1px solid var(--chrome-line)">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B9A6CF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 13px; top: 10px" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<input type="search" aria-label="Search rules, flows and error codes" placeholder="Search rules, flows, error codes…" style="flex-grow: 1; min-width: 0; height: 100%; border: 0; outline: none; background: transparent; color: #F4EEFA; font-family: inherit; font-size: 13px">
+<span style="display: inline-flex; align-items: center; height: 22px; padding: 0 7px; border-radius: 6px; border: 1px solid var(--chrome-line); color: #B9A6CF; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px">⌘K</span>
+</label>
+</div>
+<div style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; width: 404px">
+<span style="font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; color: #B9A6CF">rulii 2.1.0</span>
+<button type="button" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid var(--chrome-line); background: transparent; color: #F4EEFA; cursor: pointer">
+<sc-if value="{{isDark}}" hint-placeholder-val="{{false}}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5v2.2M12 19.3v2.2M4.3 4.3l1.6 1.6M18.1 18.1l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.3 19.7l1.6-1.6M18.1 5.9l1.6-1.6"></path></svg>
+</sc-if>
+<sc-if value="{{isLight}}" hint-placeholder-val="{{true}}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg>
+</sc-if>
+</button>
+</div>
+</header>
+
+<div style="flex-grow: 1; display: flex; min-height: 0">
+
+<nav aria-label="Artifacts" style="width: 260px; flex-shrink: 0; box-sizing: border-box; padding: 16px 12px; background: var(--side); border-right: 1px solid var(--chrome-line); display: flex; flex-direction: column; gap: 18px; overflow: hidden">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<a href="#" aria-current="page" style="display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; background: var(--chrome2); color: #FFFFFF; text-decoration: none; font-size: 13px; font-weight: 500">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF9A3D" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"></rect></svg>
+Overview</a>
+<a href="#" style="display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: #E4D8F2; text-decoration: none; font-size: 13px">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B9A6CF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l9.5 16.5h-19z"></path><path d="M12 10v4.5M12 17.2v.3"></path></svg>
+Problems<span style="margin-left: auto; display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 10px; background: rgba(255,122,122,0.18); color: #FFB0B0; font-size: 11px; font-weight: 600">4</span></a>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 2px">
+<div style="display: flex; justify-content: space-between; padding: 0 10px 6px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.12em; color: #A895BF">RULE FLOWS<span style="letter-spacing: 0">2</span></div>
+<a href="#" style="display: flex; align-items: center; gap: 10px; height: 30px; padding: 0 10px; border-radius: 8px; color: #E4D8F2; text-decoration: none; font-size: 13px"><svg width="11" height="11" viewBox="0 0 10 10" aria-hidden="true"><polygon points="5,0.4 9.2,2.8 9.2,7.2 5,9.6 0.8,7.2 0.8,2.8" style="fill: #37C8BF"></polygon></svg>orderProcessingFlow</a>
+<a href="#" style="display: flex; align-items: center; gap: 10px; height: 30px; padding: 0 10px; border-radius: 8px; color: #E4D8F2; text-decoration: none; font-size: 13px"><svg width="11" height="11" viewBox="0 0 10 10" aria-hidden="true"><polygon points="5,0.4 9.2,2.8 9.2,7.2 5,9.6 0.8,7.2 0.8,2.8" style="fill: #37C8BF"></polygon></svg>nightlyRepriceFlow<span aria-label="1 error" style="margin-left: auto; width: 7px; height: 7px; border-radius: 4px; background: #FF7A7A"></span></a>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 2px">
+<div style="display: flex; justify-content: space-between; padding: 0 10px 6px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.12em; color: #A895BF">RULE SETS<span style="letter-spacing: 0">3</span></div>
+<a href="#" style="display: flex; align-items: center; gap: 10px; height: 30px; padding: 0 10px; border-radius: 8px; color: #E4D8F2; text-decoration: none; font-size: 13px"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><rect x="0.5" y="0.5" width="9" height="9" rx="2.5" style="fill: #FF9A3D"></rect></svg>orderValidationRules</a>
+<a href="#" style="display: flex; align-items: center; gap: 10px; height: 30px; padding: 0 10px; border-radius: 8px; color: #E4D8F2; text-decoration: none; font-size: 13px"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><rect x="0.5" y="0.5" width="9" height="9" rx="2.5" style="fill: #FF9A3D"></rect></svg>approvalRules</a>
+<a href="#" style="display: flex; align-items: center; gap: 10px; height: 30px; padding: 0 10px; border-radius: 8px; color: #E4D8F2; text-decoration: none; font-size: 13px"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><rect x="0.5" y="0.5" width="9" height="9" rx="2.5" style="fill: #FF9A3D"></rect></svg>pricingRules</a>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 2px">
+<div style="display: flex; justify-content: space-between; padding: 0 10px 6px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.12em; color: #A895BF">RULES<span style="letter-spacing: 0">14</span></div>
+<button type="button" aria-expanded="true" style="display: flex; align-items: center; gap: 8px; width: 100%; height: 28px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: #CDBFE0; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; text-align: left; cursor: pointer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#A895BF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>rules/order<span style="margin-left: auto; font-family: 'Sora', sans-serif; font-size: 11px; color: #A895BF">8</span></button>
+<div style="display: flex; flex-direction: column">
+<a href="#" style="display: flex; align-items: center; gap: 10px; height: 28px; padding: 0 10px 0 30px; border-radius: 8px; color: #E4D8F2; text-decoration: none; font-size: 12.5px"><svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.5" style="fill: #B07BE0"></circle></svg>AgeCheckRule</a>
+<a href="#" style="display: flex; align-items: center; gap: 10px; height: 28px; padding: 0 10px 0 30px; border-radius: 8px; color: #E4D8F2; text-decoration: none; font-size: 12.5px"><svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.5" style="fill: #B07BE0"></circle></svg>EmailFormatRule</a>
+<a href="#" style="display: flex; align-items: center; gap: 10px; height: 28px; padding: 0 10px 0 30px; border-radius: 8px; color: #E4D8F2; text-decoration: none; font-size: 12.5px"><svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.5" style="fill: #B07BE0"></circle></svg>PhoneFormatRule</a>
+<a href="#" style="display: flex; align-items: center; gap: 10px; height: 28px; padding: 0 10px 0 30px; border-radius: 8px; color: #E4D8F2; text-decoration: none; font-size: 12.5px"><svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.5" style="fill: #B07BE0"></circle></svg>MinTotalRule</a>
+<a href="#" style="display: flex; align-items: center; gap: 10px; height: 28px; padding: 0 10px 0 30px; border-radius: 8px; color: #E4D8F2; text-decoration: none; font-size: 12.5px"><svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.5" style="fill: #B07BE0"></circle></svg>ShippingAddressRule</a>
+<a href="#" style="display: flex; align-items: center; gap: 10px; height: 28px; padding: 0 10px 0 30px; border-radius: 8px; color: #E4D8F2; text-decoration: none; font-size: 12.5px"><svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.5" style="fill: #B07BE0"></circle></svg>CreditLimitRule</a>
+<a href="#" style="display: flex; align-items: center; gap: 10px; height: 28px; padding: 0 10px 0 30px; border-radius: 8px; color: #E4D8F2; text-decoration: none; font-size: 12.5px"><svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.5" style="fill: #B07BE0"></circle></svg>ApproveOrderRule</a>
+<a href="#" style="display: flex; align-items: center; gap: 10px; height: 28px; padding: 0 10px 0 30px; border-radius: 8px; color: #E4D8F2; text-decoration: none; font-size: 12.5px"><svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.5" style="fill: #B07BE0"></circle></svg>ManualReviewRule</a>
+</div>
+<button type="button" aria-expanded="false" style="display: flex; align-items: center; gap: 8px; width: 100%; height: 28px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: #CDBFE0; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; text-align: left; cursor: pointer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#A895BF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>rules/pricing<span style="margin-left: auto; font-family: 'Sora', sans-serif; font-size: 11px; color: #A895BF">3</span></button>
+<button type="button" aria-expanded="false" style="display: flex; align-items: center; gap: 8px; width: 100%; height: 28px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: #CDBFE0; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; text-align: left; cursor: pointer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#A895BF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>com.acme.order.rules<span style="margin-left: auto; font-family: 'Sora', sans-serif; font-size: 11px; color: #A895BF">2</span></button>
+<button type="button" aria-expanded="false" style="display: flex; align-items: center; gap: 8px; width: 100%; height: 28px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: #CDBFE0; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; text-align: left; cursor: pointer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#A895BF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>com.acme.order.config<span style="margin-left: auto; font-family: 'Sora', sans-serif; font-size: 11px; color: #A895BF">1</span></button>
+</div>
+</nav>
+
+<main style="flex-grow: 1; min-width: 0; box-sizing: border-box; padding: 28px 40px; display: flex; flex-direction: column; gap: 20px">
+
+<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.14em; color: var(--accent-ink)">OVERVIEW</span>
+<h1 style="margin: 0; font-size: 30px; line-height: 36px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink)">order-service</h1>
+<p style="margin: 0; font-size: 14px; color: var(--ink2)">19 rule artifacts in 4 packages, loaded from 4 XML files and 2 Java packages.</p>
+</div>
+<div style="display: flex; gap: 10px">
+<a href="#" style="display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 500"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4H6a2 2 0 0 0-2 2v3a2 2 0 0 1-2 2 2 2 0 0 1 2 2v3a2 2 0 0 0 2 2h2M16 4h2a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2 2 2 0 0 0-2 2v3a2 2 0 0 1-2 2h-2"></path></svg>Descriptor JSON</a>
+<a href="#" style="display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 10px; background: var(--accent); color: var(--btn-ink); text-decoration: none; font-size: 13px; font-weight: 600">Explore the graph<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; height: 120px">
+<div style="box-sizing: border-box; padding: 16px 18px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink2)"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.5" style="fill: var(--rule)"></circle></svg>Rules</div>
+<div style="font-size: 30px; line-height: 32px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink)">14</div>
+<div style="display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden" role="img" aria-label="9 XML script rules, 2 validators, 2 @Rule classes, 1 Java builder">
+<div style="flex-grow: 9; background: var(--k1)"></div><div style="flex-grow: 2; background: var(--k2)"></div><div style="flex-grow: 2; background: var(--k3)"></div><div style="flex-grow: 1; background: var(--k4)"></div>
+</div>
+<div style="display: flex; gap: 10px; font-size: 10.5px; color: var(--ink3)"><span>9 XML</span><span>2 validators</span><span>2 @Rule</span><span>1 Java</span></div>
+</div>
+<div style="box-sizing: border-box; padding: 16px 18px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink2)"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><rect x="0.5" y="0.5" width="9" height="9" rx="2.5" style="fill: var(--set)"></rect></svg>Rule sets</div>
+<div style="font-size: 30px; line-height: 32px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink)">3</div>
+<div style="margin-top: auto; font-size: 12px; color: var(--ink3)">12 member rules · 1 validating</div>
+</div>
+<div style="box-sizing: border-box; padding: 16px 18px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink2)"><svg width="11" height="11" viewBox="0 0 10 10" aria-hidden="true"><polygon points="5,0.4 9.2,2.8 9.2,7.2 5,9.6 0.8,7.2 0.8,2.8" style="fill: var(--flow)"></polygon></svg>Rule flows</div>
+<div style="font-size: 30px; line-height: 32px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink)">2</div>
+<div style="margin-top: auto; font-size: 12px; color: var(--ink3)">2 dynamic lookups</div>
+</div>
+<div style="box-sizing: border-box; padding: 16px 18px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink2)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="stroke: var(--err)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l9.5 16.5h-19z"></path><path d="M12 10v4.5M12 17.2v.3"></path></svg>Problems</div>
+<div style="font-size: 30px; line-height: 32px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink)">4</div>
+<div style="margin-top: auto; display: flex; gap: 6px">
+<span style="display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 10px; background: var(--err-bg); color: var(--err); font-size: 11px; font-weight: 600">1 error</span>
+<span style="display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 10px; background: var(--warn-bg); color: var(--warn); font-size: 11px; font-weight: 600">1 warning</span>
+<span style="display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 10px; background: var(--info-bg); color: var(--info); font-size: 11px; font-weight: 600">2 info</span>
+</div>
+</div>
+</div>
+
+<div style="display: flex; gap: 20px; flex-grow: 1; min-height: 0">
+
+<section aria-label="Application map" style="flex-grow: 1; min-width: 0; position: relative; display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; background: var(--map-bg); border: 1px solid var(--map-line)">
+<div style="height: 2px; flex-shrink: 0; background: linear-gradient(90deg, #F5841D, #E64E6D 50%, #833EAE)"></div>
+<div style="height: 62px; flex-shrink: 0; box-sizing: border-box; padding: 0 20px; display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 3px">
+<h2 style="margin: 0; font-size: 15px; font-weight: 600; color: #F4EEFA">Application map</h2>
+<span style="font-size: 12px; color: #B9A6CF">How flows, rule sets and rules connect</span>
+</div>
+<a href="#" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 500; color: #FFB36B; text-decoration: none">Open in graph view<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+</div>
+<svg viewBox="0 0 700 462" width="700" height="462" role="img" aria-label="Map: orderProcessingFlow runs orderValidationRules, FraudScoreRule, pricingRules and approvalRules; nightlyRepriceFlow looks up RangeCheckRule and prefixRule by name; prefixRule is missing" style="display: block; flex-grow: 1; font-family: 'Sora', system-ui, sans-serif">
+<defs>
+<linearGradient id="run-grad" gradientUnits="userSpaceOnUse" x1="194" y1="0" x2="462" y2="0"><stop offset="0" stop-color="#F5841D"></stop><stop offset="0.5" stop-color="#E64E6D"></stop><stop offset="1" stop-color="#B07BE0"></stop></linearGradient>
+</defs>
+<g style="font-size: 9.5px; font-weight: 600; letter-spacing: 0.14em; fill: #8F7BA8">
+<text x="14" y="14">RULE FLOWS</text>
+<text x="228" y="14">RULE SETS</text>
+<text x="456" y="14">RULES</text>
+</g>
+
+<g fill="none" stroke="rgba(237,228,247,0.22)" stroke-width="1">
+<path d="M412 131.5H436M436 30V233M436 30H456M436 59H456M436 88H456M436 117H456M436 146H456M436 175H456M436 204H456M436 233H456"></path>
+<path d="M412 305.5H436M436 291V320M436 291H456M436 320H456"></path>
+<path d="M412 363.5H436M436 349V378M436 349H456M436 378H456"></path>
+</g>
+
+<g fill="none" stroke="url(#run-grad)" stroke-width="1.6" stroke-linejoin="round">
+<path d="M194 240H210"></path>
+<path d="M210 131.5V363.5"></path>
+<path d="M210 131.5H222"></path>
+<path d="M210 305.5H222"></path>
+<path d="M210 363.5H222"></path>
+<path d="M210 262H452"></path>
+</g>
+<g style="fill: #E64E6D">
+<path d="M222 127.5L228 131.5L222 135.5Z"></path>
+<path d="M222 301.5L228 305.5L222 309.5Z"></path>
+<path d="M222 359.5L228 363.5L222 367.5Z"></path>
+</g>
+<path d="M451 258L457 262L451 266Z" style="fill: #B07BE0"></path>
+
+<g fill="none" stroke-width="1.4" stroke-dasharray="4 3">
+<path d="M194 421.5H210M210 407V421.5M210 407H451" stroke="rgba(237,228,247,0.5)"></path>
+<path d="M210 421.5V436H451" stroke="#FF8A8A"></path>
+</g>
+<path d="M450 403L456 407L450 411Z" style="fill: rgba(237,228,247,0.6)"></path>
+<path d="M450 432L456 436L450 440Z" style="fill: #FF8A8A"></path>
+
+<g>
+<rect x="14" y="225" width="180" height="30" rx="8" style="fill: rgba(55,200,191,0.12); stroke: #37C8BF" stroke-width="1"></rect>
+<polygon points="31,234.2 35.6,236.8 35.6,242.2 31,244.8 26.4,242.2 26.4,236.8" style="fill: #37C8BF" transform="translate(0 -0.5)"></polygon>
+<text x="43" y="244.2" style="font-size: 12px; font-weight: 500; fill: #F4EEFA">orderProcessingFlow</text>
+<rect x="14" y="406.5" width="180" height="30" rx="8" style="fill: rgba(55,200,191,0.12); stroke: #37C8BF" stroke-width="1"></rect>
+<polygon points="31,416.2 35.6,418.8 35.6,424.2 31,426.8 26.4,424.2 26.4,418.8" style="fill: #37C8BF"></polygon>
+<text x="43" y="425.7" style="font-size: 12px; font-weight: 500; fill: #F4EEFA">nightlyRepriceFlow</text>
+<circle cx="182" cy="421.5" r="3.5" style="fill: #FF7A7A"></circle>
+</g>
+
+<g>
+<rect x="228" y="116.5" width="184" height="30" rx="8" style="fill: rgba(255,154,61,0.12); stroke: #FF9A3D" stroke-width="1"></rect>
+<rect x="241" y="126.5" width="10" height="10" rx="2.5" style="fill: #FF9A3D"></rect>
+<text x="259" y="135.7" style="font-size: 12px; font-weight: 500; fill: #F4EEFA">orderValidationRules</text>
+<rect x="228" y="290.5" width="184" height="30" rx="8" style="fill: rgba(255,154,61,0.12); stroke: #FF9A3D" stroke-width="1"></rect>
+<rect x="241" y="300.5" width="10" height="10" rx="2.5" style="fill: #FF9A3D"></rect>
+<text x="259" y="309.7" style="font-size: 12px; font-weight: 500; fill: #F4EEFA">pricingRules</text>
+<rect x="228" y="348.5" width="184" height="30" rx="8" style="fill: rgba(255,154,61,0.12); stroke: #FF9A3D" stroke-width="1"></rect>
+<rect x="241" y="358.5" width="10" height="10" rx="2.5" style="fill: #FF9A3D"></rect>
+<text x="259" y="367.7" style="font-size: 12px; font-weight: 500; fill: #F4EEFA">approvalRules</text>
+</g>
+
+<g style="fill: #B07BE0">
+<circle cx="462" cy="30" r="5"></circle><circle cx="462" cy="59" r="5"></circle><circle cx="462" cy="88" r="5"></circle><circle cx="462" cy="117" r="5"></circle><circle cx="462" cy="146" r="5"></circle><circle cx="462" cy="175" r="5"></circle><circle cx="462" cy="204" r="5"></circle><circle cx="462" cy="233" r="5"></circle><circle cx="462" cy="262" r="5"></circle><circle cx="462" cy="291" r="5"></circle><circle cx="462" cy="320" r="5"></circle><circle cx="462" cy="349" r="5"></circle><circle cx="462" cy="378" r="5"></circle><circle cx="462" cy="407" r="5"></circle>
+</g>
+<circle cx="462" cy="436" r="4.5" fill="none" stroke="#FF8A8A" stroke-width="1.4" stroke-dasharray="2.5 2"></circle>
+<g style="font-size: 12px; fill: #E4D8F2">
+<text x="474" y="34">AgeCheckRule</text>
+<text x="474" y="63">EmailFormatRule</text>
+<text x="474" y="92">PhoneFormatRule</text>
+<text x="474" y="121">MinTotalRule</text>
+<text x="474" y="150">ShippingAddressRule</text>
+<text x="474" y="179">ConsistentDatesRule</text>
+<text x="474" y="208">StockAvailableRule</text>
+<text x="474" y="237">CreditLimitRule</text>
+<text x="474" y="266">FraudScoreRule</text>
+<text x="474" y="295">VipDiscountRule</text>
+<text x="474" y="324">FreeShippingRule</text>
+<text x="474" y="353">ApproveOrderRule</text>
+<text x="474" y="382">ManualReviewRule</text>
+<text x="474" y="411">RangeCheckRule</text>
+</g>
+<text x="474" y="440" style="font-size: 12px; fill: #FFB0B0">prefixRule<tspan style="fill: #FF8A8A; font-style: italic; font-size: 11px"> · not registered</tspan></text>
+<g style="font-size: 10px; fill: #8F7BA8">
+<text x="316" y="258" text-anchor="middle">async</text>
+<text x="330" y="401" text-anchor="middle">by name</text>
+</g>
+</svg>
+<div style="height: 40px; flex-shrink: 0; box-sizing: border-box; padding: 0 20px; display: flex; align-items: center; gap: 18px; border-top: 1px solid rgba(237,228,247,0.08); font-size: 11px; color: #C9BBDA">
+<span style="display: inline-flex; align-items: center; gap: 6px"><svg width="11" height="11" viewBox="0 0 10 10" aria-hidden="true"><polygon points="5,0.4 9.2,2.8 9.2,7.2 5,9.6 0.8,7.2 0.8,2.8" style="fill: #37C8BF"></polygon></svg>Rule flow</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><rect x="0.5" y="0.5" width="9" height="9" rx="2.5" style="fill: #FF9A3D"></rect></svg>Rule set</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.5" style="fill: #B07BE0"></circle></svg>Rule</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><svg width="22" height="6" viewBox="0 0 22 6" aria-hidden="true"><path d="M0 3H22" stroke="url(#run-grad)" stroke-width="1.6"></path><path d="M0 3H22" stroke="#E64E6D" stroke-width="1.6"></path></svg>runs</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><svg width="22" height="6" viewBox="0 0 22 6" aria-hidden="true"><path d="M0 3H22" stroke="rgba(237,228,247,0.22)" stroke-width="1"></path></svg>contains</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><svg width="22" height="6" viewBox="0 0 22 6" aria-hidden="true"><path d="M0 3H22" stroke="rgba(237,228,247,0.6)" stroke-width="1.4" stroke-dasharray="4 3"></path></svg>dynamic lookup</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4" fill="none" stroke="#FF8A8A" stroke-width="1.3" stroke-dasharray="2.5 2"></circle></svg>missing</span>
+</div>
+</section>
+
+<div style="width: 380px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px">
+
+<section aria-label="Problems" style="box-sizing: border-box; padding: 16px 18px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<h2 style="margin: 0; font-size: 15px; font-weight: 600; color: var(--ink)">Problems</h2>
+<a href="#" style="font-size: 12.5px; font-weight: 500; color: var(--accent-ink); text-decoration: none">View all</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<span style="flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: var(--err-bg)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="stroke: var(--err)" stroke-width="2.6" stroke-linecap="round" aria-label="Error" role="img"><path d="M7 7l10 10M17 7L7 17"></path></svg></span>
+<p style="margin: 0; font-size: 12.5px; line-height: 18px; color: var(--ink2)"><strong style="font-weight: 600; color: var(--ink)">nightlyRepriceFlow</strong> runs 'prefixRule', but nothing with that name is registered.</p>
+</div>
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<span style="flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: var(--warn-bg)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="stroke: var(--warn)" stroke-width="2.6" stroke-linecap="round" aria-label="Warning" role="img"><path d="M12 5v9M12 18.5v.5"></path></svg></span>
+<p style="margin: 0; font-size: 12.5px; line-height: 18px; color: var(--ink2)"><strong style="font-weight: 600; color: var(--ink)">nightlyRepriceFlow</strong> looks up 'RangeCheckRule' by name, but the bean is named 'rangeCheckRule'.</p>
+</div>
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<span style="flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: var(--info-bg)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="stroke: var(--info)" stroke-width="2.6" stroke-linecap="round" aria-label="Info" role="img"><path d="M12 11v7M12 6v.5"></path></svg></span>
+<p style="margin: 0; font-size: 12.5px; line-height: 18px; color: var(--ink2)"><strong style="font-weight: 600; color: var(--ink)">ConsistentDatesRule</strong> has no description.</p>
+</div>
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<span style="flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: var(--info-bg)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="stroke: var(--info)" stroke-width="2.6" stroke-linecap="round" aria-label="Info" role="img"><path d="M12 11v7M12 6v.5"></path></svg></span>
+<p style="margin: 0; font-size: 12.5px; line-height: 18px; color: var(--ink2)"><strong style="font-weight: 600; color: var(--ink)">StockAvailableRule</strong> has no description.</p>
+</div>
+</div>
+</section>
+
+<section aria-label="Packages" style="flex-grow: 1; box-sizing: border-box; padding: 16px 18px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 6px">
+<h2 style="margin: 0; font-size: 15px; font-weight: 600; color: var(--ink)">Packages</h2>
+<span style="font-size: 12px; color: var(--ink3)">4</span>
+</div>
+<a href="#" style="display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); text-decoration: none">
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+<span style="font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12.5px; color: var(--ink)">rules/order</span>
+<span style="font-size: 11px; color: var(--ink3)">validation.xml · approval.xml · flows.xml</span>
+</div>
+<div style="display: flex; gap: 10px; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--ink2)">
+<span style="display: inline-flex; align-items: center; gap: 4px"><svg width="8" height="8" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.5" style="fill: var(--rule)"></circle></svg>8</span>
+<span style="display: inline-flex; align-items: center; gap: 4px"><svg width="8" height="8" viewBox="0 0 10 10" aria-hidden="true"><rect x="0.5" y="0.5" width="9" height="9" rx="2.5" style="fill: var(--set)"></rect></svg>2</span>
+<span style="display: inline-flex; align-items: center; gap: 4px"><svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><polygon points="5,0.4 9.2,2.8 9.2,7.2 5,9.6 0.8,7.2 0.8,2.8" style="fill: var(--flow)"></polygon></svg>1</span>
+</div>
+</a>
+<a href="#" style="display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); text-decoration: none">
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+<span style="font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12.5px; color: var(--ink)">rules/pricing</span>
+<span style="font-size: 11px; color: var(--ink3)">pricing.xml</span>
+</div>
+<div style="display: flex; gap: 10px; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--ink2)">
+<span style="display: inline-flex; align-items: center; gap: 4px"><svg width="8" height="8" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.5" style="fill: var(--rule)"></circle></svg>3</span>
+<span style="display: inline-flex; align-items: center; gap: 4px"><svg width="8" height="8" viewBox="0 0 10 10" aria-hidden="true"><rect x="0.5" y="0.5" width="9" height="9" rx="2.5" style="fill: var(--set)"></rect></svg>1</span>
+<span style="display: inline-flex; align-items: center; gap: 4px"><svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><polygon points="5,0.4 9.2,2.8 9.2,7.2 5,9.6 0.8,7.2 0.8,2.8" style="fill: var(--flow)"></polygon></svg>1</span>
+</div>
+</a>
+<a href="#" style="display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); text-decoration: none">
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+<span style="font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12.5px; color: var(--ink)">com.acme.order.rules</span>
+<span style="font-size: 11px; color: var(--ink3)">@Rule classes</span>
+</div>
+<div style="display: flex; gap: 10px; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--ink2)">
+<span style="display: inline-flex; align-items: center; gap: 4px"><svg width="8" height="8" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.5" style="fill: var(--rule)"></circle></svg>2</span>
+</div>
+</a>
+<a href="#" style="display: flex; align-items: center; gap: 12px; padding: 9px 0; text-decoration: none">
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+<span style="font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12.5px; color: var(--ink)">com.acme.order.config</span>
+<span style="font-size: 11px; color: var(--ink3)">@Bean definitions</span>
+</div>
+<div style="display: flex; gap: 10px; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--ink2)">
+<span style="display: inline-flex; align-items: center; gap: 4px"><svg width="8" height="8" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.5" style="fill: var(--rule)"></circle></svg>1</span>
+</div>
+</a>
+</section>
+
+</div>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const theme = (this.state && this.state.theme) || this.props.theme || 'light';
+    const T = {
+      light: {
+        chrome: '#301549', side: '#2A1242', chromeLine: '#452A62', chrome2: '#3F2260',
+        bg: '#F5F1F9', panel: '#FFFFFF', panel2: '#FAF7FD', line: '#E5DCEE',
+        ink: '#1C0F2B', ink2: '#54466A', ink3: '#6E6182', accentInk: '#C2410C',
+        rule: '#833EAE', ruleInk: '#6B2E94', set: '#F5841D', setInk: '#B4540A', flow: '#0B8A86', flowInk: '#07706D',
+        err: '#C62828', errBg: '#FDECEC', warn: '#B4540A', warnBg: '#FFF1E4', info: '#54466A', infoBg: '#F1ECF6',
+        mapBg: '#2B1343', mapLine: '#3F2260',
+        k1: '#833EAE', k2: '#B07BE0', k3: '#5B2A7E', k4: '#D9C4EE'
+      },
+      dark: {
+        chrome: '#1C0C2E', side: '#170A26', chromeLine: '#2E1B45', chrome2: '#2A1643',
+        bg: '#120920', panel: '#1C0F2D', panel2: '#231437', line: '#2F1F45',
+        ink: '#F3EDF9', ink2: '#C3B4D6', ink3: '#9C8BB3', accentInk: '#FF9A3D',
+        rule: '#B07BE0', ruleInk: '#C9A3EE', set: '#FF9A3D', setInk: '#FFB36B', flow: '#37C8BF', flowInk: '#6ED9D2',
+        err: '#FF7A7A', errBg: 'rgba(255,122,122,0.12)', warn: '#FFB36B', warnBg: 'rgba(255,154,61,0.12)', info: '#C3B4D6', infoBg: 'rgba(195,180,214,0.10)',
+        mapBg: '#1A0D2B', mapLine: '#33204A',
+        k1: '#B07BE0', k2: '#D2B0F2', k3: '#8A55BC', k4: '#EBDDF8'
+      }
+    };
+    return {
+      t: T[theme] || T.light,
+      isDark: theme === 'dark',
+      isLight: theme !== 'dark',
+      themeLabel: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setState({ theme: theme === 'dark' ? 'light' : 'dark' })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -550,6 +550,19 @@ Design is a gated track that runs in parallel with the backend work (VQ-51):
 The designs are delivered as interactive HTML prototypes built on the same tokens the real
 UI uses, so what gets approved is what gets built.
 
+**Direction chosen (2026-09-27):** B · Lavender as originally drawn: Newsreader + Hanken
+Grotesk + JetBrains Mono, lavender ground, white cards, deep-purple ink, orange as small
+accents, plain English first, and B's original (airier) density. A compact variant at
+C · Graphite's density was tried and not chosen. Every page uses the same light colour
+scheme by default. The dark theme stays available, in its softer form: lifted grounds
+(page `#221433`, bars and panels `#291A3D`, cards `#2F2045`) rather than near-black. The explorations
+are on the design canvas: https://claude.ai/artifact/PBLj4xrfvm7noBZ7o6KWs4
+
+**M2 complete (2026-09-28):** the design system and hi-fi designs of every R1 screen and
+state were approved. Everything is in [`/design`](../design/README.md): `tokens.css` (the
+single source of truth the UI loads), `DESIGN-SYSTEM.md`, the logo in `brand/`, the brief
+with the demo data, and the source of every canvas artboard in `canvas/`.
+
 ### 11.1 rulii brand palette (from rulii.com)
 
 Taken from the site source (`rulii-docs/tailwind.config.js`, which matches the live CSS) and
@@ -587,7 +600,7 @@ The logo is on a `#301549` ground: arcs with an orange → pink → purple gradi
   dark purples (`#301549`, `#1A0E2E`), which suit it naturally.
 - The Spring pages of the site use a variant (`primary #7C3AED`, `secondary #2D1B4E`).
   **Decided 2026-09-27:** the explorer uses the main rulii palette above.
-- **Logo:** redrawn as SVG from the PNGs (2026-09-27), in [`/brand`](../brand/README.md):
+- **Logo:** redrawn as SVG from the PNGs (2026-09-27), in [`/design/brand`](../design/brand/README.md):
   the full logo, on-dark and on-light transparent versions, and a square mark for the
   favicon.
 

@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>rulii explorer — orderProcessingFlow (Lavender)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&amp;family=Hanken+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;font-family:'Hanken Grotesk','Segoe UI',system-ui,sans-serif;background:#FAF5FF}
+a{color:#C9A3EE}a:hover{color:#F5EFFB}
+</style>
+</helmet>
+<div style="--bg: {{t.bg}}; --top: {{t.top}}; --surface: {{t.surface}}; --card: {{t.card}}; --ink: {{t.ink}}; --ink2: {{t.ink2}}; --ink3: {{t.ink3}}; --line: {{t.line}}; --line2: {{t.line2}}; --edge: {{t.edge}}; --accent: {{t.accent}}; --accentSoft: {{t.accentSoft}}; --sel: {{t.sel}}; --rule: {{t.rule}}; --ruleT: {{t.ruleT}}; --ruleSoft: {{t.ruleSoft}}; --ruleLine: {{t.ruleLine}}; --set: {{t.set}}; --setT: {{t.setT}}; --setSoft: {{t.setSoft}}; --setLine: {{t.setLine}}; --flow: {{t.flow}}; --flowT: {{t.flowT}}; --flowSoft: {{t.flowSoft}}; --err: {{t.err}}; --warn: {{t.warn}}; --warnSoft: {{t.warnSoft}}; --laneBg: {{t.laneBg}}; --laneLine: {{t.laneLine}}; --grid: {{t.grid}}; --chipBg: {{t.chipBg}}; --chipInk: {{t.chipInk}}; --codeBg: {{t.codeBg}}; --codeInk: {{t.codeInk}}; --logo-ink: {{t.logoInk}}; width: 1440px; height: 900px; box-sizing: border-box; display: grid; grid-template-columns: 264px minmax(0, 1fr) 384px; grid-template-rows: 64px minmax(0, 1fr); background: var(--bg); color: var(--ink); font-family: 'Hanken Grotesk', 'Segoe UI', system-ui, sans-serif; overflow: hidden">
+
+<header style="grid-column: 1 / 4; box-sizing: border-box; height: 64px; display: flex; align-items: center; gap: 18px; padding: 0 24px; background: var(--top); border-bottom: 1px solid var(--line)">
+  <div style="display: flex; align-items: center; gap: 14px; width: 216px">
+    <svg viewBox="6 0 162 146" style="height: 34px; width: auto; display: block" role="img" aria-label="rulii">
+      <defs>
+        <linearGradient id="lg-o" gradientUnits="userSpaceOnUse" x1="14" y1="142" x2="116" y2="40"><stop offset="0.10" stop-color="#833EAE"></stop><stop offset="0.30" stop-color="#BB4683"></stop><stop offset="0.47" stop-color="#E1505F"></stop><stop offset="0.65" stop-color="#EB693F"></stop><stop offset="0.85" stop-color="#F5841D"></stop></linearGradient>
+        <linearGradient id="lg-m" gradientUnits="userSpaceOnUse" x1="30.5" y1="125" x2="106.25" y2="49.25"><stop offset="0" stop-color="#F0762F"></stop><stop offset="0.22" stop-color="#E55B52"></stop><stop offset="0.37" stop-color="#DA4A6A"></stop><stop offset="0.56" stop-color="#B24589"></stop><stop offset="0.72" stop-color="#9140A3"></stop><stop offset="0.85" stop-color="#833EAE"></stop></linearGradient>
+        <linearGradient id="lg-i" gradientUnits="userSpaceOnUse" x1="47.5" y1="105" x2="95.75" y2="56.75"><stop offset="0.03" stop-color="#B34588"></stop><stop offset="0.27" stop-color="#D4496F"></stop><stop offset="0.48" stop-color="#E2535C"></stop><stop offset="0.67" stop-color="#E7604C"></stop><stop offset="0.96" stop-color="#ED6F38"></stop></linearGradient>
+      </defs>
+      <g fill="none" stroke-width="10"><path d="M14 142V77.5A70 70 0 0 1 84 7.5" stroke="url(#lg-o)"></path><path d="M30.5 125V79.5A53.5 53.5 0 0 1 84 26" stroke="url(#lg-m)"></path><path d="M47.5 105V80.5A36.5 36.5 0 0 1 84 44" stroke="url(#lg-i)"></path></g>
+      <g transform="translate(63.5 44.5) scale(0.24)"><g fill="none" style="stroke: var(--logo-ink)" stroke-width="35"><path d="M17.5 247V159.5A71 71 0 0 1 88.5 88.5H106"></path><path d="M88.5 129V157.5A71 71 0 0 0 230.5 157.5V71"></path><path d="M289.5 1V247"></path><path d="M346.5 71V247"></path><path d="M403.5 71V247"></path></g><circle cx="346.5" cy="17.5" r="17.5" fill="#F5841D"></circle><circle cx="403.5" cy="17.5" r="17.5" fill="#833EAE"></circle></g>
+    </svg>
+    <div style="width: 1px; height: 24px; background: var(--line2)"></div>
+    <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink3)">Explorer</span>
+  </div>
+  <div style="display: flex; align-items: center; gap: 10px">
+    <span style="font-size: 15px; font-weight: 600; color: var(--ink)">order-service</span>
+    <span style="font-size: 11.5px; font-weight: 600; color: var(--accent); background: var(--accentSoft); padding: 3px 9px; border-radius: 999px">staging</span>
+  </div>
+  <label style="margin-left: 40px; width: 460px; height: 38px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; padding: 0 8px 0 12px; background: var(--card); border: 1px solid var(--line2); border-radius: 10px; color: var(--ink3)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+    <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search</span>
+    <input type="search" placeholder="Search rules, flows, error codes…" style="flex-grow: 1; min-width: 0; border: 0; outline: none; background: transparent; font: 400 14px 'Hanken Grotesk', system-ui, sans-serif; color: var(--ink)">
+    <kbd style="font: 500 11.5px 'JetBrains Mono', Consolas, monospace; color: var(--ink3); background: var(--bg); border: 1px solid var(--line2); border-radius: 6px; padding: 2px 6px">⌘K</kbd>
+  </label>
+  <div style="flex-grow: 1"></div>
+  <button onClick="{{toggleTheme}}" aria-label="{{themeLabel}}" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: var(--card); border: 1px solid var(--line2); border-radius: 10px; color: var(--ink2); cursor: pointer; padding: 0">
+    <sc-if value="{{light}}" hint-placeholder-val="{{false}}">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg>
+    </sc-if>
+    <sc-if value="{{dark}}" hint-placeholder-val="{{true}}">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"></path></svg>
+    </sc-if>
+  </button>
+</header>
+
+<nav aria-label="Artifacts" style="box-sizing: border-box; background: var(--surface); border-right: 1px solid var(--line); padding: 20px 14px 18px; display: flex; flex-direction: column; gap: 20px; overflow: hidden">
+  <div style="display: flex; flex-direction: column; gap: 2px">
+    <a href="#overview" style="display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--ink2); font-size: 13.5px; font-weight: 500; text-decoration: none">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"></rect></svg>
+      <span>Overview</span>
+    </a>
+    <a href="#problems" style="display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--ink2); font-size: 13.5px; font-weight: 500; text-decoration: none">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l9 16H3z"></path><path d="M12 10v4.5M12 17.2v.3"></path></svg>
+      <span style="flex-grow: 1">Problems</span>
+      <span style="display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; color: var(--err)"><span style="width: 6px; height: 6px; border-radius: 50%; background: var(--err)"></span>2</span>
+    </a>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 2px">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 10px 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink3)"><span>Rule flows</span><span>2</span></div>
+    <a href="#f-order" aria-current="page" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 8px; background: var(--sel); color: var(--ink); font-size: 13.5px; font-weight: 600; text-decoration: none">
+      <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><polygon points="6,0.8 10.5,3.4 10.5,8.6 6,11.2 1.5,8.6 1.5,3.4" style="fill: var(--flow)"></polygon></svg>
+      <span>orderProcessingFlow</span>
+    </a>
+    <a href="#f-nightly" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 8px; color: var(--ink2); font-size: 13.5px; text-decoration: none">
+      <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><polygon points="6,0.8 10.5,3.4 10.5,8.6 6,11.2 1.5,8.6 1.5,3.4" style="fill: var(--flow)"></polygon></svg>
+      <span style="flex-grow: 1">nightlyRepriceFlow</span>
+      <span aria-label="1 error" style="width: 6px; height: 6px; border-radius: 50%; background: var(--err)"></span>
+    </a>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 2px">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 10px 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink3)"><span>Rule sets</span><span>3</span></div>
+    <a href="#s-approval" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 8px; color: var(--ink2); font-size: 13.5px; text-decoration: none">
+      <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><rect x="1.5" y="1.5" width="9" height="9" rx="2.5" style="fill: var(--set)"></rect></svg>
+      <span>approvalRules</span>
+    </a>
+    <a href="#s-validation" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 8px; color: var(--ink2); font-size: 13.5px; text-decoration: none">
+      <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><rect x="1.5" y="1.5" width="9" height="9" rx="2.5" style="fill: var(--set)"></rect></svg>
+      <span>orderValidationRules</span>
+    </a>
+    <a href="#s-pricing" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 8px; color: var(--ink2); font-size: 13.5px; text-decoration: none">
+      <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><rect x="1.5" y="1.5" width="9" height="9" rx="2.5" style="fill: var(--set)"></rect></svg>
+      <span>pricingRules</span>
+    </a>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 2px">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 10px 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink3)"><span>Rules</span><span>14</span></div>
+    <a href="#p-order" style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border-radius: 8px; color: var(--ink2); font-size: 13px; text-decoration: none">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+      <span style="flex-grow: 1; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px">rules/order</span>
+      <span style="font-size: 12px; color: var(--ink3)">8</span>
+    </a>
+    <a href="#p-pricing" style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border-radius: 8px; color: var(--ink2); font-size: 13px; text-decoration: none">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+      <span style="flex-grow: 1; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px">rules/pricing</span>
+      <span style="font-size: 12px; color: var(--ink3)">3</span>
+    </a>
+    <a href="#p-java-rules" style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border-radius: 8px; color: var(--ink2); font-size: 13px; text-decoration: none">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+      <span style="flex-grow: 1; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px">com.acme.order.rules</span>
+      <span style="font-size: 12px; color: var(--ink3)">2</span>
+    </a>
+    <a href="#p-java-config" style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border-radius: 8px; color: var(--ink2); font-size: 13px; text-decoration: none">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+      <span style="flex-grow: 1; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px">com.acme.order.config</span>
+      <span style="font-size: 12px; color: var(--ink3)">1</span>
+    </a>
+  </div>
+
+  <div style="margin-top: auto; padding: 0 10px; font-size: 11.5px; color: var(--ink3)">Descriptor 1.0 · rulii 2.1.0</div>
+</nav>
+
+<main style="box-sizing: border-box; display: flex; flex-direction: column; min-width: 0; overflow: hidden">
+  <div style="box-sizing: border-box; height: 164px; padding: 22px 32px 0; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid var(--line)">
+    <nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink3)">
+      <a href="#flows" style="color: var(--ink3); text-decoration: none">Rule flows</a>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+      <span style="color: var(--ink2)">orderProcessingFlow</span>
+    </nav>
+    <div style="display: flex; align-items: center; gap: 12px">
+      <svg width="22" height="22" viewBox="0 0 12 12" aria-hidden="true"><polygon points="6,0.8 10.5,3.4 10.5,8.6 6,11.2 1.5,8.6 1.5,3.4" style="fill: var(--flow)"></polygon></svg>
+      <h1 style="margin: 0; font-family: 'Newsreader', Georgia, serif; font-weight: 500; font-size: 30px; line-height: 1.15; color: var(--ink)">orderProcessingFlow</h1>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px">
+      <p style="margin: 0; flex-grow: 1; font-size: 14px; color: var(--ink2)">Validates, scores, prices and approves an incoming order.</p>
+      <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink3)">Inputs</span>
+      <span style="font: 500 12px 'JetBrains Mono', Consolas, monospace; color: var(--chipInk); background: var(--chipBg); padding: 2px 8px; border-radius: 6px">order: Order</span>
+      <span style="font: 500 12px 'JetBrains Mono', Consolas, monospace; color: var(--chipInk); background: var(--chipBg); padding: 2px 8px; border-radius: 6px">customer: Customer</span>
+    </div>
+    <div style="margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between">
+      <div role="tablist" aria-label="Views" style="display: flex; gap: 22px">
+        <button role="tab" aria-selected="true" style="height: 40px; padding: 0 2px; background: none; border: 0; border-bottom: 2px solid var(--accent); color: var(--ink); font: 600 13.5px 'Hanken Grotesk', system-ui, sans-serif; cursor: pointer">Flowchart</button>
+        <button role="tab" aria-selected="false" style="height: 40px; padding: 0 2px; background: none; border: 0; border-bottom: 2px solid transparent; color: var(--ink3); font: 500 13.5px 'Hanken Grotesk', system-ui, sans-serif; cursor: pointer">Outline</button>
+        <button role="tab" aria-selected="false" style="height: 40px; padding: 0 2px; background: none; border: 0; border-bottom: 2px solid transparent; color: var(--ink3); font: 500 13.5px 'Hanken Grotesk', system-ui, sans-serif; cursor: pointer">Graph</button>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px; padding-bottom: 7px">
+        <div style="display: flex; align-items: center; border: 1px solid var(--line2); border-radius: 9px; overflow: hidden">
+          <button aria-label="Zoom out" style="width: 30px; height: 28px; background: var(--card); border: 0; color: var(--ink2); cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
+          <span style="height: 28px; display: flex; align-items: center; padding: 0 8px; background: var(--card); border-left: 1px solid var(--line2); border-right: 1px solid var(--line2); font-size: 12px; font-weight: 600; color: var(--ink2)">100%</span>
+          <button aria-label="Zoom in" style="width: 30px; height: 28px; background: var(--card); border: 0; color: var(--ink2); cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"></path></svg></button>
+        </div>
+        <button aria-label="Fit to screen" style="width: 30px; height: 30px; background: var(--card); border: 1px solid var(--line2); border-radius: 9px; color: var(--ink2); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"></path></svg></button>
+        <button aria-label="Hide minimap" aria-pressed="true" style="width: 30px; height: 30px; background: var(--sel); border: 1px solid var(--line2); border-radius: 9px; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2"></rect><rect x="12" y="11" width="6" height="5" rx="1"></rect></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; min-height: 0; position: relative">
+    <svg viewBox="0 0 792 672" width="792" height="672" role="img" aria-label="Flowchart of orderProcessingFlow" style="display: block">
+      <defs>
+        <pattern id="dots" width="16" height="16" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1" style="fill: var(--grid)"></circle></pattern>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1L9 5L0 9z" style="fill: var(--edge)"></path></marker>
+        <marker id="ah-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1L9 5L0 9z" style="fill: var(--warn)"></path></marker>
+      </defs>
+      <rect x="0" y="0" width="792" height="672" fill="url(#dots)"></rect>
+
+      <rect x="404" y="282" width="252" height="130" rx="14" style="fill: var(--laneBg); stroke: var(--laneLine); stroke-width: 1"></rect>
+      <text x="652" y="276" text-anchor="end" style="font: 600 9.5px 'Hanken Grotesk', system-ui, sans-serif; letter-spacing: 0.1em; fill: var(--ink3)">ASYNC LANE</text>
+
+      <g fill="none" stroke-linejoin="round" style="stroke: var(--edge); stroke-width: 1.5">
+        <path d="M208 50V72" marker-end="url(#ah)"></path>
+        <path d="M208 116V138" marker-end="url(#ah)"></path>
+        <path d="M208 182V204" marker-end="url(#ah)"></path>
+        <path d="M328 226H420" marker-end="url(#ah)"></path>
+        <path d="M208 248V292" marker-end="url(#ah)"></path>
+        <path d="M208 270H530V292" marker-end="url(#ah)"></path>
+        <path d="M440 336V402H328" marker-end="url(#ah)"></path>
+        <path d="M208 336V380" marker-end="url(#ah)"></path>
+        <path d="M208 424V446" marker-end="url(#ah)"></path>
+        <path d="M208 490V524" marker-end="url(#ah)"></path>
+        <path d="M328 468H530V524" marker-end="url(#ah)"></path>
+        <path d="M208 568V604" marker-end="url(#ah)"></path>
+        <path d="M530 568V586H208"></path>
+      </g>
+      <path d="M560 336V356" fill="none" stroke-dasharray="3 3" marker-end="url(#ah-warn)" style="stroke: var(--warn); stroke-width: 1.4"></path>
+      <circle cx="208" cy="270" r="3" style="fill: var(--edge)"></circle>
+      <circle cx="208" cy="586" r="3" style="fill: var(--edge)"></circle>
+
+      <g style="font: 500 11px 'Hanken Grotesk', system-ui, sans-serif; fill: var(--ink3)">
+        <text x="374" y="219" text-anchor="middle">yes</text>
+        <text x="216" y="264">no</text>
+        <text x="372" y="264" text-anchor="middle">async</text>
+        <text x="384" y="396" text-anchor="middle">result</text>
+        <text x="216" y="510">yes</text>
+        <text x="374" y="461" text-anchor="middle">no</text>
+      </g>
+
+      <rect x="128" y="16" width="160" height="34" rx="17" style="fill: var(--card); stroke: var(--edge); stroke-width: 1.2"></rect>
+      <text x="208" y="37.5" text-anchor="middle" style="font: 600 12px 'Hanken Grotesk', system-ui, sans-serif; fill: var(--ink)">Start<tspan style="font-weight: 500; fill: var(--ink3)"> · order, customer</tspan></text>
+
+      <rect x="88" y="72" width="240" height="44" rx="10" style="fill: var(--card); stroke: var(--line2); stroke-width: 1"></rect>
+      <rect x="100" y="88" width="12" height="12" rx="3.5" fill="none" style="stroke: var(--ink3); stroke-width: 1.6"></rect>
+      <text x="122" y="90" style="font: 600 9.5px 'Hanken Grotesk', system-ui, sans-serif; letter-spacing: 0.08em; fill: var(--ink3)">BIND · FROM BEAN</text>
+      <text x="122" y="106" style="font: 500 12.5px 'JetBrains Mono', Consolas, monospace; fill: var(--ink)">reviewQueue</text>
+
+      <rect x="83" y="133" width="250" height="54" rx="14" fill="none" style="stroke: var(--accent); stroke-width: 2"></rect>
+      <rect x="88" y="138" width="240" height="44" rx="10" style="fill: var(--setSoft); stroke: var(--setLine); stroke-width: 1"></rect>
+      <rect x="101" y="154" width="12" height="12" rx="3" style="fill: var(--set)"></rect>
+      <text x="122" y="156" style="font: 600 9.5px 'Hanken Grotesk', system-ui, sans-serif; letter-spacing: 0.08em; fill: var(--setT)">RUN · RULE SET</text>
+      <text x="316" y="156" text-anchor="end" style="font: 500 10.5px 'JetBrains Mono', Consolas, monospace; fill: var(--ink3)">→ validation</text>
+      <text x="122" y="172" style="font: 600 13px 'Hanken Grotesk', system-ui, sans-serif; fill: var(--ink)">orderValidationRules</text>
+
+      <polygon points="88,226 108,204 308,204 328,226 308,248 108,248" style="fill: var(--card); stroke: var(--edge); stroke-width: 1.2"></polygon>
+      <text x="208" y="221" text-anchor="middle" style="font: 600 9.5px 'Hanken Grotesk', system-ui, sans-serif; letter-spacing: 0.1em; fill: var(--ink3)">WHEN</text>
+      <text x="208" y="238" text-anchor="middle" style="font: 600 12.5px 'Hanken Grotesk', system-ui, sans-serif; fill: var(--ink)">validation has errors?</text>
+
+      <rect x="420" y="204" width="220" height="44" rx="22" style="fill: var(--card); stroke: var(--line2); stroke-width: 1"></rect>
+      <text x="444" y="222" style="font: 600 9.5px 'Hanken Grotesk', system-ui, sans-serif; letter-spacing: 0.08em; fill: var(--ink3)">EXIT</text>
+      <text x="444" y="238" style="font: 600 12.5px 'Hanken Grotesk', system-ui, sans-serif; fill: var(--ink)">Stop and return false</text>
+
+      <rect x="88" y="292" width="240" height="44" rx="10" style="fill: var(--setSoft); stroke: var(--setLine); stroke-width: 1"></rect>
+      <rect x="101" y="308" width="12" height="12" rx="3" style="fill: var(--set)"></rect>
+      <text x="122" y="310" style="font: 600 9.5px 'Hanken Grotesk', system-ui, sans-serif; letter-spacing: 0.08em; fill: var(--setT)">RUN · RULE SET</text>
+      <text x="122" y="326" style="font: 600 13px 'Hanken Grotesk', system-ui, sans-serif; fill: var(--ink)">pricingRules</text>
+
+      <rect x="420" y="292" width="220" height="44" rx="10" style="fill: var(--ruleSoft); stroke: var(--ruleLine); stroke-width: 1"></rect>
+      <circle cx="438" cy="314" r="5.5" style="fill: var(--rule)"></circle>
+      <text x="452" y="310" style="font: 600 9.5px 'Hanken Grotesk', system-ui, sans-serif; letter-spacing: 0.08em; fill: var(--ruleT)">ASYNC · RULE</text>
+      <text x="628" y="310" text-anchor="end" style="font: 500 10.5px 'JetBrains Mono', Consolas, monospace; fill: var(--ink3)">→ fraudCheck</text>
+      <text x="452" y="326" style="font: 600 13px 'Hanken Grotesk', system-ui, sans-serif; fill: var(--ink)">FraudScoreRule</text>
+
+      <rect x="480" y="356" width="160" height="40" rx="9" stroke-dasharray="3 3" style="fill: var(--warnSoft); stroke: var(--warn); stroke-width: 1"></rect>
+      <text x="492" y="371" style="font: 600 9.5px 'Hanken Grotesk', system-ui, sans-serif; fill: var(--warn)">on FraudServiceException</text>
+      <text x="492" y="387" style="font: 500 11px 'JetBrains Mono', Consolas, monospace; fill: var(--ink)">bind fraudScore = 0.5</text>
+
+      <rect x="88" y="380" width="240" height="44" rx="10" style="fill: var(--card); stroke: var(--line2); stroke-width: 1"></rect>
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--ink3); stroke-width: 1.6"><circle cx="107" cy="402" r="6.5"></circle><path d="M107 398.5V402l2.5 1.8"></path></g>
+      <text x="122" y="398" style="font: 600 9.5px 'Hanken Grotesk', system-ui, sans-serif; letter-spacing: 0.08em; fill: var(--ink3)">AWAIT · 5 S TIMEOUT</text>
+      <text x="122" y="414" style="font: 500 12.5px 'JetBrains Mono', Consolas, monospace; fill: var(--ink)">fraudCheck</text>
+
+      <polygon points="88,468 108,446 308,446 328,468 308,490 108,490" style="fill: var(--card); stroke: var(--edge); stroke-width: 1.2"></polygon>
+      <text x="208" y="463" text-anchor="middle" style="font: 600 9.5px 'Hanken Grotesk', system-ui, sans-serif; letter-spacing: 0.1em; fill: var(--ink3)">WHEN</text>
+      <text x="208" y="480" text-anchor="middle" style="font: 600 12px 'Hanken Grotesk', system-ui, sans-serif; fill: var(--ink)">order total is at least 500?</text>
+
+      <rect x="88" y="524" width="240" height="44" rx="10" style="fill: var(--setSoft); stroke: var(--setLine); stroke-width: 1"></rect>
+      <rect x="101" y="540" width="12" height="12" rx="3" style="fill: var(--set)"></rect>
+      <text x="122" y="542" style="font: 600 9.5px 'Hanken Grotesk', system-ui, sans-serif; letter-spacing: 0.08em; fill: var(--setT)">RUN · RULE SET</text>
+      <text x="122" y="558" style="font: 600 13px 'Hanken Grotesk', system-ui, sans-serif; fill: var(--ink)">approvalRules</text>
+
+      <rect x="420" y="524" width="220" height="44" rx="10" style="fill: var(--card); stroke: var(--line2); stroke-width: 1"></rect>
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--ink3); stroke-width: 1.6"><path d="M433 541l4 4-4 4"></path><path d="M440 550h5"></path></g>
+      <text x="452" y="542" style="font: 600 9.5px 'Hanken Grotesk', system-ui, sans-serif; letter-spacing: 0.08em; fill: var(--ink3)">EXECUTE</text>
+      <text x="452" y="558" style="font: 600 12.5px 'Hanken Grotesk', system-ui, sans-serif; fill: var(--ink)">set approved to true</text>
+
+      <rect x="128" y="604" width="160" height="36" rx="18" style="fill: var(--card); stroke: var(--edge); stroke-width: 1.2"></rect>
+      <text x="208" y="626.5" text-anchor="middle"><tspan style="font: 600 9.5px 'Hanken Grotesk', system-ui, sans-serif; letter-spacing: 0.1em; fill: var(--ink3)">RETURN  </tspan><tspan style="font: 500 12.5px 'JetBrains Mono', Consolas, monospace; fill: var(--ink)">approved</tspan></text>
+
+      <rect x="420" y="604" width="220" height="40" rx="10" fill="none" stroke-dasharray="4 3" style="stroke: var(--line2); stroke-width: 1.2"></rect>
+      <text x="436" y="620" style="font: 600 9.5px 'Hanken Grotesk', system-ui, sans-serif; letter-spacing: 0.08em; fill: var(--ink3)">GLOBAL HANDLER · ON EXCEPTION</text>
+      <text x="436" y="636" style="font: 600 12px 'Hanken Grotesk', system-ui, sans-serif; fill: var(--ink2)">set approved to false</text>
+
+      <g aria-label="Minimap">
+        <rect x="660" y="572" width="120" height="88" rx="9" style="fill: var(--card); stroke: var(--line2); stroke-width: 1"></rect>
+        <g style="fill: var(--line2)">
+          <rect x="690.8" y="578" width="19.4" height="4.1" rx="2"></rect>
+          <rect x="686" y="584.8" width="29" height="5.3" rx="1.2"></rect>
+          <rect x="686" y="600.7" width="29" height="5.3" rx="1.2"></rect>
+          <rect x="726.2" y="600.7" width="26.6" height="5.3" rx="2.6"></rect>
+          <rect x="686" y="611.4" width="29" height="5.3" rx="1.2"></rect>
+          <rect x="726.2" y="611.4" width="26.6" height="5.3" rx="1.2"></rect>
+          <rect x="733.4" y="619.1" width="19.4" height="4.8" rx="1.2"></rect>
+          <rect x="686" y="622" width="29" height="5.3" rx="1.2"></rect>
+          <rect x="686" y="630" width="29" height="5.3" rx="1.2"></rect>
+          <rect x="686" y="639.5" width="29" height="5.3" rx="1.2"></rect>
+          <rect x="726.2" y="639.5" width="26.6" height="5.3" rx="1.2"></rect>
+          <rect x="690.8" y="649.1" width="19.4" height="4.4" rx="2"></rect>
+          <rect x="726.2" y="649.1" width="26.6" height="4.8" rx="1.2"></rect>
+        </g>
+        <rect x="686" y="592.8" width="29" height="5.3" rx="1.2" style="fill: var(--accent)"></rect>
+        <rect x="682" y="575" width="76" height="82" rx="4" fill="none" style="stroke: var(--accent); stroke-width: 1; opacity: 0.7"></rect>
+      </g>
+    </svg>
+  </div>
+</main>
+
+<aside aria-label="Selected step" style="box-sizing: border-box; background: var(--surface); border-left: 1px solid var(--line); padding: 18px 24px 20px; display: flex; flex-direction: column; gap: 14px; overflow: hidden">
+  <div style="display: flex; align-items: center; justify-content: space-between">
+    <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink3)">Selected step · Run</span>
+    <button aria-label="Close details" style="width: 28px; height: 28px; background: none; border: 0; border-radius: 7px; color: var(--ink3); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; align-items: center; gap: 8px">
+      <span style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--setT); background: var(--setSoft); border: 1px solid var(--setLine); padding: 3px 9px; border-radius: 999px"><svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true"><rect x="1.5" y="1.5" width="9" height="9" rx="2.5" style="fill: var(--set)"></rect></svg>Rule set</span>
+      <span style="font-size: 12px; color: var(--ink3)">XML · validating</span>
+    </div>
+    <h2 style="margin: 0; font-family: 'Newsreader', Georgia, serif; font-weight: 500; font-size: 26px; line-height: 1.15; color: var(--ink)">orderValidationRules</h2>
+    <p style="margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--ink2)">Checks that an order is complete and valid before it is processed.</p>
+  </div>
+
+  <div style="background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 17px; line-height: 1.35; color: var(--ink)">Checks 8 rules in order and stops after 3 violations.</div>
+
+  <div style="display: grid; grid-template-columns: 84px minmax(0, 1fr); row-gap: 8px; column-gap: 12px; align-items: center; font-size: 12.5px">
+    <span style="color: var(--ink3)">Runs as</span>
+    <span><span style="font: 500 12px 'JetBrains Mono', Consolas, monospace; color: var(--chipInk); background: var(--chipBg); padding: 2px 7px; border-radius: 6px">validation</span></span>
+    <span style="color: var(--ink3)">Used by</span>
+    <a href="#f-order" style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--ink); text-decoration: none"><svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><polygon points="6,0.8 10.5,3.4 10.5,8.6 6,11.2 1.5,8.6 1.5,3.4" style="fill: var(--flow)"></polygon></svg>orderProcessingFlow</a>
+    <span style="color: var(--ink3)">Defined in</span>
+    <span style="font: 500 11.5px 'JetBrains Mono', Consolas, monospace; color: var(--ink2)">rules/order/validation.xml:8</span>
+  </div>
+
+  <div style="background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <span style="font-size: 12.5px; font-weight: 600; color: var(--ink)">Conditions</span>
+      <div role="group" aria-label="Expression view" style="display: flex; padding: 2px; gap: 2px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px">
+        <button onClick="{{showPlain}}" aria-pressed="{{plainPressed}}" style="{{plainStyle}}">Plain</button>
+        <button onClick="{{showRaw}}" aria-pressed="{{rawPressed}}" style="{{rawStyle}}">Raw</button>
+      </div>
+    </div>
+    <sc-if value="{{plain}}" hint-placeholder-val="{{true}}">
+      <div style="display: grid; grid-template-columns: 84px minmax(0, 1fr); row-gap: 10px; column-gap: 12px; align-items: baseline; font-size: 13.5px; line-height: 1.6">
+        <span style="font-size: 12px; color: var(--ink3)">Runs only if</span>
+        <span style="color: var(--ink)"><span style="font: 500 12px 'JetBrains Mono', Consolas, monospace; color: var(--chipInk); background: var(--chipBg); padding: 2px 6px; border-radius: 6px">order</span> is present</span>
+        <span style="font-size: 12px; color: var(--ink3)">Stops when</span>
+        <span style="color: var(--ink)">the number of <span style="font: 500 12px 'JetBrains Mono', Consolas, monospace; color: var(--chipInk); background: var(--chipBg); padding: 2px 6px; border-radius: 6px">violations</span> is at least <strong style="font-weight: 700">3</strong></span>
+      </div>
+    </sc-if>
+    <sc-if value="{{raw}}" hint-placeholder-val="{{false}}">
+      <div style="display: grid; grid-template-columns: 84px minmax(0, 1fr); row-gap: 8px; column-gap: 12px; align-items: center">
+        <span style="font-size: 12px; color: var(--ink3)">pre-condition</span>
+        <code style="display: block; background: var(--codeBg); border-radius: 7px; padding: 7px 10px; font: 400 12px 'JetBrains Mono', Consolas, monospace; color: var(--codeInk)"><span style="color: #F5A35C">#ctx</span>.order <span style="color: #CC7832">!=</span> <span style="color: #CC7832; font-weight: 500">null</span></code>
+        <span style="font-size: 12px; color: var(--ink3)">stop-condition</span>
+        <code style="display: block; background: var(--codeBg); border-radius: 7px; padding: 7px 10px; font: 400 12px 'JetBrains Mono', Consolas, monospace; color: var(--codeInk)"><span style="color: #F5A35C">#ctx</span>.violations.<span style="color: #FFC66D">size</span>() <span style="color: #CC7832">&gt;=</span> <span style="color: #6897BB">3</span></code>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 4px; min-height: 0">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 4px">
+      <span style="font-size: 12.5px; font-weight: 600; color: var(--ink)">Rules, in order</span>
+      <span style="font-size: 12px; color: var(--ink3)">8</span>
+    </div>
+    <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 1px">
+      <li><a href="#r-age" style="display: grid; grid-template-columns: 18px 12px minmax(0, 1fr) auto; align-items: center; column-gap: 8px; height: 28px; padding: 0 8px; border-radius: 7px; color: var(--ink); text-decoration: none"><span style="font: 500 11px 'JetBrains Mono', Consolas, monospace; color: var(--ink3)">1</span><svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5" style="fill: var(--rule)"></circle></svg><span style="font-size: 13px">AgeCheckRule</span><span style="font-size: 11.5px; color: var(--ink3)">XML · script</span></a></li>
+      <li><a href="#r-email" style="display: grid; grid-template-columns: 18px 12px minmax(0, 1fr) auto; align-items: center; column-gap: 8px; height: 28px; padding: 0 8px; border-radius: 7px; color: var(--ink); text-decoration: none"><span style="font: 500 11px 'JetBrains Mono', Consolas, monospace; color: var(--ink3)">2</span><svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5" style="fill: var(--rule)"></circle></svg><span style="font-size: 13px">EmailFormatRule</span><span style="font-size: 11.5px; color: var(--ink3)">validator · email</span></a></li>
+      <li><a href="#r-phone" style="display: grid; grid-template-columns: 18px 12px minmax(0, 1fr) auto; align-items: center; column-gap: 8px; height: 28px; padding: 0 8px; border-radius: 7px; color: var(--ink); text-decoration: none"><span style="font: 500 11px 'JetBrains Mono', Consolas, monospace; color: var(--ink3)">3</span><svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5" style="fill: var(--rule)"></circle></svg><span style="font-size: 13px">PhoneFormatRule</span><span style="font-size: 11.5px; color: var(--ink3)">validator · pattern</span></a></li>
+      <li><a href="#r-mintotal" style="display: grid; grid-template-columns: 18px 12px minmax(0, 1fr) auto; align-items: center; column-gap: 8px; height: 28px; padding: 0 8px; border-radius: 7px; color: var(--ink); text-decoration: none"><span style="font: 500 11px 'JetBrains Mono', Consolas, monospace; color: var(--ink3)">4</span><svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5" style="fill: var(--rule)"></circle></svg><span style="font-size: 13px">MinTotalRule</span><span style="font-size: 11.5px; color: var(--ink3)">XML · script</span></a></li>
+      <li><a href="#r-shipping" style="display: grid; grid-template-columns: 18px 12px minmax(0, 1fr) auto; align-items: center; column-gap: 8px; height: 28px; padding: 0 8px; border-radius: 7px; color: var(--ink); text-decoration: none"><span style="font: 500 11px 'JetBrains Mono', Consolas, monospace; color: var(--ink3)">5</span><svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5" style="fill: var(--rule)"></circle></svg><span style="font-size: 13px">ShippingAddressRule</span><span style="font-size: 11.5px; color: var(--ink3)">XML · script</span></a></li>
+      <li><a href="#r-dates" style="display: grid; grid-template-columns: 18px 12px minmax(0, 1fr) auto; align-items: center; column-gap: 8px; height: 28px; padding: 0 8px; border-radius: 7px; color: var(--ink); text-decoration: none"><span style="font: 500 11px 'JetBrains Mono', Consolas, monospace; color: var(--ink3)">6</span><svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5" style="fill: var(--rule)"></circle></svg><span style="font-size: 13px">ConsistentDatesRule</span><span style="font-size: 11.5px; color: var(--ink3)">@Rule class</span></a></li>
+      <li><a href="#r-stock" style="display: grid; grid-template-columns: 18px 12px minmax(0, 1fr) auto; align-items: center; column-gap: 8px; height: 28px; padding: 0 8px; border-radius: 7px; color: var(--ink); text-decoration: none"><span style="font: 500 11px 'JetBrains Mono', Consolas, monospace; color: var(--ink3)">7</span><svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5" style="fill: var(--rule)"></circle></svg><span style="font-size: 13px">StockAvailableRule</span><span style="font-size: 11.5px; color: var(--ink3)">@Rule class</span></a></li>
+      <li><a href="#r-credit" style="display: grid; grid-template-columns: 18px 12px minmax(0, 1fr) auto; align-items: center; column-gap: 8px; height: 28px; padding: 0 8px; border-radius: 7px; color: var(--ink); text-decoration: none"><span style="font: 500 11px 'JetBrains Mono', Consolas, monospace; color: var(--ink3)">8</span><svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5" style="fill: var(--rule)"></circle></svg><span style="font-size: 13px">CreditLimitRule</span><span style="font-size: 11.5px; color: var(--ink3)">XML · script</span></a></li>
+    </ol>
+  </div>
+</aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const T = {
+      light: {
+        bg: '#FAF5FF', top: '#FFFFFF', surface: '#F5EDFC', card: '#FFFFFF',
+        ink: '#301549', ink2: '#4E3F66', ink3: '#6E5F82', line: '#ECE2F6', line2: '#DCCDEC', edge: '#9A87B2',
+        accent: '#C2410C', accentSoft: '#FFF0E5', sel: '#EBDDF9',
+        rule: '#833EAE', ruleT: '#6B2E94', ruleSoft: '#F4EAFB', ruleLine: '#DCC3F0',
+        set: '#F5841D', setT: '#B4540A', setSoft: '#FFF3E8', setLine: '#F6C99E',
+        flow: '#0B8A86', flowT: '#07706D', flowSoft: '#E6F6F5',
+        err: '#B42318', warn: '#9A5B00', warnSoft: '#FFF4DB',
+        laneBg: '#F3EBFB', laneLine: '#E2D4F0', grid: '#E6DAF2',
+        chipBg: '#EEEAF3', chipInk: '#3E3450', codeBg: '#1A0E2E', codeInk: '#A9B7C6',
+        logoInk: '#301549'
+      },
+      dark: {
+        bg: '#221433', top: '#291A3D', surface: '#291A3D', card: '#2F2045',
+        ink: '#F5EFFB', ink2: '#D6CBE3', ink3: '#AE9FC2', line: '#3A2A52', line2: '#4B3868', edge: '#9985B5',
+        accent: '#FF9A3D', accentSoft: '#43291D', sel: '#3A2858',
+        rule: '#B98AE6', ruleT: '#CFAAF0', ruleSoft: '#35224F', ruleLine: '#5E4180',
+        set: '#FF9A3D', setT: '#FFB673', setSoft: '#3E2A22', setLine: '#6E4829',
+        flow: '#3FCBC2', flowT: '#72DAD3', flowSoft: '#17363A',
+        err: '#FF8F80', warn: '#F5C451', warnSoft: '#3A3016',
+        laneBg: '#271A3A', laneLine: '#43325C', grid: '#33244A',
+        chipBg: '#3A2E4E', chipInk: '#E0D7EA', codeBg: '#1A0E2E', codeInk: '#BFCAD6',
+        logoInk: '#FFFFFF'
+      }
+    };
+    const theme = (this.state && this.state.theme) || this.props.theme || 'light';
+    const dark = theme === 'dark';
+    const raw = !!(this.state && this.state.raw);
+    const t = dark ? T.dark : T.light;
+    const segBase = 'height: 24px; padding: 0 10px; border: 0; border-radius: 6px; font: 600 12px \'Hanken Grotesk\', system-ui, sans-serif; cursor: pointer; ';
+    const segOn = segBase + 'background: ' + t.card + '; color: ' + t.ink + '; box-shadow: 0 1px 2px rgba(20, 8, 40, 0.18)';
+    const segOff = segBase + 'background: transparent; color: ' + t.ink3;
+    return {
+      t: t,
+      dark: dark,
+      light: !dark,
+      themeLabel: dark ? 'Switch to light theme' : 'Switch to dark theme',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      raw: raw,
+      plain: !raw,
+      plainPressed: raw ? 'false' : 'true',
+      rawPressed: raw ? 'true' : 'false',
+      plainStyle: raw ? segOff : segOn,
+      rawStyle: raw ? segOn : segOff,
+      showPlain: () => this.setState({ raw: false }),
+      showRaw: () => this.setState({ raw: true })
+    };
+  }
+}
+</script>
+</body>
+</html>
