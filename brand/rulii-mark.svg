@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 149 149" width="149" height="149" role="img" aria-labelledby="rlm-t">
+  <title id="rlm-t">rulii</title>
+  <!-- The arcs alone on a rounded deep-purple square: favicon and app icon. -->
+  <defs>
+    <linearGradient id="rlm-outer" gradientUnits="userSpaceOnUse" x1="14" y1="142" x2="116" y2="40">
+      <stop offset="0.10" stop-color="#833EAE"/>
+      <stop offset="0.30" stop-color="#BB4683"/>
+      <stop offset="0.47" stop-color="#E1505F"/>
+      <stop offset="0.65" stop-color="#EB693F"/>
+      <stop offset="0.85" stop-color="#F5841D"/>
+    </linearGradient>
+    <linearGradient id="rlm-middle" gradientUnits="userSpaceOnUse" x1="30.5" y1="125" x2="106.25" y2="49.25">
+      <stop offset="0.00" stop-color="#F0762F"/>
+      <stop offset="0.22" stop-color="#E55B52"/>
+      <stop offset="0.37" stop-color="#DA4A6A"/>
+      <stop offset="0.56" stop-color="#B24589"/>
+      <stop offset="0.72" stop-color="#9140A3"/>
+      <stop offset="0.85" stop-color="#833EAE"/>
+    </linearGradient>
+    <linearGradient id="rlm-inner" gradientUnits="userSpaceOnUse" x1="47.5" y1="105" x2="95.75" y2="56.75">
+      <stop offset="0.03" stop-color="#B34588"/>
+      <stop offset="0.27" stop-color="#D4496F"/>
+      <stop offset="0.48" stop-color="#E2535C"/>
+      <stop offset="0.67" stop-color="#E7604C"/>
+      <stop offset="0.96" stop-color="#ED6F38"/>
+    </linearGradient>
+  </defs>
+  <rect width="149" height="149" rx="30" fill="#301549"/>
+  <g transform="translate(28 0)">
+    <g fill="none" stroke-width="10" stroke-linecap="butt">
+      <path d="M14 142V77.5A70 70 0 0 1 84 7.5" stroke="url(#rlm-outer)"/>
+      <path d="M30.5 125V79.5A53.5 53.5 0 0 1 84 26" stroke="url(#rlm-middle)"/>
+      <path d="M47.5 105V80.5A36.5 36.5 0 0 1 84 44" stroke="url(#rlm-inner)"/>
+    </g>
+  </g>
+</svg>
