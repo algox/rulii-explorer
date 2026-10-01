@@ -50,7 +50,7 @@ public final class DescriptorBuilder {
     private final RuleRegistry registry;
     private String applicationName;
     private String ruliiVersion = ruliiVersionFromManifest();
-    private ExpressionAnalyzers analyzers = ExpressionAnalyzers.none();
+    private ExpressionAnalyzers analyzers = ExpressionAnalyzers.defaults();
     private List<ProblemCheck> checks = ProblemChecks.defaults();
     private boolean includeSources = true;
 
@@ -79,7 +79,7 @@ public final class DescriptorBuilder {
         return this;
     }
 
-    /** The expression analyzers, tried in order per script language. Default: none (scripts stay raw text). */
+    /** The expression analyzers, tried in order per script language. Default: {@link ExpressionAnalyzers#defaults()}, SpEL only. */
     public DescriptorBuilder analyzers(List<ExpressionAnalyzer> analyzers) {
         this.analyzers = new ExpressionAnalyzers(analyzers);
         return this;

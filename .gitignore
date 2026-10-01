@@ -39,3 +39,8 @@ build/
 ### IntelliJ IDEA (not committed, matching rulii) ###
 .idea/
 /docs/
+/mockups/
+/design/
+CLAUDE.md
+/design/
+/.mvn
