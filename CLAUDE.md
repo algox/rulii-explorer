@@ -18,7 +18,7 @@
 | `rulii-explorer-core` | `org.rulii.explorer` | `descriptor/` model records + `DescriptorJson`; `builder/` `DescriptorBuilder` (walks `RuleRegistry`), `Describer`, `Expressions`, `CommandMapper`, `Sources`; `expression/` `ExpressionAnalyzer` SPI with `spel/SpelExpressionAnalyzer` (language `el`; the default analyzer set); `problem/` checks. JSON Schema at `src/main/resources/rulii-descriptor-1.schema.json`. **No Spring container**: `spring-expression` is a parser library here. | rulii, spring-expression, jackson-databind (Jackson 3) |
 | `rulii-explorer-ui` | — | The single-page app under `META-INF/resources/rulii-explorer/`, vendored libraries in `vendor/` | — |
 | `rulii-explorer-spring-boot-starter` | `org.rulii.explorer.boot` | `RuliiExplorerAutoConfiguration` (after rulii-spring's `RuleConfig`, needs a `RuleRegistry` bean, `rulii.explorer.enabled`), `RuliiExplorerProperties`, `DescriptorService` (lazy build, cache + ETag, cleared on `ContextRefreshedEvent`, failure = error payload), `RuliiDescriptorEndpoint` (`@Endpoint(id="rulii")`, returns a Jackson 3 `JsonNode` with nulls omitted; 500 on build failure), `RuliiDescriptors.write(context, path)` for CI. UI serving arrives in M3. **The one dependency users add.** Brings in `spring-boot-starter-actuator`; no web stack. | core, ui, rulii-spring |
-| `rulii-explorer-demo` | `org.rulii.explorer.demo` | Showcase application (order-processing domain). Not published (`maven.deploy.skip`). | starter, `spring-boot-starter-webmvc` |
+| `rulii-explorer-demo` | `com.acme.order` | The showcase `order-service` from the design brief: `OrderServiceApplication` with `@RuleScan(scanBasePackages = "com.acme.order.rules", xmlLocations = rules/order, rules/pricing)`; XML rules in `src/main/resources/rules/{order,pricing}/*.xml`, two `@Rule` classes (no descriptions, on purpose), `RiskConfig.fraudScoreRule` (lambdas), `PricingConfig.rangeCheckRule` (SpEL script, bean name differs from rule name on purpose), `nightlyRepriceFlow` runs a missing `prefixRule` on purpose. Golden: `src/test/resources/golden/order-service.json` (sources on; regenerate with `-Dtest=OrderServiceDescriptorTest -Dgolden.update=true`). Not published (`maven.deploy.skip`). | starter, `spring-boot-starter-webmvc` |
 
 Note Spring Boot 4 names: the MVC starter is `spring-boot-starter-webmvc` (not `-web`), and Jackson is `tools.jackson.core:jackson-databind`.
 
@@ -34,7 +34,7 @@ Note Spring Boot 4 names: the MVC starter is `spring-boot-starter-webmvc` (not `
 ```bash
 mvn install                 # whole reactor, runs tests
 mvn -pl rulii-explorer-core test
-mvn -pl rulii-explorer-demo spring-boot:run   # http://localhost:8080/actuator/rulii
+mvn -pl rulii-explorer-demo spring-boot:run   # http://localhost:8080/actuator/rulii  (the demo exposes health,rulii)
 ```
 
 On Windows via PowerShell: `powershell.exe -Command "Set-Location 'C:\\Dev\\rules\\rulii-explorer'; mvn install 2>&1"`.

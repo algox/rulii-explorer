@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:r="http://www.rulii.org/schema/rulii"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           https://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.rulii.org/schema/rulii
+           https://www.rulii.org/spring/rulii-spring.xsd">
+
+    <r:scripting defaultLanguage="el"/>
+
+    <r:ruleset name="pricingRules" description="Applies discounts and shipping costs to an order.">
+        <r:param name="order" type="com.acme.order.model.Order" description="The order to price"/>
+        <r:param name="customer" type="com.acme.order.model.Customer" description="The customer placing it"/>
+        <r:rules>
+            <r:bean-ref name="VipDiscountRule"/>
+            <r:bean-ref name="FreeShippingRule"/>
+        </r:rules>
+    </r:ruleset>
+
+    <r:rule name="VipDiscountRule" description="VIP customers get the configured discount.">
+        <r:given>#ctx.customer.tier == 'VIP'</r:given>
+        <r:then>#ctx.order.discount = ${pricing.vipDiscount:0.10}</r:then>
+    </r:rule>
+
+    <r:rule name="FreeShippingRule" description="Orders over the threshold ship for free.">
+        <r:given>#ctx.order.total >= ${shipping.freeOver:75}</r:given>
+        <r:then>#ctx.order.shippingCost = 0</r:then>
+    </r:rule>
+
+    <!-- Walks the catalog every night. Two deliberate defects for the explorer to find:
+         'RangeCheckRule' is the rule's own name but its bean is 'rangeCheckRule', and
+         'prefixRule' does not exist at all. -->
+    <r:ruleflow name="nightlyRepriceFlow" description="Re-checks every catalog item overnight.">
+        <r:param name="catalog" type="com.acme.order.model.Catalog" description="The product catalog"/>
+        <r:bind name="defaults" ref="pricingDefaults"/>
+        <r:for-each item="item" source="#ctx.catalog.items">
+            <r:run name="RangeCheckRule"/>
+            <r:run name="prefixRule"/>
+        </r:for-each>
+    </r:ruleflow>
+
+</beans>

@@ -1,0 +1,1781 @@
+{
+  "descriptorVersion": "1.0",
+  "application": {
+    "name": "order-service",
+    "ruliiVersion": "unknown",
+    "explorerVersion": "1.0.0-SNAPSHOT"
+  },
+  "packages": [
+    {
+      "id": "com.acme.order.config",
+      "kind": "java"
+    },
+    {
+      "id": "com.acme.order.rules",
+      "kind": "java"
+    },
+    {
+      "id": "rules/order",
+      "kind": "xml"
+    },
+    {
+      "id": "rules/pricing",
+      "kind": "xml"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "AgeCheckRule",
+      "name": "AgeCheckRule",
+      "type": "rule",
+      "kind": "xml-script",
+      "registered": true,
+      "packageId": "rules/order",
+      "description": "Customers must be adults.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/order/validation.xml",
+        "line": 34
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "el",
+          "text": "#ctx.customer.age >= 18",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "customer age",
+                "path": [
+                  "customer",
+                  "age"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is at least"
+              },
+              {
+                "t": "literal",
+                "text": "18"
+              }
+            ]
+          },
+          "reads": [
+            "customer.age"
+          ],
+          "writes": [ ]
+        },
+        "then": [ ]
+      }
+    },
+    {
+      "id": "ApproveOrderRule",
+      "name": "ApproveOrderRule",
+      "type": "rule",
+      "kind": "xml-script",
+      "registered": true,
+      "packageId": "rules/order",
+      "description": "Low-risk orders are approved automatically.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/order/approval.xml",
+        "line": 23
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "el",
+          "text": "#ctx.fraudScore < 0.8",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "fraud score",
+                "path": [
+                  "fraudScore"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is less than"
+              },
+              {
+                "t": "literal",
+                "text": "0.8"
+              }
+            ]
+          },
+          "reads": [
+            "fraudScore"
+          ],
+          "writes": [ ]
+        },
+        "then": [
+          {
+            "kind": "script",
+            "language": "el",
+            "text": "#ctx.approved = true",
+            "plain": {
+              "complete": true,
+              "tokens": [
+                {
+                  "t": "op",
+                  "text": "set"
+                },
+                {
+                  "t": "binding",
+                  "text": "approved",
+                  "path": [
+                    "approved"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": "to"
+                },
+                {
+                  "t": "literal",
+                  "text": "true"
+                }
+              ]
+            },
+            "reads": [ ],
+            "writes": [
+              "approved"
+            ]
+          }
+        ],
+        "otherwise": {
+          "kind": "script",
+          "language": "el",
+          "text": "#ctx.approved = false",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "op",
+                "text": "set"
+              },
+              {
+                "t": "binding",
+                "text": "approved",
+                "path": [
+                  "approved"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "to"
+              },
+              {
+                "t": "literal",
+                "text": "false"
+              }
+            ]
+          },
+          "reads": [ ],
+          "writes": [
+            "approved"
+          ]
+        }
+      }
+    },
+    {
+      "id": "ConsistentDatesRule",
+      "name": "ConsistentDatesRule",
+      "type": "rule",
+      "kind": "rule-class",
+      "registered": true,
+      "packageId": "com.acme.order.rules",
+      "source": {
+        "type": "java",
+        "className": "com.acme.order.rules.ConsistentDatesRule"
+      },
+      "className": "com.acme.order.rules.ConsistentDatesRule",
+      "parameters": [
+        {
+          "name": "order",
+          "type": "com.acme.order.model.Order",
+          "required": true
+        },
+        {
+          "name": "clock",
+          "type": "java.time.Clock",
+          "required": true
+        }
+      ],
+      "rule": {
+        "given": {
+          "kind": "compiled",
+          "reads": [
+            "order",
+            "clock"
+          ],
+          "writes": [ ],
+          "signature": "boolean when(Order order, Clock clock)"
+        },
+        "then": [ ]
+      }
+    },
+    {
+      "id": "CreditLimitRule",
+      "name": "CreditLimitRule",
+      "type": "rule",
+      "kind": "xml-script",
+      "registered": true,
+      "packageId": "rules/order",
+      "description": "The order must fit within the customer's remaining credit.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/order/validation.xml",
+        "line": 51
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "el",
+          "text": "#ctx.customer.openBalance + #ctx.order.total <= #ctx.customer.creditLimit",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "customer open balance",
+                "path": [
+                  "customer",
+                  "openBalance"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "plus"
+              },
+              {
+                "t": "binding",
+                "text": "order total",
+                "path": [
+                  "order",
+                  "total"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is at most"
+              },
+              {
+                "t": "binding",
+                "text": "customer credit limit",
+                "path": [
+                  "customer",
+                  "creditLimit"
+                ]
+              }
+            ]
+          },
+          "reads": [
+            "customer.creditLimit",
+            "customer.openBalance",
+            "order.total"
+          ],
+          "writes": [ ]
+        },
+        "then": [ ]
+      }
+    },
+    {
+      "id": "EmailFormatRule",
+      "name": "EmailFormatRule",
+      "type": "rule",
+      "kind": "predefined-validator",
+      "registered": true,
+      "packageId": "rules/order",
+      "description": "Customer email must be a valid address.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/order/validation.xml",
+        "line": 37
+      },
+      "parameters": [ ],
+      "rule": {
+        "then": [ ]
+      },
+      "validation": {
+        "validator": "email",
+        "errorCode": "customer.email.invalid",
+        "severity": "ERROR",
+        "errorMessage": "{0} is not a valid email address.",
+        "defaultMessage": "Invalid email address {0}.",
+        "valueSource": {
+          "kind": "expression",
+          "expression": {
+            "kind": "script",
+            "language": "el",
+            "text": "#ctx.customer.email",
+            "plain": {
+              "complete": true,
+              "tokens": [
+                {
+                  "t": "binding",
+                  "text": "customer email",
+                  "path": [
+                    "customer",
+                    "email"
+                  ]
+                }
+              ]
+            },
+            "reads": [
+              "customer.email"
+            ],
+            "writes": [ ]
+          }
+        },
+        "failOnNull": true,
+        "settings": {
+          "allowLocal": false,
+          "allowTopLevelDomain": false
+        }
+      }
+    },
+    {
+      "id": "FreeShippingRule",
+      "name": "FreeShippingRule",
+      "type": "rule",
+      "kind": "xml-script",
+      "registered": true,
+      "packageId": "rules/pricing",
+      "description": "Orders over the threshold ship for free.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/pricing/pricing.xml",
+        "line": 27
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "el",
+          "text": "#ctx.order.total >= ${shipping.freeOver:75}",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "order total",
+                "path": [
+                  "order",
+                  "total"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is at least"
+              },
+              {
+                "t": "placeholder",
+                "text": "shipping.freeOver (default 75)",
+                "key": "shipping.freeOver",
+                "defaultValue": "75"
+              }
+            ]
+          },
+          "reads": [
+            "order.total"
+          ],
+          "writes": [ ]
+        },
+        "then": [
+          {
+            "kind": "script",
+            "language": "el",
+            "text": "#ctx.order.shippingCost = 0",
+            "plain": {
+              "complete": true,
+              "tokens": [
+                {
+                  "t": "op",
+                  "text": "set"
+                },
+                {
+                  "t": "binding",
+                  "text": "order shipping cost",
+                  "path": [
+                    "order",
+                    "shippingCost"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": "to"
+                },
+                {
+                  "t": "literal",
+                  "text": "0"
+                }
+              ]
+            },
+            "reads": [ ],
+            "writes": [
+              "order.shippingCost"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ManualReviewRule",
+      "name": "ManualReviewRule",
+      "type": "rule",
+      "kind": "xml-script",
+      "registered": true,
+      "packageId": "rules/order",
+      "description": "Orders with a notable fraud score are queued for a human to review.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/order/approval.xml",
+        "line": 29
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "el",
+          "text": "#ctx.fraudScore >= 0.5",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "fraud score",
+                "path": [
+                  "fraudScore"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is at least"
+              },
+              {
+                "t": "literal",
+                "text": "0.5"
+              }
+            ]
+          },
+          "reads": [
+            "fraudScore"
+          ],
+          "writes": [ ]
+        },
+        "then": [
+          {
+            "kind": "script",
+            "language": "el",
+            "text": "#ctx.reviewQueue.add(#ctx.order)",
+            "plain": {
+              "complete": true,
+              "tokens": [
+                {
+                  "t": "binding",
+                  "text": "review queue",
+                  "path": [
+                    "reviewQueue"
+                  ]
+                },
+                {
+                  "t": "call",
+                  "text": "gets"
+                },
+                {
+                  "t": "binding",
+                  "text": "order",
+                  "path": [
+                    "order"
+                  ]
+                }
+              ]
+            },
+            "reads": [
+              "order",
+              "reviewQueue"
+            ],
+            "writes": [ ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "MinTotalRule",
+      "name": "MinTotalRule",
+      "type": "rule",
+      "kind": "xml-script",
+      "registered": true,
+      "packageId": "rules/order",
+      "description": "Order total must meet the configured minimum.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/order/validation.xml",
+        "line": 45
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "el",
+          "text": "#ctx.order.total >= ${order.minTotal:100}",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "order total",
+                "path": [
+                  "order",
+                  "total"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is at least"
+              },
+              {
+                "t": "placeholder",
+                "text": "order.minTotal (default 100)",
+                "key": "order.minTotal",
+                "defaultValue": "100"
+              }
+            ]
+          },
+          "reads": [
+            "order.total"
+          ],
+          "writes": [ ]
+        },
+        "then": [ ]
+      }
+    },
+    {
+      "id": "PhoneFormatRule",
+      "name": "PhoneFormatRule",
+      "type": "rule",
+      "kind": "predefined-validator",
+      "registered": true,
+      "packageId": "rules/order",
+      "description": "Customer phone must look like a phone number.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/order/validation.xml",
+        "line": 41
+      },
+      "parameters": [ ],
+      "rule": {
+        "then": [ ]
+      },
+      "validation": {
+        "validator": "pattern",
+        "errorCode": "customer.phone.invalid",
+        "severity": "ERROR",
+        "errorMessage": "{0} is not a valid phone number.",
+        "defaultMessage": "Value {0} must match the required regex pattern {1}.",
+        "valueSource": {
+          "kind": "expression",
+          "expression": {
+            "kind": "script",
+            "language": "el",
+            "text": "#ctx.customer.phone",
+            "plain": {
+              "complete": true,
+              "tokens": [
+                {
+                  "t": "binding",
+                  "text": "customer phone",
+                  "path": [
+                    "customer",
+                    "phone"
+                  ]
+                }
+              ]
+            },
+            "reads": [
+              "customer.phone"
+            ],
+            "writes": [ ]
+          }
+        },
+        "failOnNull": true,
+        "settings": {
+          "caseSensitive": true,
+          "flags": 0,
+          "pattern": "^\\+?[0-9][0-9 -]{6,14}$"
+        }
+      }
+    },
+    {
+      "id": "ShippingAddressRule",
+      "name": "ShippingAddressRule",
+      "type": "rule",
+      "kind": "xml-script",
+      "registered": true,
+      "packageId": "rules/order",
+      "description": "Orders must have a shipping address.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/order/validation.xml",
+        "line": 48
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "el",
+          "text": "#ctx.order.shippingAddress != null",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "order shipping address",
+                "path": [
+                  "order",
+                  "shippingAddress"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is present"
+              }
+            ]
+          },
+          "reads": [
+            "order.shippingAddress"
+          ],
+          "writes": [ ]
+        },
+        "then": [ ]
+      }
+    },
+    {
+      "id": "StockAvailableRule",
+      "name": "StockAvailableRule",
+      "type": "rule",
+      "kind": "rule-class",
+      "registered": true,
+      "packageId": "com.acme.order.rules",
+      "source": {
+        "type": "java",
+        "className": "com.acme.order.rules.StockAvailableRule"
+      },
+      "className": "com.acme.order.rules.StockAvailableRule",
+      "parameters": [
+        {
+          "name": "order",
+          "type": "com.acme.order.model.Order",
+          "required": true
+        },
+        {
+          "name": "inventory",
+          "type": "com.acme.order.service.InventoryService",
+          "required": true
+        }
+      ],
+      "rule": {
+        "given": {
+          "kind": "compiled",
+          "reads": [
+            "order",
+            "inventory"
+          ],
+          "writes": [ ],
+          "signature": "boolean when(Order order, InventoryService inventory)"
+        },
+        "then": [
+          {
+            "kind": "compiled",
+            "reads": [
+              "order",
+              "inventory"
+            ],
+            "writes": [ ],
+            "signature": "void then(Order order, InventoryService inventory)"
+          }
+        ]
+      }
+    },
+    {
+      "id": "VipDiscountRule",
+      "name": "VipDiscountRule",
+      "type": "rule",
+      "kind": "xml-script",
+      "registered": true,
+      "packageId": "rules/pricing",
+      "description": "VIP customers get the configured discount.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/pricing/pricing.xml",
+        "line": 22
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "el",
+          "text": "#ctx.customer.tier == 'VIP'",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "customer tier",
+                "path": [
+                  "customer",
+                  "tier"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is"
+              },
+              {
+                "t": "literal",
+                "text": "\"VIP\""
+              }
+            ]
+          },
+          "reads": [
+            "customer.tier"
+          ],
+          "writes": [ ]
+        },
+        "then": [
+          {
+            "kind": "script",
+            "language": "el",
+            "text": "#ctx.order.discount = ${pricing.vipDiscount:0.10}",
+            "plain": {
+              "complete": true,
+              "tokens": [
+                {
+                  "t": "op",
+                  "text": "set"
+                },
+                {
+                  "t": "binding",
+                  "text": "order discount",
+                  "path": [
+                    "order",
+                    "discount"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": "to"
+                },
+                {
+                  "t": "placeholder",
+                  "text": "pricing.vipDiscount (default 0.10)",
+                  "key": "pricing.vipDiscount",
+                  "defaultValue": "0.10"
+                }
+              ]
+            },
+            "reads": [ ],
+            "writes": [
+              "order.discount"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fraudScoreRule",
+      "name": "FraudScoreRule",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "com.acme.order.config",
+      "description": "Scores the fraud risk of an order from 0 (safe) to 1.",
+      "source": {
+        "type": "java",
+        "resource": "RiskConfig.java",
+        "line": 54,
+        "className": "com.acme.order.config.RiskConfig",
+        "methodName": "fraudScoreRule"
+      },
+      "parameters": [
+        {
+          "name": "order",
+          "type": "com.acme.order.model.Order",
+          "required": true
+        },
+        {
+          "name": "customer",
+          "type": "com.acme.order.model.Customer",
+          "required": true
+        }
+      ],
+      "rule": {
+        "given": {
+          "kind": "compiled",
+          "reads": [
+            "order",
+            "customer"
+          ],
+          "writes": [ ],
+          "signature": "boolean test(Order order, Customer customer)"
+        },
+        "then": [
+          {
+            "kind": "compiled",
+            "reads": [
+              "order",
+              "customer"
+            ],
+            "writes": [ ],
+            "signature": "void run(Order order, Customer customer, Bindings bindings)"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rangeCheckRule",
+      "name": "RangeCheckRule",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "com.acme.order.config",
+      "description": "Catalog item prices must be positive and below the configured maximum.",
+      "source": {
+        "type": "java",
+        "resource": "PricingConfig.java",
+        "line": 49,
+        "className": "com.acme.order.config.PricingConfig",
+        "methodName": "rangeCheckRule"
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "el",
+          "text": "#ctx.item.price > 0 && #ctx.item.price < ${pricing.maxPrice:10000}",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "item price",
+                "path": [
+                  "item",
+                  "price"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is more than"
+              },
+              {
+                "t": "literal",
+                "text": "0"
+              },
+              {
+                "t": "op",
+                "text": "and"
+              },
+              {
+                "t": "binding",
+                "text": "item price",
+                "path": [
+                  "item",
+                  "price"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is less than"
+              },
+              {
+                "t": "placeholder",
+                "text": "pricing.maxPrice (default 10000)",
+                "key": "pricing.maxPrice",
+                "defaultValue": "10000"
+              }
+            ]
+          },
+          "reads": [
+            "item.price"
+          ],
+          "writes": [ ]
+        },
+        "then": [ ]
+      }
+    },
+    {
+      "id": "approvalRules",
+      "name": "approvalRules",
+      "type": "ruleset",
+      "kind": "xml",
+      "registered": true,
+      "packageId": "rules/order",
+      "description": "Approves an order or sends it for manual review, based on its fraud score.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/order/approval.xml",
+        "line": 14
+      },
+      "parameters": [
+        {
+          "name": "order",
+          "type": "com.acme.order.model.Order",
+          "required": true,
+          "description": "The order being approved"
+        },
+        {
+          "name": "fraudScore",
+          "type": "java.lang.Double",
+          "required": true,
+          "description": "The fraud score, 0 (safe) to 1"
+        }
+      ],
+      "ruleSet": {
+        "validating": false,
+        "members": [
+          "ApproveOrderRule",
+          "ManualReviewRule"
+        ]
+      }
+    },
+    {
+      "id": "orderValidationRules",
+      "name": "orderValidationRules",
+      "type": "ruleset",
+      "kind": "xml",
+      "registered": true,
+      "packageId": "rules/order",
+      "description": "Checks that an order is complete and valid before it is processed.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/order/validation.xml",
+        "line": 15
+      },
+      "parameters": [
+        {
+          "name": "order",
+          "type": "com.acme.order.model.Order",
+          "required": true,
+          "description": "The order to validate"
+        },
+        {
+          "name": "customer",
+          "type": "com.acme.order.model.Customer",
+          "required": true,
+          "description": "The customer placing the order"
+        }
+      ],
+      "ruleSet": {
+        "validating": true,
+        "preCondition": {
+          "kind": "script",
+          "language": "el",
+          "text": "#ctx.order != null",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "order",
+                "path": [
+                  "order"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is present"
+              }
+            ]
+          },
+          "reads": [
+            "order"
+          ],
+          "writes": [ ]
+        },
+        "stopCondition": {
+          "kind": "script",
+          "language": "el",
+          "text": "#ctx.ruleViolations.size() >= 3",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "call",
+                "text": "number of"
+              },
+              {
+                "t": "binding",
+                "text": "rule violations",
+                "path": [
+                  "ruleViolations"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is at least"
+              },
+              {
+                "t": "literal",
+                "text": "3"
+              }
+            ]
+          },
+          "reads": [
+            "ruleViolations"
+          ],
+          "writes": [ ]
+        },
+        "members": [
+          "AgeCheckRule",
+          "EmailFormatRule",
+          "PhoneFormatRule",
+          "MinTotalRule",
+          "ShippingAddressRule",
+          "ConsistentDatesRule",
+          "StockAvailableRule",
+          "CreditLimitRule"
+        ]
+      }
+    },
+    {
+      "id": "pricingRules",
+      "name": "pricingRules",
+      "type": "ruleset",
+      "kind": "xml",
+      "registered": true,
+      "packageId": "rules/pricing",
+      "description": "Applies discounts and shipping costs to an order.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/pricing/pricing.xml",
+        "line": 13
+      },
+      "parameters": [
+        {
+          "name": "order",
+          "type": "com.acme.order.model.Order",
+          "required": true,
+          "description": "The order to price"
+        },
+        {
+          "name": "customer",
+          "type": "com.acme.order.model.Customer",
+          "required": true,
+          "description": "The customer placing it"
+        }
+      ],
+      "ruleSet": {
+        "validating": false,
+        "members": [
+          "VipDiscountRule",
+          "FreeShippingRule"
+        ]
+      }
+    },
+    {
+      "id": "nightlyRepriceFlow",
+      "name": "nightlyRepriceFlow",
+      "type": "ruleflow",
+      "kind": "xml",
+      "registered": true,
+      "packageId": "rules/pricing",
+      "description": "Re-checks every catalog item overnight.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/pricing/pricing.xml",
+        "line": 35
+      },
+      "parameters": [
+        {
+          "name": "catalog",
+          "type": "com.acme.order.model.Catalog",
+          "required": true,
+          "description": "The product catalog"
+        }
+      ],
+      "ruleFlow": {
+        "commands": [
+          {
+            "type": "bind",
+            "bind": {
+              "kind": "map",
+              "names": [
+                {
+                  "name": "freeShippingOver",
+                  "type": "java.lang.Integer"
+                },
+                {
+                  "name": "vipTier",
+                  "type": "java.lang.String"
+                }
+              ],
+              "label": "pricingDefaults"
+            }
+          },
+          {
+            "type": "for-each",
+            "source": {
+              "kind": "script",
+              "language": "el",
+              "text": "#ctx.catalog.items",
+              "plain": {
+                "complete": true,
+                "tokens": [
+                  {
+                    "t": "binding",
+                    "text": "catalog items",
+                    "path": [
+                      "catalog",
+                      "items"
+                    ]
+                  }
+                ]
+              },
+              "reads": [
+                "catalog.items"
+              ],
+              "writes": [ ]
+            },
+            "item": "item",
+            "body": [
+              {
+                "type": "run",
+                "target": {
+                  "kind": "by-name",
+                  "name": "RangeCheckRule",
+                  "resolution": "unresolved"
+                }
+              },
+              {
+                "type": "run",
+                "target": {
+                  "kind": "by-name",
+                  "name": "prefixRule",
+                  "resolution": "unresolved"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "orderProcessingFlow",
+      "name": "orderProcessingFlow",
+      "type": "ruleflow",
+      "kind": "xml",
+      "registered": true,
+      "packageId": "rules/order",
+      "description": "Validates, scores, prices and approves an incoming order.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/order/flows.xml",
+        "line": 14
+      },
+      "parameters": [
+        {
+          "name": "order",
+          "type": "com.acme.order.model.Order",
+          "required": true,
+          "description": "The incoming order"
+        },
+        {
+          "name": "customer",
+          "type": "com.acme.order.model.Customer",
+          "required": true,
+          "description": "The customer placing it"
+        }
+      ],
+      "ruleFlow": {
+        "commands": [
+          {
+            "type": "bind",
+            "bind": {
+              "kind": "bindings",
+              "names": [
+                {
+                  "name": "clock",
+                  "type": "java.time.Clock$SystemClock"
+                },
+                {
+                  "name": "inventory",
+                  "type": "com.acme.order.service.InventoryService"
+                },
+                {
+                  "name": "reviewQueue",
+                  "type": "com.acme.order.service.ReviewQueue"
+                }
+              ],
+              "label": "orderServices"
+            }
+          },
+          {
+            "type": "run",
+            "target": {
+              "kind": "instance",
+              "id": "orderValidationRules",
+              "resolution": "direct"
+            },
+            "as": "validation"
+          },
+          {
+            "type": "when",
+            "condition": {
+              "kind": "script",
+              "language": "el",
+              "text": "!#ctx.validation.isAllPass()",
+              "plain": {
+                "complete": true,
+                "tokens": [
+                  {
+                    "t": "binding",
+                    "text": "validation",
+                    "path": [
+                      "validation"
+                    ]
+                  },
+                  {
+                    "t": "call",
+                    "text": "is not all pass"
+                  }
+                ]
+              },
+              "reads": [
+                "validation"
+              ],
+              "writes": [ ]
+            },
+            "then": [
+              {
+                "type": "exit"
+              }
+            ],
+            "otherwise": [ ]
+          },
+          {
+            "type": "async-run",
+            "target": {
+              "kind": "instance",
+              "id": "fraudScoreRule",
+              "resolution": "direct"
+            },
+            "as": "fraudCheck",
+            "mode": "immutable",
+            "handler": {
+              "exceptionType": "com.acme.order.service.FraudServiceException",
+              "body": [
+                {
+                  "type": "bind",
+                  "bind": {
+                    "kind": "literal",
+                    "names": [
+                      {
+                        "name": "fraudScore",
+                        "type": "java.lang.String"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "run",
+            "target": {
+              "kind": "instance",
+              "id": "pricingRules",
+              "resolution": "direct"
+            }
+          },
+          {
+            "type": "await",
+            "awaitKind": "one",
+            "names": [
+              "fraudCheck"
+            ],
+            "timeout": "PT5S"
+          },
+          {
+            "type": "when",
+            "condition": {
+              "kind": "script",
+              "language": "el",
+              "text": "#ctx.order.total >= 500",
+              "plain": {
+                "complete": true,
+                "tokens": [
+                  {
+                    "t": "binding",
+                    "text": "order total",
+                    "path": [
+                      "order",
+                      "total"
+                    ]
+                  },
+                  {
+                    "t": "op",
+                    "text": "is at least"
+                  },
+                  {
+                    "t": "literal",
+                    "text": "500"
+                  }
+                ]
+              },
+              "reads": [
+                "order.total"
+              ],
+              "writes": [ ]
+            },
+            "then": [
+              {
+                "type": "run",
+                "target": {
+                  "kind": "instance",
+                  "id": "approvalRules",
+                  "resolution": "direct"
+                }
+              }
+            ],
+            "otherwise": [
+              {
+                "type": "execute",
+                "expression": {
+                  "kind": "script",
+                  "language": "el",
+                  "text": "#ctx.approved = true",
+                  "plain": {
+                    "complete": true,
+                    "tokens": [
+                      {
+                        "t": "op",
+                        "text": "set"
+                      },
+                      {
+                        "t": "binding",
+                        "text": "approved",
+                        "path": [
+                          "approved"
+                        ]
+                      },
+                      {
+                        "t": "op",
+                        "text": "to"
+                      },
+                      {
+                        "t": "literal",
+                        "text": "true"
+                      }
+                    ]
+                  },
+                  "reads": [ ],
+                  "writes": [
+                    "approved"
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "globalHandler": {
+          "exceptionType": "java.lang.Exception",
+          "body": [
+            {
+              "type": "execute",
+              "expression": {
+                "kind": "script",
+                "language": "el",
+                "text": "#ctx.approved = false",
+                "plain": {
+                  "complete": true,
+                  "tokens": [
+                    {
+                      "t": "op",
+                      "text": "set"
+                    },
+                    {
+                      "t": "binding",
+                      "text": "approved",
+                      "path": [
+                        "approved"
+                      ]
+                    },
+                    {
+                      "t": "op",
+                      "text": "to"
+                    },
+                    {
+                      "t": "literal",
+                      "text": "false"
+                    }
+                  ]
+                },
+                "reads": [ ],
+                "writes": [
+                  "approved"
+                ]
+              }
+            }
+          ]
+        },
+        "returning": {
+          "kind": "script",
+          "language": "el",
+          "text": "#ctx.approved",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "approved",
+                "path": [
+                  "approved"
+                ]
+              }
+            ]
+          },
+          "reads": [
+            "approved"
+          ],
+          "writes": [ ]
+        },
+        "resultType": "java.lang.Object"
+      }
+    }
+  ],
+  "references": [
+    {
+      "from": "approvalRules",
+      "to": "ApproveOrderRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[0]",
+      "resolution": "direct"
+    },
+    {
+      "from": "approvalRules",
+      "to": "ManualReviewRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[1]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderProcessingFlow",
+      "to": "orderValidationRules",
+      "type": "runs",
+      "async": false,
+      "path": "commands[1]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderProcessingFlow",
+      "to": "fraudScoreRule",
+      "type": "runs",
+      "async": true,
+      "path": "commands[3]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderProcessingFlow",
+      "to": "pricingRules",
+      "type": "runs",
+      "async": false,
+      "path": "commands[4]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderProcessingFlow",
+      "to": "approvalRules",
+      "type": "runs",
+      "async": false,
+      "path": "commands[6].then[0]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderValidationRules",
+      "to": "AgeCheckRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[0]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderValidationRules",
+      "to": "EmailFormatRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[1]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderValidationRules",
+      "to": "PhoneFormatRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[2]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderValidationRules",
+      "to": "MinTotalRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[3]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderValidationRules",
+      "to": "ShippingAddressRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[4]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderValidationRules",
+      "to": "ConsistentDatesRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[5]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderValidationRules",
+      "to": "StockAvailableRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[6]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderValidationRules",
+      "to": "CreditLimitRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[7]",
+      "resolution": "direct"
+    },
+    {
+      "from": "pricingRules",
+      "to": "VipDiscountRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[0]",
+      "resolution": "direct"
+    },
+    {
+      "from": "pricingRules",
+      "to": "FreeShippingRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[1]",
+      "resolution": "direct"
+    }
+  ],
+  "bindings": [
+    {
+      "name": "approved",
+      "readBy": [
+        "orderProcessingFlow"
+      ],
+      "writtenBy": [
+        "ApproveOrderRule",
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "catalog",
+      "readBy": [
+        "nightlyRepriceFlow"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "clock",
+      "readBy": [
+        "ConsistentDatesRule"
+      ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "customer",
+      "readBy": [
+        "AgeCheckRule",
+        "CreditLimitRule",
+        "EmailFormatRule",
+        "PhoneFormatRule",
+        "VipDiscountRule",
+        "fraudScoreRule",
+        "orderProcessingFlow",
+        "orderValidationRules",
+        "pricingRules"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [
+        "fraudScoreRule"
+      ]
+    },
+    {
+      "name": "fraudCheck",
+      "readBy": [ ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "fraudScore",
+      "readBy": [
+        "ApproveOrderRule",
+        "ManualReviewRule",
+        "approvalRules"
+      ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "freeShippingOver",
+      "readBy": [ ],
+      "writtenBy": [
+        "nightlyRepriceFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "inventory",
+      "readBy": [
+        "StockAvailableRule"
+      ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [
+        "StockAvailableRule"
+      ]
+    },
+    {
+      "name": "item",
+      "readBy": [
+        "rangeCheckRule"
+      ],
+      "writtenBy": [
+        "nightlyRepriceFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "order",
+      "readBy": [
+        "ConsistentDatesRule",
+        "CreditLimitRule",
+        "FreeShippingRule",
+        "ManualReviewRule",
+        "MinTotalRule",
+        "ShippingAddressRule",
+        "StockAvailableRule",
+        "approvalRules",
+        "fraudScoreRule",
+        "orderProcessingFlow",
+        "orderValidationRules",
+        "pricingRules"
+      ],
+      "writtenBy": [
+        "FreeShippingRule",
+        "VipDiscountRule"
+      ],
+      "unknownWriters": [
+        "StockAvailableRule",
+        "fraudScoreRule"
+      ]
+    },
+    {
+      "name": "reviewQueue",
+      "readBy": [
+        "ManualReviewRule"
+      ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "ruleViolations",
+      "readBy": [
+        "orderValidationRules"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "validation",
+      "readBy": [
+        "orderProcessingFlow"
+      ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "vipTier",
+      "readBy": [ ],
+      "writtenBy": [
+        "nightlyRepriceFlow"
+      ],
+      "unknownWriters": [ ]
+    }
+  ],
+  "problems": [
+    {
+      "severity": "error",
+      "code": "UNRESOLVED_TARGET",
+      "artifact": "nightlyRepriceFlow",
+      "path": "commands[1].body[1]",
+      "message": "Runs 'prefixRule', but nothing with that name is registered."
+    },
+    {
+      "severity": "warning",
+      "code": "NAME_MISMATCH_LOOKUP",
+      "artifact": "nightlyRepriceFlow",
+      "path": "commands[1].body[0]",
+      "message": "Looks up 'RangeCheckRule' by name, but the registry name of that artifact is 'rangeCheckRule'. Lookups use registry names."
+    },
+    {
+      "severity": "info",
+      "code": "MISSING_DESCRIPTION",
+      "artifact": "ConsistentDatesRule",
+      "message": "No description."
+    },
+    {
+      "severity": "info",
+      "code": "MISSING_DESCRIPTION",
+      "artifact": "StockAvailableRule",
+      "message": "No description."
+    },
+    {
+      "severity": "info",
+      "code": "UNUSED_RULE",
+      "artifact": "rangeCheckRule",
+      "message": "No rule set or flow references this rule."
+    }
+  ]
+}

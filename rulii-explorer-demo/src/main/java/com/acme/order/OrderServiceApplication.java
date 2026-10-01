@@ -15,23 +15,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.rulii.explorer.demo;
+package com.acme.order;
 
+import org.rulii.spring.annotation.RuleScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * The explorer showcase: an order-processing application whose rules, rule sets and flows
- * exercise every artifact kind the explorer can show. The rules arrive with the descriptor
- * work (M1); this is the shell.
+ * The rulii explorer showcase: an order-processing service whose rules, rule sets and flows
+ * exercise every artifact kind the explorer can show. Rules come from XML files, from
+ * {@code @Rule} classes and from Java builders; two deliberate defects make the problems list
+ * interesting.
+ *
+ * <p>Run it and open {@code /actuator/rulii} (JSON) or {@code /rulii-explorer/} (UI).
  *
  * @author Max Arulananthan
  * @since 1.0
  */
 @SpringBootApplication
-public class DemoApplication {
+@RuleScan(scanBasePackages = "com.acme.order.rules",
+        xmlLocations = {"classpath:rules/order/", "classpath:rules/pricing/"})
+public class OrderServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DemoApplication.class, args);
+        SpringApplication.run(OrderServiceApplication.class, args);
     }
 }

@@ -15,29 +15,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.rulii.explorer.demo;
+package com.acme.order.model;
 
-import org.junit.jupiter.api.Test;
-import org.rulii.registry.RuleRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.math.BigDecimal;
 
 /**
- * The demo application starts with rulii-spring auto-configured.
- *
- * @author Max Arulananthan
- * @since 1.0
+ * A catalog item, also an order line.
  */
-@SpringBootTest
-class DemoApplicationTest {
+public class Item {
 
-    @Autowired
-    private RuleRegistry ruleRegistry;
+    private String sku;
+    private BigDecimal price = BigDecimal.ZERO;
+    private int quantity = 1;
 
-    @Test
-    void contextLoadsWithARuleRegistry() {
-        assertNotNull(ruleRegistry);
+    public Item() {
+        super();
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }

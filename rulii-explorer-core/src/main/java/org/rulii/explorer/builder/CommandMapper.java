@@ -31,8 +31,10 @@ import org.rulii.explorer.descriptor.Reference;
 import org.rulii.ruleflow.info.CommandInfo;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Stream;
 
 /**
  * Maps a flow's {@link CommandInfo} tree to descriptor {@link Command}s, resolving run targets
@@ -132,9 +134,16 @@ final class CommandMapper {
 
     private BindInfo bind(CommandInfo.Bind bind) {
         if (bind == null) return null;
-        List<BoundName> names = bind.names().stream()
+        Stream<CommandInfo.BoundName> names = bind.names().stream();
+        // Declarations keep their declared order; names collected from a map, a bean or a Bindings
+        // instance have no meaningful order (and Map.of iterates differently per JVM run), so sort.
+        if (bind.kind() == CommandInfo.BindKind.MAP || bind.kind() == CommandInfo.BindKind.BEAN
+                || bind.kind() == CommandInfo.BindKind.BINDINGS) {
+            names = names.sorted(Comparator.comparing(CommandInfo.BoundName::name));
+        }
+        List<BoundName> mapped = names
                 .map(n -> new BoundName(n.name(), Expressions.typeName(n.type()), expressions.mapFunction(n.expression())))
                 .toList();
-        return new BindInfo(bind.scope(), bind.kind().name().toLowerCase(Locale.ROOT), names, bind.label());
+        return new BindInfo(bind.scope(), bind.kind().name().toLowerCase(Locale.ROOT), mapped, bind.label());
     }
 }

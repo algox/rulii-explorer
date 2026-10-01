@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:r="http://www.rulii.org/schema/rulii"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           https://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.rulii.org/schema/rulii
+           https://www.rulii.org/spring/rulii-spring.xsd">
+
+    <r:scripting defaultLanguage="el"/>
+
+    <!-- Approval depends on the fraud score the risk rule produced. -->
+    <r:ruleset name="approvalRules" description="Approves an order or sends it for manual review, based on its fraud score.">
+        <r:param name="order" type="com.acme.order.model.Order" description="The order being approved"/>
+        <r:param name="fraudScore" type="java.lang.Double" description="The fraud score, 0 (safe) to 1"/>
+        <r:rules>
+            <r:bean-ref name="ApproveOrderRule"/>
+            <r:bean-ref name="ManualReviewRule"/>
+        </r:rules>
+    </r:ruleset>
+
+    <r:rule name="ApproveOrderRule" description="Low-risk orders are approved automatically.">
+        <r:given>#ctx.fraudScore &lt; 0.8</r:given>
+        <r:then>#ctx.approved = true</r:then>
+        <r:otherwise>#ctx.approved = false</r:otherwise>
+    </r:rule>
+
+    <r:rule name="ManualReviewRule" description="Orders with a notable fraud score are queued for a human to review.">
+        <r:given>#ctx.fraudScore >= 0.5</r:given>
+        <r:then>#ctx.reviewQueue.add(#ctx.order)</r:then>
+    </r:rule>
+
+</beans>

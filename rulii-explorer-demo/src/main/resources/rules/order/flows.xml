@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:r="http://www.rulii.org/schema/rulii"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           https://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.rulii.org/schema/rulii
+           https://www.rulii.org/spring/rulii-spring.xsd">
+
+    <r:scripting defaultLanguage="el"/>
+
+    <!-- The main flow: validate, score the fraud risk in the background, price, then approve. -->
+    <r:ruleflow name="orderProcessingFlow" description="Validates, scores, prices and approves an incoming order.">
+        <r:param name="order" type="com.acme.order.model.Order" description="The incoming order"/>
+        <r:param name="customer" type="com.acme.order.model.Customer" description="The customer placing it"/>
+
+        <!-- The services the rules reach through #ctx: reviewQueue, inventory, clock -->
+        <r:bind name="services" ref="orderServices"/>
+
+        <r:run bean-ref="orderValidationRules" as="validation"/>
+        <r:when condition="!#ctx.validation.isAllPass()">
+            <r:then>
+                <r:exit/>
+            </r:then>
+        </r:when>
+
+        <!-- Fraud scoring runs in the background while pricing proceeds; if the service fails,
+             the order is treated as medium risk. -->
+        <r:async-run bean-ref="fraudScoreRule" as="fraudCheck" context-mode="immutable">
+            <r:on-exception exception="com.acme.order.service.FraudServiceException">
+                <r:bind name="fraudScore" value="0.5"/>
+            </r:on-exception>
+        </r:async-run>
+
+        <r:run bean-ref="pricingRules"/>
+        <r:await name="fraudCheck" timeout="5" unit="seconds"/>
+
+        <r:when condition="#ctx.order.total >= 500">
+            <r:then>
+                <r:run bean-ref="approvalRules"/>
+            </r:then>
+            <r:otherwise>
+                <r:execute>#ctx.approved = true</r:execute>
+            </r:otherwise>
+        </r:when>
+
+        <r:on-exception exception="java.lang.Exception">
+            <r:execute>#ctx.approved = false</r:execute>
+        </r:on-exception>
+        <r:returning>#ctx.approved</r:returning>
+    </r:ruleflow>
+
+</beans>

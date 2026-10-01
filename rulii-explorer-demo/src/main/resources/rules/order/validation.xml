@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:r="http://www.rulii.org/schema/rulii"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           https://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.rulii.org/schema/rulii
+           https://www.rulii.org/spring/rulii-spring.xsd">
+
+    <r:scripting defaultLanguage="el"/>
+
+    <!-- Everything an order must satisfy before it is processed. Validating: severe violations
+         stop processing; the rule set gives up after three. -->
+    <r:ruleset name="orderValidationRules"
+               description="Checks that an order is complete and valid before it is processed."
+               validating="true"
+               pre-condition="#ctx.order != null"
+               stop-condition="#ctx.ruleViolations.size() >= 3">
+        <r:param name="order" type="com.acme.order.model.Order" description="The order to validate"/>
+        <r:param name="customer" type="com.acme.order.model.Customer" description="The customer placing the order"/>
+        <r:rules>
+            <r:bean-ref name="AgeCheckRule"/>
+            <r:bean-ref name="EmailFormatRule"/>
+            <r:bean-ref name="PhoneFormatRule"/>
+            <r:bean-ref name="MinTotalRule"/>
+            <r:bean-ref name="ShippingAddressRule"/>
+            <r:bean-ref name="ConsistentDatesRule"/>
+            <r:bean-ref name="StockAvailableRule"/>
+            <r:bean-ref name="CreditLimitRule"/>
+        </r:rules>
+    </r:ruleset>
+
+    <r:rule name="AgeCheckRule" description="Customers must be adults."
+            given="#ctx.customer.age >= 18"/>
+
+    <r:email name="EmailFormatRule" description="Customer email must be a valid address."
+             expr="#ctx.customer.email" errorCode="customer.email.invalid"
+             errorMessage="{0} is not a valid email address."/>
+
+    <r:pattern name="PhoneFormatRule" description="Customer phone must look like a phone number."
+               expr="#ctx.customer.phone" pattern="^\+?[0-9][0-9 -]{6,14}$"
+               errorCode="customer.phone.invalid" errorMessage="{0} is not a valid phone number."/>
+
+    <r:rule name="MinTotalRule" description="Order total must meet the configured minimum."
+            given="#ctx.order.total >= ${order.minTotal:100}"/>
+
+    <r:rule name="ShippingAddressRule" description="Orders must have a shipping address."
+            given="#ctx.order.shippingAddress != null"/>
+
+    <r:rule name="CreditLimitRule" description="The order must fit within the customer's remaining credit."
+            given="#ctx.customer.openBalance + #ctx.order.total &lt;= #ctx.customer.creditLimit"/>
+
+</beans>
