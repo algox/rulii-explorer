@@ -102,7 +102,7 @@ class BrowserTest {
             assertEquals(List.of(), failures, "browser unit tests failed");
             assertEquals(List.of(), errors, "console errors");
             assertEquals(0, ((Number) results.get("failed")).intValue(), "failed browser tests");
-            assertTrue(((Number) results.get("passed")).intValue() >= 14, "ran " + results.get("passed") + " tests");
+            assertTrue(((Number) results.get("passed")).intValue() >= 17, "ran " + results.get("passed") + " tests");
         }
     }
 
@@ -116,8 +116,15 @@ class BrowserTest {
                 screen("validator", "ok", "/rule/EmailFormatRule", ".rx-summary", false),
                 screen("compiled", "ok", "/rule/fraudScoreRule", ".rx-signature", false),
                 screen("ruleset", "ok", "/ruleset/orderValidationRules", ".rx-members", true),
-                screen("flow-outline", "ok", "/ruleflow/orderProcessingFlow", ".rx-outline", true),
-                screen("flow-step", "ok", "/ruleflow/nightlyRepriceFlow?step=commands%5B1%5D.body%5B1%5D", ".rx-step[aria-selected]", false),
+                screen("flow-outline", "ok", "/ruleflow/orderProcessingFlow?view=outline", ".rx-outline", true),
+                screen("flow-step", "ok", "/ruleflow/nightlyRepriceFlow?view=outline&step=commands%5B1%5D.body%5B1%5D", ".rx-step[aria-selected]", false),
+                screen("flowchart", "ok", "/ruleflow/orderProcessingFlow", ".rx-fnode", true),
+                screen("flowchart-step", "ok", "/ruleflow/orderProcessingFlow?view=flowchart&step=commands%5B1%5D", ".rx-fnode-selected", false),
+                screen("flowchart-nightly", "ok", "/ruleflow/nightlyRepriceFlow", ".rx-fnode", false),
+                screen("graph-focus", "ok", "/graph?focus=orderValidationRules", ".rx-gnode", true),
+                screen("graph-focus-flow", "ok", "/graph?focus=orderProcessingFlow&depth=2", ".rx-gnode", false),
+                screen("graph-all", "ok", "/graph", ".rx-gnode", true),
+                screen("graph-all-selected", "ok", "/graph?selected=nightlyRepriceFlow", ".rx-gaside", false),
                 screen("binding", "ok", "/binding/order", ".rx-xref", false),
                 screen("package", "ok", "/package/rules/order", ".rx-rows", false),
                 screen("problems", "ok", "/problems", ".rx-article", true),

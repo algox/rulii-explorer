@@ -75,7 +75,7 @@ class RxProblems extends RxElement {
                     ${chain.map(entry => html`${icon('chevronRight', {size: 12, width: 2.2})}<span>${stepShort(entry.command, index, p)}</span>`)}
                     ${mismatch ? html`<span class="rx-vbar"></span>${artifactLink(mismatch)}` : nothing}
                     <span class="rx-spacer"></span>
-                    ${a.type === 'ruleflow' && p.path ? html`<a class="rx-link rx-link-arrow" style="font-size: 12.5px" href=${routes.artifact(a, {step: p.path})}>Show in outline${icon('arrowRight', {size: 13})}</a>` : nothing}
+                    ${a.type === 'ruleflow' && p.path ? html`<a class="rx-link rx-link-arrow" style="font-size: 12.5px" href=${routes.artifact(a, {view: 'flowchart', step: p.path})}>Show in flowchart${icon('arrowRight', {size: 13})}</a>` : nothing}
                 </div>` : nothing}
                 <div class="rx-whyfix">
                     <div><span class="rx-overline">Why it matters</span><span>${e.why}</span></div>

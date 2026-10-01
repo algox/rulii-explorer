@@ -4,7 +4,8 @@
  *
  *   #/                       overview
  *   #/problems?severity=error
- *   #/rule/{id}  #/ruleset/{id}  #/ruleflow/{id}?step=commands[1].body[0]
+ *   #/graph  #/graph?focus={id}&depth=1|2|all&selected={id}
+ *   #/rule/{id}  #/ruleset/{id}  #/ruleflow/{id}?view=flowchart|outline&step=commands[1].body[0]
  *   #/binding/{name}
  *   #/package/{id}
  *
@@ -36,6 +37,7 @@ export function parseRoute(hash) {
     const [head, ...rest] = segments;
     const id = rest.join('/');
     if (head === 'problems') return {name: 'problems', query};
+    if (head === 'graph') return {name: 'graph', query};
     if (ARTIFACT_SEGMENTS[head] && id) return {name: 'artifact', type: head, id, query};
     if (head === 'binding' && id) return {name: 'binding', id, query};
     if (head === 'package' && id) return {name: 'package', id, query};
@@ -64,6 +66,8 @@ export const routes = {
         return withQuery('#/' + (ARTIFACT_SEGMENTS[type] || 'rule') + '/' + encode(id), byObject ? idOrQuery : query);
     },
     binding: (name) => '#/binding/' + encode(name),
+    /** The dependency graph: `{focus, depth, selected}` are all optional. */
+    graph: (query) => withQuery('#/graph', query),
     package: (id) => '#/package/' + encode(id)
 };
 

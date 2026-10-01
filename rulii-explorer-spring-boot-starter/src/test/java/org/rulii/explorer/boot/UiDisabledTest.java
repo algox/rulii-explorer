@@ -18,7 +18,8 @@
 package org.rulii.explorer.boot;
 
 import org.junit.jupiter.api.Test;
-import org.rulii.explorer.Explorer;
+import org.rulii.explorer.boot.ui.UiPage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 
@@ -40,7 +41,7 @@ class UiDisabledTest {
         assertEquals(200, Http.get(port, "/actuator/rulii").status());
         assertEquals(404, Http.get(port, "/rulii-explorer").status());
         assertEquals(404, Http.get(port, "/rulii-explorer/").status());
-        assertEquals(404, Http.get(port, "/rulii-explorer/" + Explorer.version() + "/app/main.js").status());
+        assertEquals(404, Http.get(port, "/rulii-explorer/1.0.0-SNAPSHOT/app/main.js").status());
     }
 
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -50,12 +51,15 @@ class UiDisabledTest {
         @LocalServerPort
         private int port;
 
+        @Autowired
+        private UiPage page;
+
         @Test
         void uiMovesToTheConfiguredPath() {
             Http.Response response = Http.get(port, "/rules");
             assertEquals(200, response.status());
-            assertTrue(response.body().contains("href=\"/rules/" + Explorer.version() + "/app/design/tokens.css\""), response.body());
-            assertEquals(200, Http.get(port, "/rules/" + Explorer.version() + "/app/main.js").status());
+            assertTrue(response.body().contains("href=\"/rules/" + page.assetSegment() + "/app/design/tokens.css\""), response.body());
+            assertEquals(200, Http.get(port, "/rules/" + page.assetSegment() + "/app/main.js").status());
             assertEquals(404, Http.get(port, "/rulii-explorer").status());
         }
     }

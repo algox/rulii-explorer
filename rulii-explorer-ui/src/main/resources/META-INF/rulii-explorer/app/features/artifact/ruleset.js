@@ -26,7 +26,7 @@ export function ruleSetPage(a, host) {
                     ${a.description ? html`<p class="rx-subtitle rx-subtitle-sm">${a.description}</p>` : html`<p class="rx-subtitle rx-subtitle-sm rx-muted">No description.</p>`}
                     ${undescribed ? nothing : html`<p class="rx-lede">${artifactSummary(a, index)}</p>`}
                 </div>
-                <div class="rx-actions" style="padding-top: 22px">${graphButton('Open in graph')}${copyLinkButton('Copy link to this rule set')}</div>
+                <div class="rx-actions" style="padding-top: 22px">${graphButton(a, 'Open in graph')}${copyLinkButton('Copy link to this rule set')}</div>
             </div>
             <div class="rx-facts">
                 ${a.packageId ? html`<span>Package <a class="rx-mono" href=${routes.package(a.packageId)}>${a.packageId}</a></span>` : nothing}

@@ -18,9 +18,10 @@
 package org.rulii.explorer.boot;
 
 import org.junit.jupiter.api.Test;
-import org.rulii.explorer.Explorer;
 import org.rulii.explorer.descriptor.Descriptor;
 import org.rulii.explorer.descriptor.DescriptorJson;
+import org.rulii.explorer.boot.ui.UiPage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 
@@ -36,6 +37,9 @@ class WebFluxEndpointTest {
     @LocalServerPort
     private int port;
 
+    @Autowired
+    private UiPage page;
+
     @Test
     void servesTheDescriptorReactively() {
         Http.Response response = Http.get(port, "/actuator/rulii");
@@ -48,13 +52,13 @@ class WebFluxEndpointTest {
 
     @Test
     void servesTheUiReactively() {
-        Http.Response page = Http.get(port, "/rulii-explorer");
-        assertEquals(200, page.status());
-        assertTrue(page.header().startsWith("text/html"), page.header());
-        assertTrue(page.body().contains("<meta name=\"rulii-descriptor\" content=\"/actuator/rulii\">"), page.body());
+        Http.Response html = Http.get(port, "/rulii-explorer");
+        assertEquals(200, html.status());
+        assertTrue(html.header().startsWith("text/html"), html.header());
+        assertTrue(html.body().contains("<meta name=\"rulii-descriptor\" content=\"/actuator/rulii\">"), html.body());
         assertEquals(200, Http.get(port, "/rulii-explorer/").status());
 
-        Http.Response asset = Http.get(port, "/rulii-explorer/" + Explorer.version() + "/app/main.js", "Cache-Control");
+        Http.Response asset = Http.get(port, "/rulii-explorer/" + page.assetSegment() + "/app/main.js", "Cache-Control");
         assertEquals(200, asset.status());
         assertTrue(asset.header().contains("immutable"), asset.header());
         assertEquals(404, Http.get(port, "/rulii-explorer/index.html").status());

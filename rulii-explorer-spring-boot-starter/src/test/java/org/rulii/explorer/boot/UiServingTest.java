@@ -45,8 +45,8 @@ class UiServingTest {
         assertEquals(200, response.status());
         assertTrue(response.header().startsWith("text/html"), response.header());
         assertTrue(response.body().contains("<meta name=\"rulii-descriptor\" content=\"/actuator/rulii\">"), response.body());
-        assertTrue(response.body().contains("href=\"/rulii-explorer/" + page.version() + "/app/design/tokens.css\""), "assets are rewritten to the versioned path");
-        assertTrue(response.body().contains("\"lit\": \"/rulii-explorer/" + page.version() + "/vendor/lit/lit-core.min.js\""), "the import map too");
+        assertTrue(response.body().contains("href=\"/rulii-explorer/" + page.assetSegment() + "/app/design/tokens.css\""), "assets are rewritten to the versioned path");
+        assertTrue(response.body().contains("\"lit\": \"/rulii-explorer/" + page.assetSegment() + "/vendor/lit/lit-core.min.js\""), "the import map too");
         assertFalse(response.body().contains("\"./"), "no relative references remain");
 
         assertEquals(200, Http.get(port, "/rulii-explorer/").status(), "with a trailing slash");
@@ -55,7 +55,7 @@ class UiServingTest {
 
     @Test
     void servesVersionedAssetsWithLongCaching() {
-        String v = page.version();
+        String v = page.assetSegment();
         Http.Response main = Http.get(port, "/rulii-explorer/" + v + "/app/main.js", "Cache-Control");
         assertEquals(200, main.status());
         assertTrue(main.header().contains("immutable"), main.header());

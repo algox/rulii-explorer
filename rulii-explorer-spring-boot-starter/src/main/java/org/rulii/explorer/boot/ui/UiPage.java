@@ -53,6 +53,7 @@ public final class UiPage {
 
     private final String path;
     private final String version;
+    private final String segment;
     private final String template;
 
     /**
@@ -63,6 +64,7 @@ public final class UiPage {
         super();
         this.path = normalisePath(uiPath);
         this.version = version != null && VERSION_SAFE.matcher(version).matches() ? version : "dev";
+        this.segment = this.version.endsWith("-SNAPSHOT") || this.version.equals("dev") ? this.version + "-" + fingerprint() : this.version;
         this.template = load();
     }
 
@@ -80,14 +82,23 @@ public final class UiPage {
         return version;
     }
 
-    /** The resource handler pattern for the assets: {@code /rulii-explorer/1.0.0/**}. */
+    /**
+     * The path segment the assets are served under: the version, plus a fingerprint of the UI jar
+     * for snapshot and dev builds, so every rebuild changes the path and no browser keeps stale
+     * files for a year.
+     */
+    public String assetSegment() {
+        return segment;
+    }
+
+    /** The resource handler pattern for the assets: {@code /rulii-explorer/1.0.0/**} ({@code /rulii-explorer/1.0.0-SNAPSHOT-k3x9/**} for snapshots). */
     public String assetPattern() {
-        return path + "/" + version + "/**";
+        return path + "/" + segment + "/**";
     }
 
     /** The absolute asset base for a request: {@code /app/rulii-explorer/1.0.0}. */
     public String assetsBase(String contextPath) {
-        return normaliseContext(contextPath) + path + "/" + version;
+        return normaliseContext(contextPath) + path + "/" + segment;
     }
 
     /**
@@ -116,6 +127,15 @@ public final class UiPage {
         if (contextPath == null || contextPath.isBlank() || contextPath.equals("/")) return "";
         String c = contextPath.startsWith("/") ? contextPath : "/" + contextPath;
         return c.endsWith("/") ? c.substring(0, c.length() - 1) : c;
+    }
+
+    private static String fingerprint() {
+        try {
+            long modified = new ClassPathResource(RESOURCE_ROOT + "index.html").lastModified();
+            return Long.toString(modified / 1000, 36);
+        } catch (IOException e) {
+            return Long.toString(System.currentTimeMillis() / 1000, 36);
+        }
     }
 
     private static String load() {

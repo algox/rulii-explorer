@@ -23,10 +23,13 @@ META-INF/rulii-explorer/
     search/             search.js (field-weighted in-memory search)
     state/              store.js (one state object, change events, remembered theme and Plain/Raw)
     routing/            router.js (hash routes)
+    graph-engine/       vendor.js (lazy d3/ELK), layout.js (ELK adapter + cache), stage.js (pan, zoom, minimap)
     features/
       shell/            app, topbar, sidebar, command palette, hover card
       overview/         landing page with the application map
-      artifact/         rule, validator, compiled, rule set, rule flow (outline), package pages
+      artifact/         rule, validator, compiled, rule set, rule flow (flowchart + outline), package pages
+      graph/            dependency graph: model, d3 renderer, selected-artifact panel, page
+      flow/             flowchart: model, rx-flowchart element, selected-step panel
       binding/          binding cross-reference
       problems/         problems list
       states/           loading, empty, not exposed, sign-in, failed, unreachable, missing

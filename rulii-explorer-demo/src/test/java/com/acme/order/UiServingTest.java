@@ -18,7 +18,6 @@
 package com.acme.order;
 
 import org.junit.jupiter.api.Test;
-import org.rulii.explorer.Explorer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 
@@ -47,7 +46,9 @@ class UiServingTest {
         assertTrue(page.body().contains("<meta name=\"rulii-descriptor\" content=\"/actuator/rulii\">"), page.body());
         assertTrue(page.body().contains("<rx-app></rx-app>"), page.body());
 
-        HttpResponse<String> asset = client.send(HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/rulii-explorer/" + Explorer.version() + "/app/main.js")).build(), HttpResponse.BodyHandlers.ofString());
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("src=\"(/rulii-explorer/[^/]+/app/main.js)\"").matcher(page.body());
+        assertTrue(m.find(), "the page links its entry point");
+        HttpResponse<String> asset = client.send(HttpRequest.newBuilder(URI.create("http://localhost:" + port + m.group(1))).build(), HttpResponse.BodyHandlers.ofString());
         assertEquals(200, asset.statusCode());
         assertTrue(asset.body().contains("loadDescriptor"), "the app's entry point");
 

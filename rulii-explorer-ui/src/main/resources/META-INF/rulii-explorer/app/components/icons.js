@@ -25,7 +25,12 @@ const PATHS = {
     check: 'M5 12.5l4.5 4.5L19 7.5',
     expand: 'M7 15l5 5 5-5M7 9l5-5 5 5',
     collapse: 'M7 20l5-5 5 5M7 4l5 5 5-5',
-    reload: 'M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5'
+    reload: 'M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5',
+    zoomOut: 'M5 12h14',
+    zoomIn: 'M5 12h14M12 5v14',
+    fit: 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5',
+    minimap: 'M3.5 5h17v14h-17zM12 11h6v5h-6z',
+    chevronUp: 'M6 15l6-6 6 6'
 };
 
 /**

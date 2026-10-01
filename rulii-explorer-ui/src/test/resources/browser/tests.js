@@ -173,6 +173,60 @@ test('command sentences', () => {
     eq(commandParts(nightly.ruleFlow.commands[1].body[1], index, nightly.id).caption, 'by name · unresolved');
 });
 
+import {fullGraph, focusGraph, filterGraph, toElk} from '/rulii-explorer/app/features/graph/graph-model.js';
+import {buildFlowchart, toElkFlow} from '/rulii-explorer/app/features/flow/flow-model.js';
+import {roundedPath, absolutePositions} from '/rulii-explorer/app/graph-engine/layout.js';
+
+test('dependency graph model: nodes, missing targets, focus and filters', () => {
+    const full = fullGraph(index);
+    eq(full.nodes.size, 21, '19 artifacts + 2 missing targets');
+    ok(full.nodes.has('missing:prefixRule'), 'prefixRule is a missing node');
+    ok(full.nodes.has('missing:RangeCheckRule'), 'the mismatched lookup is a missing node too');
+    eq(full.edges.filter(e => e.resolution === 'unresolved').length, 2);
+    eq(full.edges.filter(e => e.type === 'contains').length, 12);
+    const focus = focusGraph(full, 'orderValidationRules', '1');
+    eq(focus.nodes.size, 10, 'the set, its 8 rules and the flow that runs it');
+    eq(focus.nodes.get('MinTotalRule').order, 4);
+    eq(focusGraph(full, 'orderValidationRules', 'all').nodes.size, 17, 'the whole connected component');
+    const filtered = filterGraph(focus, {types: new Set(['ruleset', 'ruleflow']), packageId: ''});
+    eq(filtered.nodes.size, 2);
+    const elk = toElk(full, index, true);
+    eq(elk.children.map(c => c.id), ['group:com.acme.order.config', 'group:com.acme.order.rules', 'group:rules/order', 'group:rules/pricing', 'group:missing']);
+    ok(full.nodes.get('orderValidationRules').width > 120 && full.nodes.get('orderValidationRules').caption === '8 rules · validating', 'measured node with caption');
+});
+
+test('flowchart model: spine, branches, async lane and handlers', () => {
+    const flow = index.byId.get('orderProcessingFlow');
+    const m = buildFlowchart(flow, index);
+    const ids = m.nodes.map(n => n.id);
+    ok(ids.includes('start') && ids.includes('return') && ids.includes('global'), 'terminals and global handler');
+    eq(m.nodes.find(n => n.id === 'commands[1]').overline, 'RUN · RULE SET');
+    eq(m.nodes.find(n => n.id === 'commands[1]').as, 'validation');
+    eq(m.nodes.find(n => n.id === 'commands[2]').kind, 'decision');
+    eq(m.nodes.find(n => n.id === 'commands[3]').overline, 'ASYNC · RULE');
+    ok(m.asyncIds.has('commands[3]') && m.asyncIds.has('handler:commands[3]'), 'async lane holds the step and its handler');
+    eq(m.nodes.find(n => n.id === 'commands[5]').overline, 'AWAIT · 5 S TIMEOUT');
+    ok(m.edges.some(e => e.from === 'commands[3]' && e.to === 'commands[5]' && e.label === 'result'), 'async joins at the await');
+    ok(m.edges.some(e => e.from === 'commands[2]' && e.to === 'commands[2].then[0]' && e.label === 'yes'), 'yes branch');
+    ok(m.edges.some(e => e.from === 'commands[2]' && e.to === 'commands[3]' && e.label === 'no'), 'the no branch starts the async step');
+    ok(m.edges.some(e => e.from === 'commands[2]' && e.to === 'commands[4]' && e.label === 'no'), 'and continues the spine');
+    ok(!m.edges.some(e => e.from === 'commands[2].then[0]'), 'exit has no outgoing edge');
+    ok(m.edges.some(e => e.from === 'commands[6].then[0]' && e.to === 'return') && m.edges.some(e => e.from === 'commands[6].otherwise[0]' && e.to === 'return'), 'both branches merge into return');
+    const nightly = buildFlowchart(index.byId.get('nightlyRepriceFlow'), index);
+    eq(nightly.containers.length, 1);
+    eq(nightly.containers[0].children, ['commands[1].body[0]', 'commands[1].body[1]']);
+    eq(nightly.nodes.find(n => n.id === 'commands[1].body[1]').resolution, 'unresolved');
+    const elk = toElkFlow(nightly);
+    ok(elk.children.some(c => c.id === 'container:commands[1]' && c.children.length === 2), 'container is a compound node');
+});
+
+test('layout helpers', () => {
+    eq(roundedPath([[0, 0], [10, 0], [10, 10]], 4), 'M0 0L6 0Q10 0 10 4L10 10');
+    const abs = absolutePositions({id: 'root', width: 100, height: 50, children: [{id: 'g', x: 10, y: 10, width: 50, height: 30, children: [{id: 'a', x: 5, y: 5, width: 10, height: 10}]}], edges: [{id: 'e', container: 'g', sections: [{startPoint: {x: 0, y: 0}, endPoint: {x: 5, y: 5}}]}]});
+    eq(abs.nodes.get('a').x, 15);
+    eq(abs.routes.get('e'), [[10, 10], [15, 15]]);
+});
+
 async function run() {
     const results = {passed: 0, failed: 0, failures: []};
     const list = document.getElementById('results');

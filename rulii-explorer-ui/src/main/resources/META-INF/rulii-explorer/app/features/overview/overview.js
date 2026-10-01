@@ -84,7 +84,7 @@ class RxOverview extends RxElement {
                     <h2 class="rx-h2 rx-h2-xl" id="rx-map-h">Application map</h2>
                     <span class="rx-card-sub">Which flows run which rule sets and rules</span>
                 </div>
-                <button type="button" class="rx-btn rx-btn-secondary" aria-disabled="true" title="The interactive graph arrives with the next milestone">Open graph${icon('arrowRight', {size: 14})}</button>
+                <a class="rx-btn rx-btn-secondary" href=${routes.graph()}>Open graph${icon('arrowRight', {size: 14})}</a>
             </div>
             ${renderMap(model)}
             <div class="rx-legend">

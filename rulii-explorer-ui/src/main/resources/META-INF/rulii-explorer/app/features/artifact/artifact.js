@@ -75,7 +75,7 @@ export function pageHeader(a, index, options = {}) {
         </div>
         <div class="rx-actions">
             ${copyLinkButton('Copy link to this ' + typeLabel(a.type).toLowerCase())}
-            ${graphButton()}
+            ${graphButton(a)}
         </div>
     </div>`;
 }
@@ -153,7 +153,7 @@ export function connectionsCard(a, index) {
         <defs><marker id="rx-conn-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1L9 5L0 9z" class="rx-conn-arrow"></path></marker></defs>
         ${parts}
     </svg>`;
-    return card('Connections', body, {class: 'rx-card-tight', action: html`<span class="rx-small" title="The interactive graph arrives with the next milestone">Graph soon</span>`});
+    return card('Connections', body, {class: 'rx-card-tight', action: html`<a class="rx-link-quiet" href=${routes.graph({focus: a.id})}>Open graph</a>`});
 }
 
 function glyphAt(type, cx, cy) {

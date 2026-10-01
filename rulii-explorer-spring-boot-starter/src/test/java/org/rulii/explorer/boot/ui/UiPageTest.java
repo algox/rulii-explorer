@@ -50,6 +50,11 @@ class UiPageTest {
         assertEquals("/a/b", UiPage.normalisePath("/a/b//"));
         assertEquals("dev", new UiPage("/x", null).version(), "unknown version");
         assertEquals("dev", new UiPage("/x", "1.0/../etc").version(), "unsafe version");
-        assertEquals("1.0.0-SNAPSHOT", new UiPage("/x", "1.0.0-SNAPSHOT").version());
+        UiPage snapshot = new UiPage("/x", "1.0.0-SNAPSHOT");
+        assertEquals("1.0.0-SNAPSHOT", snapshot.version());
+        assertTrue(snapshot.assetSegment().startsWith("1.0.0-SNAPSHOT-") && snapshot.assetSegment().length() > "1.0.0-SNAPSHOT-".length(), "snapshots carry a build fingerprint: " + snapshot.assetSegment());
+        assertEquals("/x/" + snapshot.assetSegment() + "/**", snapshot.assetPattern());
+        assertTrue(snapshot.render("", "/actuator/rulii").contains("/x/" + snapshot.assetSegment() + "/app/main.js"));
+        assertEquals("1.2.3", new UiPage("/x", "1.2.3").assetSegment(), "releases use the plain version");
     }
 }

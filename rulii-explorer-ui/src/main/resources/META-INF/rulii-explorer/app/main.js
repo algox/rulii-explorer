@@ -9,6 +9,8 @@ import './features/shell/palette.js';
 import './features/shell/hovercard.js';
 import './features/overview/overview.js';
 import './features/problems/problems.js';
+import './features/graph/graph.js';
+import './features/flow/flowchart.js';
 import './features/artifact/artifact.js';
 import './features/artifact/package.js';
 import './features/binding/binding.js';

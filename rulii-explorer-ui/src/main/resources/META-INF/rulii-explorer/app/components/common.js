@@ -86,9 +86,9 @@ export function copyLinkButton(label = 'Copy link to this page') {
     return html`<button type="button" class="rx-icon-btn" aria-label=${label} title=${label} @click=${() => copyText(location.href, 'Link copied')}>${icon('link', {size: 15, width: 1.9})}</button>`;
 }
 
-/** The "Show in graph" button, present but inert until the graphs arrive in M4. */
-export function graphButton(label = 'Show in graph') {
-    return html`<button type="button" class="rx-btn rx-btn-secondary" aria-disabled="true" title="Graphs arrive with the next milestone">${icon('graph', {size: 14, width: 1.9})}${label}</button>`;
+/** The "Show in graph" link: the dependency graph focused on the artifact (FR-51). */
+export function graphButton(artifact, label = 'Show in graph') {
+    return html`<a class="rx-btn rx-btn-secondary" href=${routes.graph({focus: artifact.id})}>${icon('graph', {size: 14, width: 1.9})}${label}</a>`;
 }
 
 export function severityDots(counts) {

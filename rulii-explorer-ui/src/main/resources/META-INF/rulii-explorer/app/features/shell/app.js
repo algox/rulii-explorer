@@ -38,6 +38,7 @@ class RxApp extends RxElement {
         const app = descriptor && descriptor.application && descriptor.application.name;
         let page = 'Overview';
         if (route.name === 'problems') page = 'Problems';
+        else if (route.name === 'graph') page = 'Dependency graph';
         else if (route.name === 'artifact' && index) { const a = index.byId.get(route.id); page = a ? a.name : route.id; }
         else if (route.name === 'binding') page = route.id;
         else if (route.name === 'package') page = route.id;
@@ -71,6 +72,7 @@ class RxApp extends RxElement {
         switch (route.name) {
             case 'overview': return html`<rx-overview></rx-overview>`;
             case 'problems': return html`<rx-problems></rx-problems>`;
+            case 'graph': return html`<rx-graph></rx-graph>`;
             case 'artifact': return html`<rx-artifact></rx-artifact>`;
             case 'binding': return html`<rx-binding></rx-binding>`;
             case 'package': return html`<rx-package></rx-package>`;
