@@ -149,7 +149,7 @@ export function connectionsCard(a, index) {
         parts.push(svg`<a href=${routes.binding(binding.split('.')[0])} class="rx-conn-binding"><rect x=${140 - bw / 2} y=${y - STEP + 51} width=${bw} height="24" rx="5"></rect><text x="140" y=${y - STEP + 67} text-anchor="middle">${binding}</text></a>`);
         height = y - STEP + 51 + 24 + 4;
     }
-    const body = html`<svg class="rx-conn" viewBox=${`0 0 ${W} ${height}`} role="img" aria-label=${nodes.map(n => n.artifact.name).join(' → ') + (binding ? ', reads ' + binding : '')}>
+    const body = html`<svg class="rx-conn" viewBox=${`0 0 ${W} ${height}`} role="group" aria-label=${nodes.map(n => n.artifact.name).join(' → ') + (binding ? ', reads ' + binding : '')}>
         <defs><marker id="rx-conn-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1L9 5L0 9z" class="rx-conn-arrow"></path></marker></defs>
         ${parts}
     </svg>`;

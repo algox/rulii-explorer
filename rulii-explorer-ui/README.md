@@ -52,6 +52,13 @@ that serves these files plus the demo application's golden descriptor
   console errors failing the test. When `src/test/resources/screens/<name>.png` exists it is
   compared with the capture (at most 0.5 % of pixels may differ); `-Dscreens.update=true`
   rewrites the baselines.
+- Every captured screen is also checked with axe-core (`src/test/resources/vendor/axe`, test
+  only, MPL-2.0) against the WCAG 2.1 A and AA rules; serious and critical violations fail the
+  test, lesser ones are printed. `keyboardOnlyPath` works the palette, the outline page and a
+  graph node without a mouse.
+
+The scale test lives in the demo module (`ScaleTest`, `scale` profile), because it needs the
+real application; its screenshots and `results.md` land in `rulii-explorer-demo/target/scale/`.
 
 `spike/` (not packaged) is the M1 graph performance spike: `run-spike.ps1`, `graph-spike.html/.js`,
 `RESULTS.md`.

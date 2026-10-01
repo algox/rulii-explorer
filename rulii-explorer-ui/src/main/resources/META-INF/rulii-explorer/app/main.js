@@ -25,6 +25,9 @@ import {buildSearch} from './search/search.js';
 store.applyTheme(store.state.theme);
 startRouter(store);
 
+/** A hook for the browser tests and the console: the store and its indexes. */
+globalThis.__rx = {store};
+
 export async function boot() {
     const result = await loadDescriptor();
     if (result.descriptor && result.status !== 'unsupported') {

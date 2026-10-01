@@ -28,11 +28,26 @@ const cache = new Map();
 
 /** The options the spike settled on (RESULTS.md) for the dependency graph, left to right. */
 export function dependencyOptions(nodeCount, grouped) {
+    if (nodeCount > 200) {
+        // Exactly the spike's large-graph settings (RESULTS.md): 0.7 s for 1,000 nodes. Model-order
+        // constraints and component separation multiply that by twenty, so they stay off here.
+        return {
+            'elk.algorithm': 'layered',
+            'elk.direction': 'RIGHT',
+            'elk.edgeRouting': 'POLYLINE',
+            'elk.layered.nodePlacement.strategy': 'BRANDES_KOEPF',
+            'elk.layered.spacing.nodeNodeBetweenLayers': '64',
+            'elk.spacing.nodeNode': '20',
+            'elk.spacing.edgeNode': '16',
+            'elk.hierarchyHandling': grouped ? 'INCLUDE_CHILDREN' : 'INHERIT',
+            'elk.padding': '[top=20,left=20,bottom=20,right=20]'
+        };
+    }
     return {
         'elk.algorithm': 'layered',
         'elk.direction': 'RIGHT',
-        'elk.edgeRouting': nodeCount > 200 ? 'POLYLINE' : 'ORTHOGONAL',
-        'elk.layered.nodePlacement.strategy': nodeCount > 200 ? 'BRANDES_KOEPF' : 'NETWORK_SIMPLEX',
+        'elk.edgeRouting': 'ORTHOGONAL',
+        'elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX',
         'elk.layered.spacing.nodeNodeBetweenLayers': '56',
         'elk.spacing.nodeNode': '14',
         'elk.spacing.edgeNode': '14',

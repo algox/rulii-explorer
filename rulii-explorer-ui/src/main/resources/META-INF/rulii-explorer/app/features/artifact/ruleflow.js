@@ -98,9 +98,11 @@ function outlineBody(a, f, host, view, selected, index) {
                 ${!f.commands.length ? html`<li class="rx-step"><span></span><span></span><span></span><span class="rx-step-text rx-muted">This flow has no steps.</span><span></span></li>` : nothing}
             </ol>
             ${f.globalHandler ? html`<div class="rx-outline-foot">
-                <span class="rx-overline">Whenever a step fails</span>
+                <span class="rx-overline" id="rx-outline-foot-h">Whenever a step fails</span>
+                <ol class="rx-outline" role="tree" aria-labelledby="rx-outline-foot-h">
                 ${(f.globalHandler.body || []).map((c, i) => stepRows(c, 'globalHandler.body[' + i + ']', '', null, {...ctx, branch: 'on ' + shortType(f.globalHandler.exceptionType || 'Exception'), handler: true, caption: 'global handler', selectPath: 'global'}))}
                 ${!(f.globalHandler.body || []).length ? row({number: '', tag: 'HANDLER', text: html`<span class="rx-handler-chip">on ${shortType(f.globalHandler.exceptionType || 'Exception')}</span><span class="rx-muted">handled without further steps</span>`, caption: 'global handler', child: true}) : nothing}
+                </ol>
             </div>` : nothing}
         </section>
     </div>`;

@@ -54,10 +54,10 @@ class RxFlowchart extends RxElement {
 
     render() {
         return html`<div class="rx-stage-wrap">
-            <div class="rx-stage" role="img" aria-label=${'Flowchart of ' + (this.artifact ? this.artifact.name : 'the flow')} @click=${() => this.select('')}></div>
+            <div class="rx-stage" role="group" aria-label=${'Flowchart of ' + (this.artifact ? this.artifact.name : 'the flow')} @click=${() => this.select('')}></div>
             ${this.laying ? html`<div class="rx-stage-status" role="status">Laying out…</div>` : nothing}
             ${this.failure ? html`<div class="rx-stage-status rx-stage-error" role="alert">${this.failure}</div>` : nothing}
-            <div class=${'rx-minimap' + (this.minimapOn ? '' : ' rx-hidden')} aria-label="Minimap"></div>
+            <div class=${'rx-minimap' + (this.minimapOn ? '' : ' rx-hidden')} aria-hidden="true"></div>
         </div>`;
     }
 
@@ -83,14 +83,17 @@ class RxFlowchart extends RxElement {
         this.failure = null;
         try {
             await document.fonts.ready;
+            const t0 = performance.now();
             const model = RxFlowchart.modelFor(a, index);
             const [d3, result] = await Promise.all([loadD3(), layout(key, toElkFlow(model))]);
+            const layoutMs = performance.now() - t0;
             if (this.renderedKey !== key) return;
             const svg = renderFlowchart({d3, model, layout: result, index, selected, problems: index.problemsByArtifact.get(a.id) || [], onSelect: (id) => this.select(id)});
             this.svg = svg;
             const minimapNodes = [...result.nodes.entries()].map(([id, n]) => ({...n, kind: n.isGroup ? 'group' : (model.nodes.find(x => x.id === id) || {}).targetType || 'step', selected: id === selected}));
             await this.stage.setContent(svg, {width: result.width, height: result.height}, minimapNodes);
             this.stage.fit(28, false);
+            document.dispatchEvent(new CustomEvent('rx-canvas-rendered', {detail: {kind: 'flowchart', key, nodes: model.nodes.length, edges: model.edges.length, layoutMs: Math.round(layoutMs), renderMs: Math.round(performance.now() - t0 - layoutMs)}}));
             if (selected && result.nodes.has(selected)) { const n = result.nodes.get(selected); const k = this.stage.scale; if (k < 0.5) this.stage.centerOn(n.x + n.width / 2, n.y + n.height / 2, false); }
         } catch (e) {
             console.error(e);

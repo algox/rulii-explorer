@@ -13,6 +13,10 @@ import {graphAside} from './graph-aside.js';
 
 const fullGraphs = new WeakMap();
 
+/** Above this many nodes the whole-application view drops the package boxes: ELK's compound layout is
+ * fine for a few hundred artifacts but takes minutes at a thousand, while the flat layout takes a second. */
+export const GROUP_LIMIT = 200;
+
 /**
  * The dependency graph page (FR-50 to FR-56, S-GraphFocus, S-GraphAll): focus mode around one
  * artifact with a depth control, or the whole application grouped by package. Selection and
@@ -78,6 +82,7 @@ class RxGraph extends RxElement {
 
     render() {
         const {index, descriptor} = this.state;
+        if (this.state.route.name !== 'graph') return nothing;
         const {graph, focus} = this.model();
         this.graph = graph;
         const selectedId = this.query.selected || (focus ? focus.id : '');
@@ -92,7 +97,7 @@ class RxGraph extends RxElement {
                     <h1 class="rx-h1 rx-h1-md">Dependency graph</h1>
                     ${focus
                         ? html`<p class="rx-subtitle rx-subtitle-sm" style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap">Focused on <span class=${'rx-art-link rx-art-link-' + focus.type} style="font-family: var(--rx-font-ui); font-size: 14px">${glyph(focus.type, {size: 11})}${focus.name}</span> and ${this.depth === 'all' ? 'everything connected to it' : 'everything ' + depthWords[this.depth] + ' away from it'}.</p>`
-                        : html`<p class="rx-subtitle rx-subtitle-sm">All ${plural(total, 'artifact')} in ${descriptor.application.name || 'the application'}, grouped by the package they are defined in.</p>`}
+                        : html`<p class="rx-subtitle rx-subtitle-sm">All ${plural(total, 'artifact')} in ${descriptor.application.name || 'the application'}${total <= GROUP_LIMIT ? ', grouped by the package they are defined in' : '; flows on the left, rules on the right'}.</p>`}
                     <div class="rx-flow-bar">
                         <div class="rx-tabs" role="tablist" aria-label="Graph views">
                             <button type="button" role="tab" class="rx-tab" aria-selected=${!!focus} @click=${() => { if (!focus) { const id = this.query.selected; if (id && index.byId.has(id)) this.go({focus: id}); } }} aria-disabled=${!focus && !(this.query.selected && index.byId.has(this.query.selected))} title=${focus ? nothing : 'Select an artifact, then focus on it'}>Focus</button>
@@ -116,17 +121,18 @@ class RxGraph extends RxElement {
                         <span class="rx-overline">Depth</span>
                         <div class="rx-seg" role="group" aria-label="Depth">${DEPTHS.map(d => html`<button type="button" aria-pressed=${this.depth === d} @click=${() => this.go({depth: d})}>${d === 'all' ? 'All' : d + (d === '1' ? ' step' : ' steps')}</button>`)}</div>` : nothing}
                     <span class="rx-spacer"></span>
+                    ${!focus && graph.nodes.size > GROUP_LIMIT ? html`<span class="rx-small" style="font-size: 12px" title="ELK's grouped layout takes minutes at this size; filter by package to see one package with its box">Packages are not drawn above ${GROUP_LIMIT} artifacts</span>` : nothing}
                     <span class="rx-small" style="font-size: 12.5px">${focus
                         ? 'Showing ' + (graph.nodes.size - missing) + ' of ' + total + ' artifacts'
                         : plural(graph.nodes.size - missing, 'artifact') + ' · ' + plural(index.packages.length, 'package') + (missing ? ' · ' + missing + ' not registered' : '')}</span>
                 </div>
                 <div class="rx-stage-wrap">
-                    <div class="rx-stage" role="img" aria-label=${describeGraph(graph, index, focus)} @click=${() => this.select('')}></div>
+                    <div class="rx-stage" role="group" aria-label=${describeGraph(graph, index, focus)} @click=${() => this.select('')}></div>
                     ${this.laying ? html`<div class="rx-stage-status" role="status">Laying out…</div>` : nothing}
                     ${this.failure ? html`<div class="rx-stage-status rx-stage-error" role="alert">${this.failure}</div>` : nothing}
                     ${!graph.nodes.size ? html`<div class="rx-stage-status">Nothing to show with these filters.</div>` : nothing}
                     ${this.legend()}
-                    <div class=${'rx-minimap' + (this.minimapOn ? '' : ' rx-hidden')} aria-label="Minimap"></div>
+                    <div class=${'rx-minimap' + (this.minimapOn ? '' : ' rx-hidden')} aria-hidden="true"></div>
                 </div>
             </div>
             ${graphAside(selected, graph, index, this, {onClose: () => this.select(''), onFocus: (id) => this.go({focus: id, selected: id}), focusId: focus ? focus.id : null})}
@@ -175,7 +181,7 @@ class RxGraph extends RxElement {
 
     async draw() {
         const stageEl = this.querySelector('.rx-stage');
-        if (!stageEl || !this.graph) return;
+        if (!stageEl || !this.graph || this.state.route.name !== 'graph') return;
         const index = this.state.index;
         const focus = this.focusNode;
         if (!this.stage) {
@@ -183,9 +189,9 @@ class RxGraph extends RxElement {
             this.onKey = (e) => { if (e.key === 'f' && !e.ctrlKey && !e.metaKey && e.target === document.body) this.stage.fit(32, true); };
         }
         this.stage.setMinimap(this.querySelector('.rx-minimap'));
-        const grouped = !focus;
+        const grouped = !focus && this.graph.nodes.size <= GROUP_LIMIT;
         const ids = [...this.graph.nodes.keys()].join(',');
-        const key = 'dep|' + (focus ? focus.id + '|' + this.depth : 'all') + '|' + ids + '|' + this.graph.edges.length;
+        const key = 'dep|' + (focus ? focus.id + '|' + this.depth : grouped ? 'all' : 'flat') + '|' + ids + '|' + this.graph.edges.length;
         const selectedId = this.query.selected || (focus ? focus.id : '');
         if (key === this.renderedKey) {
             applySelection(this.svg, selectedId);
@@ -197,7 +203,9 @@ class RxGraph extends RxElement {
         this.failure = null;
         try {
             await document.fonts.ready;
+            const t0 = performance.now();
             const [d3, result] = await Promise.all([loadD3(), layout(key, toElk(this.graph, index, grouped))]);
+            const layoutMs = performance.now() - t0;
             if (this.renderedKey !== key) return;
             const graph = this.graph;
             const svg = renderDependencyGraph({
@@ -210,6 +218,7 @@ class RxGraph extends RxElement {
             const minimapNodes = [...result.nodes.entries()].map(([id, n]) => ({...n, kind: n.isGroup ? 'group' : (graph.nodes.get(id) || {}).type, selected: id === selectedId}));
             await this.stage.setContent(svg, {width: result.width, height: result.height}, minimapNodes);
             this.stage.fit(32, false);
+            document.dispatchEvent(new CustomEvent('rx-canvas-rendered', {detail: {kind: 'graph', key, nodes: graph.nodes.size, edges: graph.edges.length, layoutMs: Math.round(layoutMs), renderMs: Math.round(performance.now() - t0 - layoutMs), elements: svg.querySelectorAll('*').length}}));
         } catch (e) {
             console.error(e);
             this.failure = 'The layout failed: ' + (e && e.message || e);

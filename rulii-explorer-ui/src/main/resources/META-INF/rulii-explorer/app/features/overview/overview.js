@@ -124,11 +124,14 @@ export function buildMap(index) {
     const rowOf = new Map();   // artifact id or missing name → row index
     const placed = new Set();
     const dense = index.byType.rule.length > 40;
+    const MAX_SETS = 24;  // beyond this the map lists the first sets and counts the rest; the graph has them all
 
     const setRows = new Map();  // set id → [first, last] row indexes
+    let hiddenSets = 0;
     for (const s of sets) {
         const members = s.ruleSet.members;
         const first = rows.length;
+        if (dense && setRows.size >= MAX_SETS) { hiddenSets++; for (const id of members) placed.add(id); continue; }
         if (dense) {
             rows.push({kind: 'group', id: s.id, label: members.length + (members.length === 1 ? ' rule' : ' rules'), set: s});
             for (const id of members) placed.add(id);
@@ -149,7 +152,7 @@ export function buildMap(index) {
         const targets = [];
         for (const ref of index.uses.get(f.id) || []) {
             const target = index.byId.get(ref.to);
-            if (target && target.type === 'ruleset') targets.push({set: target.id, lookup: ref.resolution !== 'direct'});
+            if (target && target.type === 'ruleset') { if (setRows.has(target.id)) targets.push({set: target.id, lookup: ref.resolution !== 'direct'}); }
             else if (target && target.type === 'rule') {
                 if (!rowOf.has(target.id)) { rows.push({kind: 'rule', id: target.id, label: target.name, artifact: target}); rowOf.set(target.id, rows.length - 1); placed.add(target.id); }
                 targets.push({row: rowOf.get(target.id), lookup: ref.resolution !== 'direct'});
@@ -175,10 +178,11 @@ export function buildMap(index) {
         rowOf.set(a.id, rows.length - 1);
     }
     if (dense && unused) rows.push({kind: 'group', id: 'unused', label: unused + ' unused ' + (unused === 1 ? 'rule' : 'rules'), unused: true});
+    if (hiddenSets) rows.push({kind: 'group', id: 'more-sets', label: 'and ' + hiddenSets + ' more rule sets, with their rules', unused: true});
 
     const ROW = 24, TOP = 18;
     const y = (i) => TOP + i * ROW;
-    const setNodes = sets.map(s => { const [a, b] = setRows.get(s.id); return {artifact: s, y: (y(a) + y(b)) / 2, fromRow: a, toRow: b}; });
+    const setNodes = sets.filter(s => setRows.has(s.id)).map(s => { const [a, b] = setRows.get(s.id); return {artifact: s, y: (y(a) + y(b)) / 2, fromRow: a, toRow: b}; });
     for (let i = 1; i < setNodes.length; i++) setNodes[i].y = Math.max(setNodes[i].y, setNodes[i - 1].y + 40);
     const setY = new Map(setNodes.map(n => [n.artifact.id, n.y]));
     const flowNodes = flows.map(f => {
@@ -237,7 +241,7 @@ function renderMap(m) {
             parts.push(svg`<a href=${routes.artifact(row.artifact)} class="rx-map-rule" data-hover=${row.artifact.id}><circle cx="486" cy=${ry} r="5" style="fill: var(--rx-rule)"></circle><text x="498" y=${ry + 4} style=${row.unused ? 'fill: var(--rx-ink-3)' : ''}>${clip(row.label, 22)}${row.unused ? ' · unused' : ''}</text></a>`);
         }
     });
-    return html`<svg class="rx-map" viewBox=${`0 0 ${W} ${m.height}`} role="img" aria-label="Application map: which flows run which rule sets and rules">
+    return html`<svg class="rx-map" viewBox=${`0 0 ${W} ${m.height}`} role="group" aria-label="Application map: which flows run which rule sets and rules">
         <defs>
             <marker id="rx-map-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1L9 5L0 9z" class="rx-map-arrow"></path></marker>
             <marker id="rx-map-ah-err" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1L9 5L0 9z" class="rx-map-arrow-error"></path></marker>

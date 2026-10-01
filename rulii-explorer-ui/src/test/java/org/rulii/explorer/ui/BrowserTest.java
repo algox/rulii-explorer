@@ -61,6 +61,7 @@ class BrowserTest {
     private static final Path GOLDEN = Path.of("..", "rulii-explorer-demo", "src", "test", "resources", "golden", "order-service.json");
     private static final Path OUT = Path.of("target", "screens");
     private static final Path BASELINES = Path.of("src", "test", "resources", "screens");
+    private static final Path AXE = Path.of("src", "test", "resources", "vendor", "axe", "axe.min.js");
 
     private static HttpServer server;
     private static String base;
@@ -103,6 +104,52 @@ class BrowserTest {
             assertEquals(List.of(), errors, "console errors");
             assertEquals(0, ((Number) results.get("failed")).intValue(), "failed browser tests");
             assertTrue(((Number) results.get("passed")).intValue() >= 17, "ran " + results.get("passed") + " tests");
+        }
+    }
+
+    @Test
+    void keyboardOnlyPath() {
+        try (BrowserContext context = browser.newContext(new Browser.NewContextOptions().setViewportSize(1440, 900))) {
+            Page page = context.newPage();
+            List<String> errors = watch(page);
+            page.navigate(base + "/case/ok/#/");
+            page.waitForSelector(".rx-stats");
+            // The palette from the keyboard: open, type, move, open the result
+            page.keyboard().press("Control+k");
+            page.waitForSelector(".rx-palette[open]");
+            page.keyboard().type("min total");
+            page.waitForSelector(".rx-option");
+            page.keyboard().press("ArrowDown");
+            page.keyboard().press("ArrowUp");
+            page.keyboard().press("Enter");
+            page.waitForSelector(".rx-summary");
+            assertTrue(page.url().contains("#/rule/MinTotalRule"), page.url());
+            assertEquals("hidden", page.evaluate("() => document.querySelector('.rx-palette').open ? 'open' : 'hidden'"));
+            // Escape closes the palette without navigating
+            page.keyboard().press("Control+k");
+            page.waitForSelector(".rx-palette[open]");
+            page.keyboard().press("Escape");
+            page.waitForFunction("() => !document.querySelector('.rx-palette').open");
+            // Tab reaches the sidebar, the actions and the content, and every stop is visible
+            page.navigate(base + "/case/ok/#/ruleflow/orderProcessingFlow?view=outline");
+            page.waitForSelector(".rx-outline");
+            int stops = 0;
+            String first = null;
+            for (int i = 0; i < 60; i++) {
+                page.keyboard().press("Tab");
+                String id = (String) page.evaluate("() => { const e = document.activeElement; if (!e || e === document.body) return 'body'; const r = e.getBoundingClientRect(); return (r.width > 0 && r.height > 0 ? '' : 'INVISIBLE ') + e.tagName + '.' + e.className; }");
+                assertFalse(id.startsWith("INVISIBLE"), "tab stop " + i + " is not visible: " + id);
+                if (first == null) first = id;
+                if (!"body".equals(id)) stops++;
+            }
+            assertTrue(stops >= 40, "keyboard reaches the page: " + stops + " stops");
+            // A graph node is reachable and selectable from the keyboard
+            page.navigate(base + "/case/ok/#/graph?focus=pricingRules");
+            page.waitForSelector(".rx-gnode");
+            page.focus(".rx-gnode[data-id='FreeShippingRule']");
+            page.keyboard().press("Enter");
+            page.waitForFunction("() => location.hash.includes('selected=FreeShippingRule')");
+            assertEquals(List.of(), errors, "console errors");
         }
     }
 
@@ -170,6 +217,7 @@ class BrowserTest {
             page.screenshot(new Page.ScreenshotOptions().setPath(actual));
             assertEquals(List.of(), errors, file + ": console errors");
             compareWithBaseline(file, actual);
+            assertEquals(List.of(), accessibilityViolations(page), file + ": accessibility violations (serious or critical)");
         }
     }
 
@@ -183,6 +231,25 @@ class BrowserTest {
         if (!Files.exists(baseline)) return;
         double differing = Screens.differingFraction(baseline, actual);
         assertTrue(differing <= 0.005, file + ": " + String.format("%.2f%%", differing * 100) + " of pixels differ from the baseline (" + actual + ")");
+    }
+
+    /**
+     * Runs axe-core (WCAG 2.1 A and AA rules) on the current page and returns the serious and
+     * critical violations as readable lines (NFR-31). Minor and moderate ones are printed.
+     */
+    @SuppressWarnings("unchecked")
+    static List<String> accessibilityViolations(Page page) {
+        page.addScriptTag(new Page.AddScriptTagOptions().setPath(AXE));
+        List<Map<String, Object>> violations = (List<Map<String, Object>>) page.evaluate(
+                "async () => { const r = await axe.run(document, {runOnly: {type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']}}); "
+                + "return r.violations.map(v => ({id: v.id, impact: v.impact, help: v.help, nodes: v.nodes.slice(0, 4).map(n => n.target.join(' ') + (n.failureSummary ? ' :: ' + n.failureSummary.slice(0, 160) : ''))})); }");
+        List<String> serious = new ArrayList<>();
+        for (Map<String, Object> v : violations) {
+            String line = v.get("id") + " [" + v.get("impact") + "] " + v.get("help") + " -> " + v.get("nodes");
+            if ("serious".equals(v.get("impact")) || "critical".equals(v.get("impact"))) serious.add(line);
+            else System.out.println("axe (" + v.get("impact") + "): " + line);
+        }
+        return serious;
     }
 
     /** Collects console errors and uncaught exceptions; expected failed loads of the descriptor are not errors of the UI. */

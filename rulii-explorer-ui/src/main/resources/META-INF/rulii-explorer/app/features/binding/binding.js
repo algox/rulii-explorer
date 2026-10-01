@@ -164,7 +164,7 @@ function xrefSvg(m, b, type) {
     } else {
         parts.push(svg`<text class="rx-xref-sub" x="760" y=${midY + 4}>Nothing reads it.</text>`);
     }
-    return html`<svg class="rx-xref" viewBox=${`0 0 ${W} ${H}`} role="img" aria-label=${'Written by ' + (m.writers.map(w => w.artifact.name).join(', ') || 'nothing') + (m.maybe.length ? '; may be written by ' + m.maybe.map(w => w.artifact.name).join(', ') : '') + '. Read by ' + (m.readers.map(r => r.artifact.name).join(', ') || 'nothing') + '.'}>
+    return html`<svg class="rx-xref" viewBox=${`0 0 ${W} ${H}`} role="group" aria-label=${'Written by ' + (m.writers.map(w => w.artifact.name).join(', ') || 'nothing') + (m.maybe.length ? '; may be written by ' + m.maybe.map(w => w.artifact.name).join(', ') : '') + '. Read by ' + (m.readers.map(r => r.artifact.name).join(', ') || 'nothing') + '.'}>
         <defs>
             <marker id="rx-xref-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1L9 5L0 9z" class="rx-xref-arrow"></path></marker>
             <marker id="rx-xref-ah-w" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1L9 5L0 9z" class="rx-xref-arrow-maybe"></path></marker>

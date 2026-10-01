@@ -56,12 +56,17 @@ export class GraphStage {
         this.#drawMinimap();
     }
 
+    /**
+     * Fits the drawing into view. A drawing too big to be readable when fitted (a thousand-node
+     * graph) is shown from its top-left corner at a readable scale instead; the minimap shows the rest.
+     */
     fit(padding = 32, animate = false) {
         if (!this.svg || !this.d3) return;
         const w = this.stage.clientWidth, h = this.stage.clientHeight;
         if (!w || !h || !this.extent.width || !this.extent.height) return;
-        const k = Math.min((w - padding * 2) / this.extent.width, (h - padding * 2) / this.extent.height, 1.25);
-        const x = (w - this.extent.width * k) / 2, y = Math.max(padding, (h - this.extent.height * k) / 2);
+        const exact = Math.min((w - padding * 2) / this.extent.width, (h - padding * 2) / this.extent.height, 1.25);
+        const k = Math.max(exact, this.options.minFit || 0.45);
+        const x = Math.max(padding, (w - this.extent.width * k) / 2), y = Math.max(padding, (h - this.extent.height * k) / 2);
         const t = this.d3.zoomIdentity.translate(x, y).scale(k);
         const sel = this.d3.select(this.stage);
         if (animate) sel.transition().duration(360).call(this.zoom.transform, t);
