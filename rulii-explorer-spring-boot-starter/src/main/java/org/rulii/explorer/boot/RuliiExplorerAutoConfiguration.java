@@ -17,6 +17,9 @@
  */
 package org.rulii.explorer.boot;
 
+import org.rulii.explorer.boot.ui.UiMvcConfiguration;
+import org.rulii.explorer.boot.ui.UiPage;
+import org.rulii.explorer.boot.ui.UiWebFluxConfiguration;
 import org.rulii.explorer.expression.ExpressionAnalyzer;
 import org.rulii.explorer.expression.ExpressionAnalyzers;
 import org.rulii.explorer.problem.ProblemCheck;
@@ -31,6 +34,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 
 import java.util.ArrayList;
@@ -44,6 +48,9 @@ import java.util.List;
  * <ul>
  *   <li>{@link DescriptorService}: builds and caches the descriptor on first request.</li>
  *   <li>{@link RuliiDescriptorEndpoint}: the {@code rulii} Actuator endpoint, subject to exposure.</li>
+ *   <li>{@link UiPage} plus {@link UiMvcConfiguration} or {@link UiWebFluxConfiguration}: the UI at
+ *   {@code rulii.explorer.ui.path}, unless {@code rulii.explorer.ui.enabled} is false. On a separate
+ *   management port the UI moves there (see {@code org.rulii.explorer.boot.ui}).</li>
  * </ul>
  *
  * <p>Applications add analyzers for other script languages or extra problem checks by declaring
@@ -56,6 +63,7 @@ import java.util.List;
 @ConditionalOnBean(RuleRegistry.class)
 @ConditionalOnProperty(prefix = "rulii.explorer", name = "enabled", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(RuliiExplorerProperties.class)
+@Import({UiMvcConfiguration.class, UiWebFluxConfiguration.class})
 public class RuliiExplorerAutoConfiguration {
 
     public RuliiExplorerAutoConfiguration() {
@@ -84,5 +92,12 @@ public class RuliiExplorerAutoConfiguration {
     @ConditionalOnAvailableEndpoint(RuliiDescriptorEndpoint.class)
     public RuliiDescriptorEndpoint ruliiDescriptorEndpoint(DescriptorService service) {
         return new RuliiDescriptorEndpoint(service);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "rulii.explorer.ui", name = "enabled", havingValue = "true", matchIfMissing = true)
+    public UiPage ruliiExplorerUiPage(RuliiExplorerProperties properties) {
+        return UiPage.forVersion(properties.getUi().getPath());
     }
 }

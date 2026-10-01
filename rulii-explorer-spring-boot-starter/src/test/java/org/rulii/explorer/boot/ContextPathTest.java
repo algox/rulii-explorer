@@ -18,6 +18,7 @@
 package org.rulii.explorer.boot;
 
 import org.junit.jupiter.api.Test;
+import org.rulii.explorer.Explorer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 
@@ -38,5 +39,14 @@ class ContextPathTest {
     void endpointFollowsContextAndBasePath() {
         assertEquals(200, Http.get(port, "/app/manage/rulii").status());
         assertEquals(404, Http.get(port, "/actuator/rulii").status());
+    }
+
+    @Test
+    void uiPointsAtTheRelocatedEndpoint() {
+        Http.Response response = Http.get(port, "/app/rulii-explorer");
+        assertEquals(200, response.status());
+        assertTrue(response.body().contains("<meta name=\"rulii-descriptor\" content=\"/app/manage/rulii\">"), response.body());
+        assertTrue(response.body().contains("src=\"/app/rulii-explorer/" + Explorer.version() + "/app/main.js\""), response.body());
+        assertEquals(200, Http.get(port, "/app/rulii-explorer/" + Explorer.version() + "/app/main.js").status());
     }
 }

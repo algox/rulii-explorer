@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <!-- Where the descriptor is. The starter rewrites this to the application's context and
+         Actuator base path; served as a plain file it points at the default location. -->
+    <meta name="rulii-descriptor" content="/actuator/rulii">
+    <title>rulii explorer</title>
+    <link rel="icon" type="image/svg+xml" href="./app/design/rulii-mark.svg">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="./vendor/fonts/HankenGrotesk-latin.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="./vendor/fonts/Newsreader-latin.woff2">
+    <link rel="stylesheet" href="./app/design/fonts.css">
+    <link rel="stylesheet" href="./app/design/tokens.css">
+    <link rel="stylesheet" href="./app/design/app.css">
+    <script type="importmap">{"imports": {"lit": "./vendor/lit/lit-core.min.js"}}</script>
+    <script>
+        // Apply the remembered theme before the first paint, so there is no flash.
+        try {
+            var theme = localStorage.getItem('rx.theme');
+            if (theme === 'light' || theme === 'dark') document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) { /* storage may be unavailable; the OS preference applies */ }
+    </script>
+    <script type="module" src="./app/main.js"></script>
+</head>
+<body>
+    <rx-app></rx-app>
+    <noscript><p class="rx-noscript">The rulii explorer needs JavaScript. The descriptor itself is plain JSON at the address in this page's <code>rulii-descriptor</code> meta tag.</p></noscript>
+</body>
+</html>

@@ -18,6 +18,7 @@
 package org.rulii.explorer.boot;
 
 import org.junit.jupiter.api.Test;
+import org.rulii.explorer.Explorer;
 import org.rulii.explorer.descriptor.Descriptor;
 import org.rulii.explorer.descriptor.DescriptorJson;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,5 +44,19 @@ class WebFluxEndpointTest {
         Descriptor served = DescriptorJson.fromJson(response.body());
         assertEquals(3, served.artifacts().size());
         assertTrue(served.artifacts().stream().anyMatch(a -> a.id().equals("orderFlow")));
+    }
+
+    @Test
+    void servesTheUiReactively() {
+        Http.Response page = Http.get(port, "/rulii-explorer");
+        assertEquals(200, page.status());
+        assertTrue(page.header().startsWith("text/html"), page.header());
+        assertTrue(page.body().contains("<meta name=\"rulii-descriptor\" content=\"/actuator/rulii\">"), page.body());
+        assertEquals(200, Http.get(port, "/rulii-explorer/").status());
+
+        Http.Response asset = Http.get(port, "/rulii-explorer/" + Explorer.version() + "/app/main.js", "Cache-Control");
+        assertEquals(200, asset.status());
+        assertTrue(asset.header().contains("immutable"), asset.header());
+        assertEquals(404, Http.get(port, "/rulii-explorer/index.html").status());
     }
 }

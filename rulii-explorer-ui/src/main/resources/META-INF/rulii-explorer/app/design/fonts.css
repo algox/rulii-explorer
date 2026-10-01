@@ -1,0 +1,36 @@
+/*
+ * Self-hosted fonts (NFR-13), all under the SIL Open Font License 1.1; see
+ * vendor/fonts/OFL-*.txt and THIRD-PARTY-NOTICES.md. Latin subsets as served by Google Fonts.
+ */
+
+@font-face {
+  font-family: 'Newsreader';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('../../vendor/fonts/Newsreader-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Newsreader';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../vendor/fonts/Newsreader-italic-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../../vendor/fonts/HankenGrotesk-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url('../../vendor/fonts/JetBrainsMono-latin.woff2') format('woff2');
+}

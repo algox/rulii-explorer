@@ -61,6 +61,9 @@
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <central-publishing-plugin.version>0.11.0</central-publishing-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+
+        <!-- Browser tests for the UI module (unit tests in the browser and screenshots) -->
+        <playwright.version>1.63.0</playwright.version>
     </properties>
 
     <dependencyManagement>

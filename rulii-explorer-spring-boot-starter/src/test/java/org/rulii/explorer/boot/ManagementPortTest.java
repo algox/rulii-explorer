@@ -18,6 +18,7 @@
 package org.rulii.explorer.boot;
 
 import org.junit.jupiter.api.Test;
+import org.rulii.explorer.Explorer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalManagementPort;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -42,5 +43,14 @@ class ManagementPortTest {
         assertNotEquals(serverPort, managementPort);
         assertEquals(200, Http.get(managementPort, "/actuator/rulii").status());
         assertEquals(404, Http.get(serverPort, "/actuator/rulii").status());
+    }
+
+    @Test
+    void uiFollowsTheDescriptorToTheManagementPort() {
+        Http.Response page = Http.get(managementPort, "/rulii-explorer");
+        assertEquals(200, page.status(), page.body());
+        assertTrue(page.body().contains("<meta name=\"rulii-descriptor\" content=\"/actuator/rulii\">"), page.body());
+        assertEquals(200, Http.get(managementPort, "/rulii-explorer/" + Explorer.version() + "/app/main.js").status());
+        assertEquals(404, Http.get(serverPort, "/rulii-explorer").status(), "not on the application port");
     }
 }
