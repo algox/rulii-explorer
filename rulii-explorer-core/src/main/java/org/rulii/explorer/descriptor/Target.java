@@ -1,0 +1,33 @@
+/*
+ * This software is licensed under the Apache 2 license, quoted below.
+ *
+ * Copyright (c) 1999-2026, Algorithmx Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.rulii.explorer.descriptor;
+
+/**
+ * What a run step runs, and whether it resolves now (FR-21).
+ *
+ * @param kind       instance, by-name or by-class.
+ * @param id         the artifact id it resolves to; null when unresolved.
+ * @param name       the registry name looked up; by-name only.
+ * @param className  the rule class looked up; by-class only.
+ * @param resolution direct, by-name, by-class or unresolved.
+ *
+ * @author Max Arulananthan
+ * @since 1.0
+ */
+public record Target(TargetKind kind, String id, String name, String className, Resolution resolution) {
+}

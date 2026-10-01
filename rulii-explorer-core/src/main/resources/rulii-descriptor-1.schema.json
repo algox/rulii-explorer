@@ -1,0 +1,279 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://www.rulii.org/explorer/rulii-descriptor-1.schema.json",
+  "title": "rulii explorer descriptor",
+  "description": "Everything a rulii application holds: artifacts, references, bindings and problems. Version 1.x is additive: readers must ignore properties they do not know.",
+  "type": "object",
+  "required": ["descriptorVersion", "application", "packages", "artifacts", "references", "bindings", "problems"],
+  "properties": {
+    "descriptorVersion": { "type": "string", "pattern": "^1\\.[0-9]+$" },
+    "application": { "$ref": "#/$defs/application" },
+    "packages": { "type": "array", "items": { "$ref": "#/$defs/package" } },
+    "artifacts": { "type": "array", "items": { "$ref": "#/$defs/artifact" } },
+    "references": { "type": "array", "items": { "$ref": "#/$defs/reference" } },
+    "bindings": { "type": "array", "items": { "$ref": "#/$defs/bindingUsage" } },
+    "problems": { "type": "array", "items": { "$ref": "#/$defs/problem" } }
+  },
+  "$defs": {
+    "application": {
+      "type": "object",
+      "required": ["ruliiVersion", "explorerVersion"],
+      "properties": {
+        "name": { "type": "string" },
+        "ruliiVersion": { "type": "string" },
+        "explorerVersion": { "type": "string" }
+      }
+    },
+    "package": {
+      "type": "object",
+      "required": ["id", "kind"],
+      "properties": {
+        "id": { "type": "string" },
+        "kind": { "enum": ["java", "xml"] }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "required": ["id", "name", "type", "kind", "registered", "parameters"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "enum": ["rule", "ruleset", "ruleflow"] },
+        "kind": { "enum": ["xml-script", "xml", "rule-class", "java-builder", "predefined-validator", "unknown"] },
+        "registered": { "type": "boolean" },
+        "packageId": { "type": "string" },
+        "description": { "type": "string" },
+        "source": { "$ref": "#/$defs/source" },
+        "className": { "type": "string" },
+        "parameters": { "type": "array", "items": { "$ref": "#/$defs/parameter" } },
+        "rule": { "$ref": "#/$defs/ruleDetails" },
+        "validation": { "$ref": "#/$defs/validationDetails" },
+        "ruleSet": { "$ref": "#/$defs/ruleSetDetails" },
+        "ruleFlow": { "$ref": "#/$defs/ruleFlowDetails" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["xml", "java"] },
+        "resource": { "type": "string" },
+        "line": { "type": "integer", "minimum": 1 },
+        "className": { "type": "string" },
+        "methodName": { "type": "string" }
+      }
+    },
+    "parameter": {
+      "type": "object",
+      "required": ["name", "required"],
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "required": { "type": "boolean" },
+        "defaultValue": { "type": "string" },
+        "matchStrategy": { "type": "string" },
+        "description": { "type": "string" }
+      }
+    },
+    "expression": {
+      "type": "object",
+      "required": ["kind", "reads", "writes"],
+      "properties": {
+        "kind": { "enum": ["script", "compiled", "composite"] },
+        "language": { "type": "string" },
+        "text": { "type": "string" },
+        "plain": { "$ref": "#/$defs/analysis" },
+        "reads": { "type": "array", "items": { "type": "string" } },
+        "writes": { "type": "array", "items": { "type": "string" } },
+        "signature": { "type": "string" },
+        "operator": { "type": "string" },
+        "operands": { "type": "array", "items": { "$ref": "#/$defs/expression" } }
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "required": ["complete", "tokens"],
+      "properties": {
+        "complete": { "type": "boolean" },
+        "tokens": { "type": "array", "items": { "$ref": "#/$defs/token" } }
+      }
+    },
+    "token": {
+      "type": "object",
+      "required": ["t", "text"],
+      "properties": {
+        "t": { "enum": ["binding", "op", "literal", "placeholder", "call", "keyword", "raw"] },
+        "text": { "type": "string" },
+        "path": { "type": "array", "items": { "type": "string" } },
+        "key": { "type": "string" },
+        "defaultValue": { "type": "string" }
+      }
+    },
+    "ruleDetails": {
+      "type": "object",
+      "required": ["then"],
+      "properties": {
+        "preCondition": { "$ref": "#/$defs/expression" },
+        "given": { "$ref": "#/$defs/expression" },
+        "then": { "type": "array", "items": { "$ref": "#/$defs/expression" } },
+        "otherwise": { "$ref": "#/$defs/expression" }
+      }
+    },
+    "validationDetails": {
+      "type": "object",
+      "required": ["errorCode", "settings"],
+      "properties": {
+        "validator": { "type": "string" },
+        "errorCode": { "type": "string" },
+        "severity": { "enum": ["FATAL", "ERROR", "WARNING", "INFO"] },
+        "errorMessage": { "type": "string" },
+        "defaultMessage": { "type": "string" },
+        "valueSource": { "$ref": "#/$defs/valueSource" },
+        "failOnNull": { "type": "boolean" },
+        "settings": { "type": "object" }
+      }
+    },
+    "valueSource": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["binding", "expression"] },
+        "name": { "type": "string" },
+        "expression": { "$ref": "#/$defs/expression" }
+      }
+    },
+    "ruleSetDetails": {
+      "type": "object",
+      "required": ["validating", "members"],
+      "properties": {
+        "validating": { "type": "boolean" },
+        "preCondition": { "$ref": "#/$defs/expression" },
+        "initializer": { "$ref": "#/$defs/expression" },
+        "stopCondition": { "$ref": "#/$defs/expression" },
+        "finalizer": { "$ref": "#/$defs/expression" },
+        "resultExtractor": { "$ref": "#/$defs/expression" },
+        "errorHandler": { "$ref": "#/$defs/expression" },
+        "members": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "ruleFlowDetails": {
+      "type": "object",
+      "required": ["commands"],
+      "properties": {
+        "context": { "type": "string" },
+        "commands": { "type": "array", "items": { "$ref": "#/$defs/command" } },
+        "globalHandler": { "$ref": "#/$defs/handler" },
+        "finalizer": { "$ref": "#/$defs/expression" },
+        "returning": { "$ref": "#/$defs/expression" },
+        "resultType": { "type": "string" }
+      }
+    },
+    "command": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["bind", "run", "apply", "execute", "async-run", "await", "when", "for-each", "scope", "exit", "custom"] },
+        "target": { "$ref": "#/$defs/target" },
+        "as": { "type": "string" },
+        "scope": { "type": "string" },
+        "params": { "$ref": "#/$defs/bindInfo" },
+        "bind": { "$ref": "#/$defs/bindInfo" },
+        "expression": { "$ref": "#/$defs/expression" },
+        "condition": { "$ref": "#/$defs/expression" },
+        "source": { "$ref": "#/$defs/expression" },
+        "stop": { "$ref": "#/$defs/expression" },
+        "item": { "type": "string" },
+        "name": { "type": "string" },
+        "mode": { "enum": ["shared", "immutable"] },
+        "awaitKind": { "enum": ["one", "all", "any"] },
+        "names": { "type": "array", "items": { "type": "string" } },
+        "timeout": { "type": "string" },
+        "thenRun": { "$ref": "#/$defs/continuation" },
+        "handler": { "$ref": "#/$defs/handler" },
+        "then": { "type": "array", "items": { "$ref": "#/$defs/command" } },
+        "otherwise": { "type": "array", "items": { "$ref": "#/$defs/command" } },
+        "body": { "type": "array", "items": { "$ref": "#/$defs/command" } },
+        "className": { "type": "string" }
+      }
+    },
+    "target": {
+      "type": "object",
+      "required": ["kind", "resolution"],
+      "properties": {
+        "kind": { "enum": ["instance", "by-name", "by-class"] },
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "className": { "type": "string" },
+        "resolution": { "enum": ["direct", "by-name", "by-class", "unresolved"] }
+      }
+    },
+    "bindInfo": {
+      "type": "object",
+      "required": ["kind", "names"],
+      "properties": {
+        "scope": { "type": "string" },
+        "kind": { "enum": ["literal", "declarations", "bindings", "map", "bean", "loader", "expression"] },
+        "names": { "type": "array", "items": { "$ref": "#/$defs/boundName" } },
+        "label": { "type": "string" }
+      }
+    },
+    "boundName": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "expression": { "$ref": "#/$defs/expression" }
+      }
+    },
+    "handler": {
+      "type": "object",
+      "required": ["exceptionType", "body"],
+      "properties": {
+        "exceptionType": { "type": "string" },
+        "body": { "type": "array", "items": { "$ref": "#/$defs/command" } }
+      }
+    },
+    "continuation": {
+      "type": "object",
+      "required": ["as", "body"],
+      "properties": {
+        "as": { "type": "string" },
+        "body": { "type": "array", "items": { "$ref": "#/$defs/command" } }
+      }
+    },
+    "reference": {
+      "type": "object",
+      "required": ["from", "to", "type", "async", "path", "resolution"],
+      "properties": {
+        "from": { "type": "string" },
+        "to": { "type": "string" },
+        "type": { "enum": ["contains", "runs"] },
+        "async": { "type": "boolean" },
+        "path": { "type": "string" },
+        "resolution": { "enum": ["direct", "by-name", "by-class"] }
+      }
+    },
+    "bindingUsage": {
+      "type": "object",
+      "required": ["name", "readBy", "writtenBy", "unknownWriters"],
+      "properties": {
+        "name": { "type": "string" },
+        "readBy": { "type": "array", "items": { "type": "string" } },
+        "writtenBy": { "type": "array", "items": { "type": "string" } },
+        "unknownWriters": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "problem": {
+      "type": "object",
+      "required": ["severity", "code", "message"],
+      "properties": {
+        "severity": { "enum": ["error", "warning", "info"] },
+        "code": { "type": "string" },
+        "artifact": { "type": "string" },
+        "path": { "type": "string" },
+        "message": { "type": "string" }
+      }
+    }
+  }
+}

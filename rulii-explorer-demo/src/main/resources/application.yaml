@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: order-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # The descriptor endpoint is opt-in, like every Actuator endpoint.
+        include: health, rulii

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.rulii</groupId>
+        <artifactId>rulii-explorer-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>rulii-explorer-core</artifactId>
+    <packaging>jar</packaging>
+
+    <name>rulii-explorer-core</name>
+    <description>The explorer descriptor: model, builder, expression analysis, references and problem checks. No Spring container.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.rulii</groupId>
+            <artifactId>rulii</artifactId>
+        </dependency>
+
+        <!-- SpEL parser only: expression analysis for the "el" language. Not the container. -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-expression</artifactId>
+        </dependency>
+
+        <!-- Jackson 3: descriptor JSON (golden files, build-time output) -->
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Script-backed rules in the test fixture (rulii's "java" language) -->
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <version>${janino.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Validates golden descriptors against the published JSON Schema -->
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>${json-schema-validator.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <janino.version>3.1.12</janino.version>
+        <json-schema-validator.version>1.5.6</json-schema-validator.version>
+    </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <!-- rulii-explorer.properties carries the module version -->
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+
+</project>

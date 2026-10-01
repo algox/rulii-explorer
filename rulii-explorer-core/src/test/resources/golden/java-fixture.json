@@ -1,0 +1,838 @@
+{
+  "descriptorVersion": "1.0",
+  "application": {
+    "name": "order-service",
+    "ruliiVersion": "2.1.0",
+    "explorerVersion": "1.0.0-SNAPSHOT"
+  },
+  "packages": [
+    {
+      "id": "org.rulii.explorer.fixture",
+      "kind": "java"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "anotherMinTotalRule",
+      "name": "MinTotalRule",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "A second rule with the same name.",
+      "parameters": [
+        {
+          "name": "total",
+          "type": "java.lang.Integer",
+          "required": true
+        }
+      ],
+      "rule": {
+        "given": {
+          "kind": "compiled",
+          "reads": [
+            "total"
+          ],
+          "writes": [ ],
+          "signature": "boolean test(Integer total)"
+        },
+        "then": [ ]
+      }
+    },
+    {
+      "id": "customValidation",
+      "name": "CustomValidation",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Order total must be positive.",
+      "parameters": [
+        {
+          "name": "total",
+          "type": "java.lang.Integer",
+          "required": true
+        }
+      ],
+      "rule": {
+        "given": {
+          "kind": "compiled",
+          "reads": [
+            "total"
+          ],
+          "writes": [ ],
+          "signature": "boolean test(Integer total)"
+        },
+        "then": [ ]
+      },
+      "validation": {
+        "errorCode": "order.total.invalid",
+        "severity": "WARNING",
+        "settings": { }
+      }
+    },
+    {
+      "id": "emailRequired",
+      "name": "emailRequired",
+      "type": "rule",
+      "kind": "predefined-validator",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Customer email is required.",
+      "parameters": [ ],
+      "rule": {
+        "then": [ ]
+      },
+      "validation": {
+        "validator": "notNull",
+        "errorCode": "customer.email.missing",
+        "severity": "ERROR",
+        "defaultMessage": "Value must not be null.",
+        "valueSource": {
+          "kind": "binding",
+          "name": "email"
+        },
+        "failOnNull": true,
+        "settings": { }
+      }
+    },
+    {
+      "id": "minAge",
+      "name": "minAge",
+      "type": "rule",
+      "kind": "predefined-validator",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Customer must be an adult.",
+      "parameters": [ ],
+      "rule": {
+        "then": [ ]
+      },
+      "validation": {
+        "validator": "min",
+        "errorCode": "customer.age.min",
+        "severity": "ERROR",
+        "errorMessage": "{0} must be at least 18",
+        "defaultMessage": "Value {0} must be greater than or equal to {1}.",
+        "valueSource": {
+          "kind": "binding",
+          "name": "age"
+        },
+        "failOnNull": true,
+        "settings": {
+          "min": 18
+        }
+      }
+    },
+    {
+      "id": "minTotalRule",
+      "name": "MinTotalRule",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Order total must meet the minimum.",
+      "parameters": [
+        {
+          "name": "total",
+          "type": "java.lang.Integer",
+          "required": true
+        }
+      ],
+      "rule": {
+        "given": {
+          "kind": "compiled",
+          "reads": [
+            "total"
+          ],
+          "writes": [ ],
+          "signature": "boolean test(Integer total)"
+        },
+        "then": [
+          {
+            "kind": "compiled",
+            "reads": [
+              "total"
+            ],
+            "writes": [ ],
+            "signature": "void run(Integer total)"
+          }
+        ]
+      }
+    },
+    {
+      "id": "orderProcessingFlow/commands[11]/target",
+      "name": "InlineTarget",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": false,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Run by the flow but never registered.",
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "compiled",
+          "reads": [ ],
+          "writes": [ ],
+          "signature": "boolean test()"
+        },
+        "then": [ ]
+      }
+    },
+    {
+      "id": "orderValidationRules/members[2]",
+      "name": "InlineRule",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": false,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Declared inside the rule set only.",
+      "parameters": [
+        {
+          "name": "total",
+          "type": "java.lang.Integer",
+          "required": true
+        }
+      ],
+      "rule": {
+        "given": {
+          "kind": "compiled",
+          "reads": [
+            "total"
+          ],
+          "writes": [ ],
+          "signature": "boolean test(Integer total)"
+        },
+        "then": [ ]
+      }
+    },
+    {
+      "id": "scriptRule",
+      "name": "ScriptRule",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Order total must meet the scripted minimum.",
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "java",
+          "text": "ctx.total >= 100",
+          "plain": {
+            "complete": false,
+            "tokens": [
+              {
+                "t": "raw",
+                "text": "ctx.total >= 100"
+              }
+            ]
+          },
+          "reads": [
+            "total"
+          ],
+          "writes": [ ]
+        },
+        "then": [ ]
+      }
+    },
+    {
+      "id": "stockAvailableRule",
+      "name": "StockAvailableRule",
+      "type": "rule",
+      "kind": "rule-class",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "parameters": [
+        {
+          "name": "quantity",
+          "type": "java.lang.Integer",
+          "required": true
+        },
+        {
+          "name": "stock",
+          "type": "java.lang.Integer",
+          "required": true
+        }
+      ],
+      "rule": {
+        "given": {
+          "kind": "compiled",
+          "reads": [
+            "quantity",
+            "stock"
+          ],
+          "writes": [ ],
+          "signature": "boolean when(Integer quantity, Integer stock)"
+        },
+        "then": [
+          {
+            "kind": "compiled",
+            "reads": [
+              "quantity"
+            ],
+            "writes": [ ],
+            "signature": "void then(Integer quantity)"
+          }
+        ]
+      }
+    },
+    {
+      "id": "orderValidationRules",
+      "name": "orderValidationRules",
+      "type": "ruleset",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Checks that an order is valid.",
+      "parameters": [
+        {
+          "name": "order",
+          "type": "java.lang.Object",
+          "required": true,
+          "description": "The order"
+        },
+        {
+          "name": "customer",
+          "type": "java.lang.Object",
+          "required": false
+        }
+      ],
+      "ruleSet": {
+        "validating": true,
+        "preCondition": {
+          "kind": "compiled",
+          "reads": [
+            "order"
+          ],
+          "writes": [ ],
+          "signature": "boolean test(Object order)"
+        },
+        "stopCondition": {
+          "kind": "compiled",
+          "reads": [
+            "violationCount"
+          ],
+          "writes": [ ],
+          "signature": "boolean test(Integer violationCount)"
+        },
+        "members": [
+          "minTotalRule",
+          "emailRequired",
+          "orderValidationRules/members[2]"
+        ]
+      }
+    },
+    {
+      "id": "contextFlow",
+      "name": "contextFlow",
+      "type": "ruleflow",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Runs in its own context.",
+      "parameters": [ ],
+      "ruleFlow": {
+        "context": "flowContext",
+        "commands": [
+          {
+            "type": "bind",
+            "bind": {
+              "kind": "literal",
+              "names": [
+                {
+                  "name": "a",
+                  "type": "java.lang.Integer"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "orderProcessingFlow",
+      "name": "orderProcessingFlow",
+      "type": "ruleflow",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Validates, scores, prices and approves an order.",
+      "parameters": [
+        {
+          "name": "order",
+          "type": "java.lang.Object",
+          "required": true,
+          "description": "The order"
+        }
+      ],
+      "ruleFlow": {
+        "commands": [
+          {
+            "type": "bind",
+            "bind": {
+              "kind": "literal",
+              "names": [
+                {
+                  "name": "reviewQueue",
+                  "type": "java.lang.String"
+                }
+              ]
+            }
+          },
+          {
+            "type": "run",
+            "target": {
+              "kind": "instance",
+              "id": "orderValidationRules",
+              "resolution": "direct"
+            },
+            "as": "validation"
+          },
+          {
+            "type": "when",
+            "condition": {
+              "kind": "compiled",
+              "reads": [
+                "approved"
+              ],
+              "writes": [ ],
+              "signature": "boolean test(Boolean approved)"
+            },
+            "then": [
+              {
+                "type": "exit"
+              }
+            ],
+            "otherwise": [ ]
+          },
+          {
+            "type": "async-run",
+            "target": {
+              "kind": "instance",
+              "id": "scriptRule",
+              "resolution": "direct"
+            },
+            "as": "fraudCheck",
+            "mode": "immutable",
+            "handler": {
+              "exceptionType": "java.lang.IllegalStateException",
+              "body": [
+                {
+                  "type": "bind",
+                  "bind": {
+                    "kind": "literal",
+                    "names": [
+                      {
+                        "name": "fraudScore",
+                        "type": "java.lang.Double"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "await",
+            "awaitKind": "one",
+            "names": [
+              "fraudCheck"
+            ],
+            "timeout": "PT5S"
+          },
+          {
+            "type": "run",
+            "target": {
+              "kind": "by-name",
+              "name": "MinTotalRule",
+              "resolution": "unresolved"
+            }
+          },
+          {
+            "type": "run",
+            "target": {
+              "kind": "by-name",
+              "name": "prefixRule",
+              "resolution": "unresolved"
+            }
+          },
+          {
+            "type": "run",
+            "target": {
+              "kind": "by-class",
+              "id": "stockAvailableRule",
+              "className": "org.rulii.explorer.fixture.StockAvailableRule",
+              "resolution": "by-class"
+            }
+          },
+          {
+            "type": "for-each",
+            "source": {
+              "kind": "compiled",
+              "reads": [ ],
+              "writes": [ ],
+              "signature": "List apply()"
+            },
+            "item": "item",
+            "body": [
+              {
+                "type": "execute",
+                "expression": {
+                  "kind": "compiled",
+                  "reads": [
+                    "item"
+                  ],
+                  "writes": [ ],
+                  "signature": "void run(Integer item)"
+                }
+              }
+            ]
+          },
+          {
+            "type": "scope",
+            "name": "tmp",
+            "body": [
+              {
+                "type": "bind",
+                "bind": {
+                  "kind": "literal",
+                  "names": [
+                    {
+                      "name": "scratch",
+                      "type": "java.lang.Integer"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "apply",
+            "as": "doubled",
+            "expression": {
+              "kind": "compiled",
+              "reads": [
+                "total"
+              ],
+              "writes": [ ],
+              "signature": "Integer apply(Integer total)"
+            }
+          },
+          {
+            "type": "run",
+            "target": {
+              "kind": "instance",
+              "id": "orderProcessingFlow/commands[11]/target",
+              "resolution": "direct"
+            }
+          },
+          {
+            "type": "custom",
+            "body": [ ],
+            "className": "org.rulii.explorer.fixture.OrderFixture$AuditCommand"
+          }
+        ],
+        "globalHandler": {
+          "exceptionType": "java.lang.Exception",
+          "body": [
+            {
+              "type": "execute",
+              "expression": {
+                "kind": "compiled",
+                "reads": [ ],
+                "writes": [ ],
+                "signature": "void run()"
+              }
+            }
+          ]
+        },
+        "finalizer": {
+          "kind": "compiled",
+          "reads": [ ],
+          "writes": [ ],
+          "signature": "void run()"
+        },
+        "returning": {
+          "kind": "compiled",
+          "reads": [
+            "approved"
+          ],
+          "writes": [ ],
+          "signature": "Boolean apply(Boolean approved)"
+        },
+        "resultType": "java.lang.Boolean"
+      }
+    }
+  ],
+  "references": [
+    {
+      "from": "orderProcessingFlow",
+      "to": "orderValidationRules",
+      "type": "runs",
+      "async": false,
+      "path": "commands[1]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderProcessingFlow",
+      "to": "scriptRule",
+      "type": "runs",
+      "async": true,
+      "path": "commands[3]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderProcessingFlow",
+      "to": "stockAvailableRule",
+      "type": "runs",
+      "async": false,
+      "path": "commands[7]",
+      "resolution": "by-class"
+    },
+    {
+      "from": "orderProcessingFlow",
+      "to": "orderProcessingFlow/commands[11]/target",
+      "type": "runs",
+      "async": false,
+      "path": "commands[11]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderValidationRules",
+      "to": "minTotalRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[0]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderValidationRules",
+      "to": "emailRequired",
+      "type": "contains",
+      "async": false,
+      "path": "members[1]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderValidationRules",
+      "to": "orderValidationRules/members[2]",
+      "type": "contains",
+      "async": false,
+      "path": "members[2]",
+      "resolution": "direct"
+    }
+  ],
+  "bindings": [
+    {
+      "name": "a",
+      "readBy": [ ],
+      "writtenBy": [
+        "contextFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "age",
+      "readBy": [
+        "minAge"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "approved",
+      "readBy": [
+        "orderProcessingFlow"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [
+        "orderProcessingFlow"
+      ]
+    },
+    {
+      "name": "customer",
+      "readBy": [
+        "orderValidationRules"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "doubled",
+      "readBy": [ ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "email",
+      "readBy": [
+        "emailRequired"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "fraudCheck",
+      "readBy": [ ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "fraudScore",
+      "readBy": [ ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "item",
+      "readBy": [
+        "orderProcessingFlow"
+      ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [
+        "orderProcessingFlow"
+      ]
+    },
+    {
+      "name": "order",
+      "readBy": [
+        "orderProcessingFlow",
+        "orderValidationRules"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [
+        "orderProcessingFlow"
+      ]
+    },
+    {
+      "name": "quantity",
+      "readBy": [
+        "stockAvailableRule"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [
+        "stockAvailableRule"
+      ]
+    },
+    {
+      "name": "reviewQueue",
+      "readBy": [ ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "scratch",
+      "readBy": [ ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "stock",
+      "readBy": [
+        "stockAvailableRule"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [
+        "stockAvailableRule"
+      ]
+    },
+    {
+      "name": "total",
+      "readBy": [
+        "anotherMinTotalRule",
+        "customValidation",
+        "minTotalRule",
+        "orderProcessingFlow",
+        "orderValidationRules/members[2]",
+        "scriptRule"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [
+        "minTotalRule",
+        "orderProcessingFlow"
+      ]
+    },
+    {
+      "name": "validation",
+      "readBy": [ ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "violationCount",
+      "readBy": [
+        "orderValidationRules"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [ ]
+    }
+  ],
+  "problems": [
+    {
+      "severity": "error",
+      "code": "UNRESOLVED_TARGET",
+      "artifact": "orderProcessingFlow",
+      "path": "commands[6]",
+      "message": "Runs 'prefixRule', but nothing with that name is registered."
+    },
+    {
+      "severity": "warning",
+      "code": "DUPLICATE_NAME",
+      "artifact": "anotherMinTotalRule",
+      "message": "The name 'MinTotalRule' is used by 2 artifacts: anotherMinTotalRule, minTotalRule."
+    },
+    {
+      "severity": "warning",
+      "code": "DUPLICATE_NAME",
+      "artifact": "minTotalRule",
+      "message": "The name 'MinTotalRule' is used by 2 artifacts: anotherMinTotalRule, minTotalRule."
+    },
+    {
+      "severity": "warning",
+      "code": "NAME_MISMATCH_LOOKUP",
+      "artifact": "orderProcessingFlow",
+      "path": "commands[5]",
+      "message": "Looks up 'MinTotalRule' by name, but the registry name of that artifact is 'anotherMinTotalRule'. Lookups use registry names."
+    },
+    {
+      "severity": "info",
+      "code": "UNUSED_RULE",
+      "artifact": "anotherMinTotalRule",
+      "message": "No rule set or flow references this rule."
+    },
+    {
+      "severity": "info",
+      "code": "UNUSED_RULE",
+      "artifact": "customValidation",
+      "message": "No rule set or flow references this rule."
+    },
+    {
+      "severity": "info",
+      "code": "UNUSED_RULE",
+      "artifact": "minAge",
+      "message": "No rule set or flow references this rule."
+    },
+    {
+      "severity": "info",
+      "code": "MISSING_DESCRIPTION",
+      "artifact": "stockAvailableRule",
+      "message": "No description."
+    }
+  ]
+}
