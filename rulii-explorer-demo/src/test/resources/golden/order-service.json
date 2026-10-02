@@ -187,6 +187,53 @@
       }
     },
     {
+      "id": "BulkOrderRule",
+      "name": "BulkOrderRule",
+      "type": "rule",
+      "kind": "xml-script",
+      "registered": true,
+      "packageId": "rules/pricing",
+      "description": "Large orders earn a bonus on top of their points.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/pricing/loyalty.xml",
+        "line": 32
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "js",
+          "text": "ctx.order.items.size() >= ${loyalty.bulkItems:10}",
+          "plain": {
+            "complete": false,
+            "tokens": [ ]
+          },
+          "reads": [
+            "order.items"
+          ],
+          "writes": [ ]
+        },
+        "then": [
+          {
+            "kind": "script",
+            "language": "js",
+            "text": "ctx.points += ${loyalty.bulkBonus:100};",
+            "plain": {
+              "complete": false,
+              "tokens": [ ]
+            },
+            "reads": [
+              "points"
+            ],
+            "writes": [
+              "points"
+            ]
+          }
+        ]
+      }
+    },
+    {
       "id": "ConsistentDatesRule",
       "name": "ConsistentDatesRule",
       "type": "rule",
@@ -430,6 +477,67 @@
       }
     },
     {
+      "id": "LoyaltyPointsRule",
+      "name": "LoyaltyPointsRule",
+      "type": "rule",
+      "kind": "xml-script",
+      "registered": true,
+      "packageId": "rules/pricing",
+      "description": "Orders above the minimum earn a point per currency unit, twice that for VIP customers.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/pricing/loyalty.xml",
+        "line": 26
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "js",
+          "text": "ctx.order.total.doubleValue() >= ${loyalty.minTotal:25}",
+          "plain": {
+            "complete": false,
+            "tokens": [ ]
+          },
+          "reads": [
+            "order.total"
+          ],
+          "writes": [ ]
+        },
+        "then": [
+          {
+            "kind": "script",
+            "language": "js",
+            "text": "ctx.points = Math.floor(ctx.order.total.doubleValue()) * (ctx.customer.tier === 'VIP' ? 2 : 1);",
+            "plain": {
+              "complete": false,
+              "tokens": [ ]
+            },
+            "reads": [
+              "customer.tier",
+              "order.total"
+            ],
+            "writes": [
+              "points"
+            ]
+          }
+        ],
+        "otherwise": {
+          "kind": "script",
+          "language": "js",
+          "text": "ctx.points = 0;",
+          "plain": {
+            "complete": false,
+            "tokens": [ ]
+          },
+          "reads": [ ],
+          "writes": [
+            "points"
+          ]
+        }
+      }
+    },
+    {
       "id": "ManualReviewRule",
       "name": "ManualReviewRule",
       "type": "rule",
@@ -614,6 +722,51 @@
           "flags": 0,
           "pattern": "^\\+?[0-9][0-9 -]{6,14}$"
         }
+      }
+    },
+    {
+      "id": "SeniorDiscountRule",
+      "name": "SeniorDiscountRule",
+      "type": "rule",
+      "kind": "xml-script",
+      "registered": true,
+      "packageId": "rules/pricing",
+      "description": "Customers at or above the senior age get a small extra discount.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/pricing/loyalty.xml",
+        "line": 37
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "js",
+          "text": "ctx.customer.age >= ${loyalty.seniorAge:65}",
+          "plain": {
+            "complete": false,
+            "tokens": [ ]
+          },
+          "reads": [
+            "customer.age"
+          ],
+          "writes": [ ]
+        },
+        "then": [
+          {
+            "kind": "script",
+            "language": "js",
+            "text": "ctx.seniorDiscount = ${loyalty.seniorDiscount:0.05};",
+            "plain": {
+              "complete": false,
+              "tokens": [ ]
+            },
+            "reads": [ ],
+            "writes": [
+              "seniorDiscount"
+            ]
+          }
+        ]
       }
     },
     {
@@ -915,6 +1068,56 @@
       }
     },
     {
+      "id": "tierUpgradeRule",
+      "name": "TierUpgradeRule",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "com.acme.order.config",
+      "description": "Customers who have earned enough points move up to the GOLD tier.",
+      "source": {
+        "type": "java",
+        "resource": "LoyaltyConfig.java",
+        "line": 50,
+        "className": "com.acme.order.config.LoyaltyConfig",
+        "methodName": "tierUpgradeRule"
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "js",
+          "text": "ctx.points >= ${loyalty.goldPoints:1000} && ctx.customer.tier !== 'GOLD'",
+          "plain": {
+            "complete": false,
+            "tokens": [ ]
+          },
+          "reads": [
+            "customer.tier",
+            "points"
+          ],
+          "writes": [ ]
+        },
+        "then": [
+          {
+            "kind": "script",
+            "language": "js",
+            "text": "ctx.customer.setTier('GOLD');\nctx.upgraded = true;",
+            "plain": {
+              "complete": false,
+              "tokens": [ ]
+            },
+            "reads": [
+              "customer"
+            ],
+            "writes": [
+              "upgraded"
+            ]
+          }
+        ]
+      }
+    },
+    {
       "id": "approvalRules",
       "name": "approvalRules",
       "type": "ruleset",
@@ -946,6 +1149,42 @@
         "members": [
           "ApproveOrderRule",
           "ManualReviewRule"
+        ]
+      }
+    },
+    {
+      "id": "loyaltyRules",
+      "name": "loyaltyRules",
+      "type": "ruleset",
+      "kind": "xml",
+      "registered": true,
+      "packageId": "rules/pricing",
+      "description": "Awards loyalty points and the perks that come with them.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/pricing/loyalty.xml",
+        "line": 16
+      },
+      "parameters": [
+        {
+          "name": "order",
+          "type": "com.acme.order.model.Order",
+          "required": true,
+          "description": "The approved order"
+        },
+        {
+          "name": "customer",
+          "type": "com.acme.order.model.Customer",
+          "required": true,
+          "description": "The customer who placed it"
+        }
+      ],
+      "ruleSet": {
+        "validating": false,
+        "members": [
+          "LoyaltyPointsRule",
+          "BulkOrderRule",
+          "SeniorDiscountRule"
         ]
       }
     },
@@ -1081,6 +1320,88 @@
           "VipDiscountRule",
           "FreeShippingRule"
         ]
+      }
+    },
+    {
+      "id": "loyaltyFlow",
+      "name": "loyaltyFlow",
+      "type": "ruleflow",
+      "kind": "xml",
+      "registered": true,
+      "packageId": "rules/pricing",
+      "description": "Awards points for an approved order and upgrades the customer's tier when they qualify.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/pricing/loyalty.xml",
+        "line": 44
+      },
+      "parameters": [
+        {
+          "name": "order",
+          "type": "com.acme.order.model.Order",
+          "required": true,
+          "description": "The approved order"
+        },
+        {
+          "name": "customer",
+          "type": "com.acme.order.model.Customer",
+          "required": true,
+          "description": "The customer who placed it"
+        }
+      ],
+      "ruleFlow": {
+        "commands": [
+          {
+            "type": "run",
+            "target": {
+              "kind": "instance",
+              "id": "loyaltyRules",
+              "resolution": "direct"
+            },
+            "as": "loyalty"
+          },
+          {
+            "type": "when",
+            "condition": {
+              "kind": "script",
+              "language": "js",
+              "text": "ctx.points > 0",
+              "plain": {
+                "complete": false,
+                "tokens": [ ]
+              },
+              "reads": [
+                "points"
+              ],
+              "writes": [ ]
+            },
+            "then": [
+              {
+                "type": "run",
+                "target": {
+                  "kind": "instance",
+                  "id": "tierUpgradeRule",
+                  "resolution": "direct"
+                }
+              }
+            ],
+            "otherwise": [ ]
+          }
+        ],
+        "returning": {
+          "kind": "script",
+          "language": "js",
+          "text": "ctx.points",
+          "plain": {
+            "complete": false,
+            "tokens": [ ]
+          },
+          "reads": [
+            "points"
+          ],
+          "writes": [ ]
+        },
+        "resultType": "java.lang.Object"
       }
     },
     {
@@ -1472,6 +1793,46 @@
       "resolution": "direct"
     },
     {
+      "from": "loyaltyFlow",
+      "to": "loyaltyRules",
+      "type": "runs",
+      "async": false,
+      "path": "commands[0]",
+      "resolution": "direct"
+    },
+    {
+      "from": "loyaltyFlow",
+      "to": "tierUpgradeRule",
+      "type": "runs",
+      "async": false,
+      "path": "commands[1].then[0]",
+      "resolution": "direct"
+    },
+    {
+      "from": "loyaltyRules",
+      "to": "LoyaltyPointsRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[0]",
+      "resolution": "direct"
+    },
+    {
+      "from": "loyaltyRules",
+      "to": "BulkOrderRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[1]",
+      "resolution": "direct"
+    },
+    {
+      "from": "loyaltyRules",
+      "to": "SeniorDiscountRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[2]",
+      "resolution": "direct"
+    },
+    {
       "from": "orderProcessingFlow",
       "to": "orderValidationRules",
       "type": "runs",
@@ -1620,12 +1981,17 @@
         "AgeCheckRule",
         "CreditLimitRule",
         "EmailFormatRule",
+        "LoyaltyPointsRule",
         "PhoneFormatRule",
+        "SeniorDiscountRule",
         "VipDiscountRule",
         "fraudScoreRule",
+        "loyaltyFlow",
+        "loyaltyRules",
         "orderProcessingFlow",
         "orderValidationRules",
-        "pricingRules"
+        "pricingRules",
+        "tierUpgradeRule"
       ],
       "writtenBy": [ ],
       "unknownWriters": [
@@ -1683,17 +2049,29 @@
       "unknownWriters": [ ]
     },
     {
+      "name": "loyalty",
+      "readBy": [ ],
+      "writtenBy": [
+        "loyaltyFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
       "name": "order",
       "readBy": [
+        "BulkOrderRule",
         "ConsistentDatesRule",
         "CreditLimitRule",
         "FreeShippingRule",
+        "LoyaltyPointsRule",
         "ManualReviewRule",
         "MinTotalRule",
         "ShippingAddressRule",
         "StockAvailableRule",
         "approvalRules",
         "fraudScoreRule",
+        "loyaltyFlow",
+        "loyaltyRules",
         "orderProcessingFlow",
         "orderValidationRules",
         "pricingRules"
@@ -1706,6 +2084,19 @@
         "StockAvailableRule",
         "fraudScoreRule"
       ]
+    },
+    {
+      "name": "points",
+      "readBy": [
+        "BulkOrderRule",
+        "loyaltyFlow",
+        "tierUpgradeRule"
+      ],
+      "writtenBy": [
+        "BulkOrderRule",
+        "LoyaltyPointsRule"
+      ],
+      "unknownWriters": [ ]
     },
     {
       "name": "reviewQueue",
@@ -1723,6 +2114,22 @@
         "orderValidationRules"
       ],
       "writtenBy": [ ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "seniorDiscount",
+      "readBy": [ ],
+      "writtenBy": [
+        "SeniorDiscountRule"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "upgraded",
+      "readBy": [ ],
+      "writtenBy": [
+        "tierUpgradeRule"
+      ],
       "unknownWriters": [ ]
     },
     {

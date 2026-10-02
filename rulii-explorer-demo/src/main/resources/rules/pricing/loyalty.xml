@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:r="http://www.rulii.org/schema/rulii"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           https://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.rulii.org/schema/rulii
+           https://www.rulii.org/spring/rulii-spring.xsd">
+
+    <!-- Every script in this file is JavaScript, run by GraalJS. The bindings are reachable as
+         ctx, the way #ctx reaches them in SpEL, and Java objects keep their methods. The explorer
+         keeps the script text and scans it for the bindings it reads and writes. -->
+    <r:scripting defaultLanguage="js"/>
+
+    <r:ruleset name="loyaltyRules" description="Awards loyalty points and the perks that come with them.">
+        <r:param name="order" type="com.acme.order.model.Order" description="The approved order"/>
+        <r:param name="customer" type="com.acme.order.model.Customer" description="The customer who placed it"/>
+        <r:rules>
+            <r:bean-ref name="LoyaltyPointsRule"/>
+            <r:bean-ref name="BulkOrderRule"/>
+            <r:bean-ref name="SeniorDiscountRule"/>
+        </r:rules>
+    </r:ruleset>
+
+    <r:rule name="LoyaltyPointsRule" description="Orders above the minimum earn a point per currency unit, twice that for VIP customers.">
+        <r:given>ctx.order.total.doubleValue() >= ${loyalty.minTotal:25}</r:given>
+        <r:then>ctx.points = Math.floor(ctx.order.total.doubleValue()) * (ctx.customer.tier === 'VIP' ? 2 : 1);</r:then>
+        <r:otherwise>ctx.points = 0;</r:otherwise>
+    </r:rule>
+
+    <r:rule name="BulkOrderRule" description="Large orders earn a bonus on top of their points.">
+        <r:given>ctx.order.items.size() >= ${loyalty.bulkItems:10}</r:given>
+        <r:then>ctx.points += ${loyalty.bulkBonus:100};</r:then>
+    </r:rule>
+
+    <r:rule name="SeniorDiscountRule" description="Customers at or above the senior age get a small extra discount.">
+        <r:given>ctx.customer.age >= ${loyalty.seniorAge:65}</r:given>
+        <r:then>ctx.seniorDiscount = ${loyalty.seniorDiscount:0.05};</r:then>
+    </r:rule>
+
+    <!-- Runs after an order is approved: award the points, then see whether they lift the
+         customer into the next tier. -->
+    <r:ruleflow name="loyaltyFlow" description="Awards points for an approved order and upgrades the customer's tier when they qualify.">
+        <r:param name="order" type="com.acme.order.model.Order" description="The approved order"/>
+        <r:param name="customer" type="com.acme.order.model.Customer" description="The customer who placed it"/>
+        <r:run bean-ref="loyaltyRules" as="loyalty"/>
+        <r:when condition="ctx.points > 0">
+            <r:then>
+                <r:run bean-ref="tierUpgradeRule"/>
+            </r:then>
+        </r:when>
+        <r:returning>ctx.points</r:returning>
+    </r:ruleflow>
+
+</beans>

@@ -72,20 +72,20 @@ class OrderServiceDescriptorTest {
 
         Map<ArtifactType, Long> byType = descriptor.artifacts().stream()
                 .collect(Collectors.groupingBy(Artifact::type, Collectors.counting()));
-        assertEquals(14L, byType.get(ArtifactType.RULE));
-        assertEquals(3L, byType.get(ArtifactType.RULESET));
-        assertEquals(2L, byType.get(ArtifactType.RULEFLOW));
-        assertEquals(19, descriptor.artifacts().size());
+        assertEquals(18L, byType.get(ArtifactType.RULE));
+        assertEquals(4L, byType.get(ArtifactType.RULESET));
+        assertEquals(3L, byType.get(ArtifactType.RULEFLOW));
+        assertEquals(25, descriptor.artifacts().size());
 
         assertEquals(List.of("com.acme.order.config", "com.acme.order.rules", "rules/order", "rules/pricing"),
                 descriptor.packages().stream().map(p -> p.id()).toList());
 
         Map<ArtifactKind, Long> ruleKinds = descriptor.artifacts().stream().filter(a -> a.type() == ArtifactType.RULE)
                 .collect(Collectors.groupingBy(Artifact::kind, Collectors.counting()));
-        assertEquals(8L, ruleKinds.get(ArtifactKind.XML_SCRIPT));
+        assertEquals(11L, ruleKinds.get(ArtifactKind.XML_SCRIPT));
         assertEquals(2L, ruleKinds.get(ArtifactKind.PREDEFINED_VALIDATOR));
         assertEquals(2L, ruleKinds.get(ArtifactKind.RULE_CLASS));
-        assertEquals(2L, ruleKinds.get(ArtifactKind.JAVA_BUILDER));
+        assertEquals(3L, ruleKinds.get(ArtifactKind.JAVA_BUILDER));
     }
 
     @Test
@@ -107,6 +107,24 @@ class OrderServiceDescriptorTest {
         List<String> missing = bySeverity.get(ProblemSeverity.INFO).stream()
                 .filter(p -> p.code().equals(ProblemCodes.MISSING_DESCRIPTION)).map(Problem::artifact).toList();
         assertEquals(List.of("ConsistentDatesRule", "StockAvailableRule"), missing);
+    }
+
+    @Test
+    void javaScriptRulesKeepTheirTextAndScanTheirBindings() {
+        Descriptor descriptor = descriptor();
+        Artifact points = artifact(descriptor, "LoyaltyPointsRule");
+        assertEquals("js", points.rule().given().language());
+        assertEquals("ctx.order.total.doubleValue() >= ${loyalty.minTotal:25}", points.rule().given().text());
+        assertFalse(points.rule().given().plain().complete(), "no translation for JavaScript; the text is shown as written");
+        assertEquals(List.of("order.total"), points.rule().given().reads(), "a method call ends the path");
+        assertEquals(List.of("points"), points.rule().then().get(0).writes());
+        Artifact upgrade = artifact(descriptor, "tierUpgradeRule");
+        assertEquals(ArtifactKind.JAVA_BUILDER, upgrade.kind());
+        assertEquals("js", upgrade.rule().then().get(0).language());
+        assertEquals(List.of("customer"), upgrade.rule().then().get(0).reads(), "setTier is a call, not a binding");
+        assertEquals(List.of("upgraded"), upgrade.rule().then().get(0).writes());
+        Artifact flow = artifact(descriptor, "loyaltyFlow");
+        assertEquals("js", flow.ruleFlow().returning().language());
     }
 
     @Test

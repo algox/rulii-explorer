@@ -28,7 +28,7 @@ test('loader reads the golden descriptor', async () => {
     descriptor = result.descriptor;
     index = buildIndex(descriptor);
     search = buildSearch(descriptor, index);
-    eq(descriptor.artifacts.length, 19);
+    eq(descriptor.artifacts.length, 25);
 });
 
 test('loader maps failures to states', async () => {
@@ -53,10 +53,10 @@ test('routes parse and build', () => {
 });
 
 test('index counts and groups', () => {
-    eq(index.counts, {rule: 14, ruleset: 3, ruleflow: 2, packages: 4});
+    eq(index.counts, {rule: 18, ruleset: 4, ruleflow: 3, packages: 4});
     eq(index.packages.map(p => p.pkg.id), ['com.acme.order.config', 'com.acme.order.rules', 'rules/order', 'rules/pricing']);
     eq(index.byPackage.get('rules/order').counts, {rule: 8, ruleset: 2, ruleflow: 1, total: 11});
-    eq(index.byType.ruleflow.map(a => a.id), ['nightlyRepriceFlow', 'orderProcessingFlow']);
+    eq(index.byType.ruleflow.map(a => a.id), ['loyaltyFlow', 'nightlyRepriceFlow', 'orderProcessingFlow']);
 });
 
 test('index back-links, bindings and problems', () => {
@@ -109,9 +109,9 @@ test('summaries say what the data supports', () => {
     has(artifactSummary(a('fraudScoreRule'), index), 'Takes the order and the customer. Its logic is compiled Java code');
     eq(artifactSummary(a('orderValidationRules'), index), 'Checks 8 rules in order and stops when number of rule violations is at least 3. Runs only if order is present.');
     has(artifactSummary(a('orderProcessingFlow'), index), 'running 3 rule sets and 1 rule, and returns approved.');
-    eq(bindingSummary(index.bindings.get('order')), 'Read by 12 artifacts and written by 2. Compiled code in 2 more may also change it.');
+    eq(bindingSummary(index.bindings.get('order')), 'Read by 16 artifacts and written by 2. Compiled code in 2 more may also change it.');
     eq(problemsHeadline(index.problemCounts), 'Two steps are likely to fail. Three things are suggestions.');
-    eq(kindCaption('rule', index.kindCounts), '8 XML · 2 @Rule classes · 2 validators · 2 Java builders');
+    eq(kindCaption('rule', index.kindCounts), '11 XML · 3 Java builders · 2 @Rule classes · 2 validators');
 });
 
 test('kind labels', () => {
@@ -179,11 +179,11 @@ import {roundedPath, absolutePositions} from '/rulii-explorer/app/graph-engine/l
 
 test('dependency graph model: nodes, missing targets, focus and filters', () => {
     const full = fullGraph(index);
-    eq(full.nodes.size, 21, '19 artifacts + 2 missing targets');
+    eq(full.nodes.size, 27, '25 artifacts + 2 missing targets');
     ok(full.nodes.has('missing:prefixRule'), 'prefixRule is a missing node');
     ok(full.nodes.has('missing:RangeCheckRule'), 'the mismatched lookup is a missing node too');
     eq(full.edges.filter(e => e.resolution === 'unresolved').length, 2);
-    eq(full.edges.filter(e => e.type === 'contains').length, 12);
+    eq(full.edges.filter(e => e.type === 'contains').length, 15);
     const focus = focusGraph(full, 'orderValidationRules', '1');
     eq(focus.nodes.size, 10, 'the set, its 8 rules and the flow that runs it');
     eq(focus.nodes.get('MinTotalRule').order, 4);

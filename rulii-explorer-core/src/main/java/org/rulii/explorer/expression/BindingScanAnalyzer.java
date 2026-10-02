@@ -41,8 +41,10 @@ public final class BindingScanAnalyzer implements ExpressionAnalyzer {
     public static final Set<String> DEFAULT_LANGUAGES = Set.of("js", "javascript", "java");
 
     private static final String BINDINGS = "ctx";
+    /** One path segment; a segment followed by {@code (} is a method call, not a property, and ends the path before it. */
+    private static final String SEGMENT = "[A-Za-z_$][\\w$]*(?![\\w$]|\\s*\\()";
     private static final Pattern REFERENCE = Pattern.compile(
-            "(?<![\\w$.])" + BINDINGS + "\\.([A-Za-z_$][\\w$]*(?:\\.[A-Za-z_$][\\w$]*)*)(\\s*(\\+\\+|--|[-+*/%&|^]?=(?!=)))?");
+            "(?<![\\w$.])" + BINDINGS + "\\.(" + SEGMENT + "(?:\\." + SEGMENT + ")*)(\\s*(\\+\\+|--|[-+*/%&|^]?=(?!=)))?");
     private static final Pattern STRINGS_AND_COMMENTS = Pattern.compile(
             "\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*'|`(?:\\\\.|[^`\\\\])*`|//[^\\n]*|/\\*.*?\\*/", Pattern.DOTALL);
 

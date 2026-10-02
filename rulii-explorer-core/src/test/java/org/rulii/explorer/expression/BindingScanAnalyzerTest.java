@@ -80,6 +80,13 @@ class BindingScanAnalyzerTest {
     }
 
     @Test
+    void methodCallsEndThePath() {
+        ExpressionAnalysis analysis = analyzer.analyze("ctx.order.total.doubleValue() >= 25 && ctx.order.items.size() > ctx.limit; ctx.customer.setTier('GOLD'); ctx.points += 1;");
+        assertEquals(List.of("customer", "limit", "order.items", "order.total", "points"), analysis.reads());
+        assertEquals(List.of("points"), analysis.writes());
+    }
+
+    @Test
     void blankScriptIsUnparsed() {
         assertEquals(ExpressionAnalysis.unparsed(), analyzer.analyze("  "));
     }

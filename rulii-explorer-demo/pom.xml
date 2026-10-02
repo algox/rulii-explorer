@@ -22,6 +22,8 @@
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <maven.source.skip>true</maven.source.skip>
         <gpg.skip>true</gpg.skip>
+        <!-- GraalJS runs the JavaScript rules in rules/pricing/loyalty.xml and LoyaltyConfig; rulii declares it provided -->
+        <graalvm.version>25.4.4.1.1</graalvm.version>
     </properties>
 
     <dependencies>
@@ -32,6 +34,18 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.graalvm.js</groupId>
+            <artifactId>js-scriptengine</artifactId>
+            <version>${graalvm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>js-community</artifactId>
+            <version>${graalvm.version}</version>
+            <type>pom</type>
         </dependency>
 
         <dependency>

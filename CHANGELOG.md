@@ -20,6 +20,10 @@ The first release. Requires rulii 2.1.0, rulii-spring 2.1.0 and Spring Boot 4.1 
   an address.
   `?` opens a help sheet with the keyboard, the addresses and the flowchart legend; GUIDE.md is
   the full guide, with a reference for every problem code.
+- **JavaScript rules**: scripts in other languages keep their text and are scanned for the bindings
+  they read and write; a method call ends the path, so `ctx.order.total.doubleValue()` reads
+  `order.total`. The demo has a loyalty rule set, a flow and a Java-built rule in JavaScript
+  (GraalJS), in `rules/pricing/loyalty.xml` and `LoyaltyConfig`.
 - **Graphs**: the dependency graph focused on one artifact or for the whole application grouped by
   package, and a flowchart per rule flow with decisions, loops, scopes, an async lane and exception
   handlers; selection is shared with the outline.
