@@ -52,15 +52,15 @@ class WebFluxEndpointTest {
 
     @Test
     void servesTheUiReactively() {
-        Http.Response html = Http.get(port, "/rulii-explorer");
+        Http.Response html = Http.get(port, "/rulii");
         assertEquals(200, html.status());
         assertTrue(html.header().startsWith("text/html"), html.header());
         assertTrue(html.body().contains("<meta name=\"rulii-descriptor\" content=\"/actuator/rulii\">"), html.body());
-        assertEquals(200, Http.get(port, "/rulii-explorer/").status());
+        assertEquals(200, Http.get(port, "/rulii/").status());
 
-        Http.Response asset = Http.get(port, "/rulii-explorer/" + page.assetSegment() + "/app/main.js", "Cache-Control");
+        Http.Response asset = Http.get(port, "/rulii/" + page.assetSegment() + "/app/main.js", "Cache-Control");
         assertEquals(200, asset.status());
         assertTrue(asset.header().contains("immutable"), asset.header());
-        assertEquals(404, Http.get(port, "/rulii-explorer/index.html").status());
+        assertEquals(404, Http.get(port, "/rulii/index.html").status());
     }
 }

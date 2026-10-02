@@ -17,21 +17,19 @@ Add one dependency to a Spring Boot application that already uses rulii-spring:
 </dependency>
 ```
 
-Expose the endpoint, like any Actuator endpoint:
+Turn the explorer on and expose the endpoint, like any Actuator endpoint. The explorer is off by
+default, so a production deployment never shows its rules unless someone chose to:
 
-```yaml
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, rulii
+```properties
+rulii.explorer.enabled=true
+management.endpoints.web.exposure.include=health,rulii
 ```
 
-Start the application and open `/rulii-explorer`. The same data is available as JSON at
+Start the application and open `/rulii`. The same data is available as JSON at
 `/actuator/rulii`. Nothing is built at startup: the descriptor is created on the first request and
 cached until the context refreshes.
 
-To see it first, run the demo in this repository and open http://localhost:8080/rulii-explorer:
+To see it first, run the demo in this repository and open http://localhost:8080/rulii:
 
 ```bash
 mvn install
@@ -67,9 +65,9 @@ does not guess.
 
 | Property | Default | Purpose |
 |---|---|---|
-| `rulii.explorer.enabled` | `true` | Master switch. The endpoint still needs Actuator exposure. |
+| `rulii.explorer.enabled` | `false` | Master switch, off by default. The endpoint still needs Actuator exposure. |
 | `rulii.explorer.ui.enabled` | `true` | Serve the UI. Turn it off to keep the JSON endpoint only. |
-| `rulii.explorer.ui.path` | `/rulii-explorer` | Where the UI is served. |
+| `rulii.explorer.ui.path` | `/rulii` | Where the UI is served. |
 | `rulii.explorer.include-sources` | `true` | Include file names, line numbers and class names in the descriptor. |
 | `rulii.explorer.application-name` | `spring.application.name` | The name shown in the top bar. |
 
@@ -87,7 +85,7 @@ import org.springframework.boot.security.autoconfigure.actuate.web.servlet.Endpo
 
 @Bean
 SecurityFilterChain explorer(HttpSecurity http) throws Exception {
-    http.securityMatcher(EndpointRequest.to("rulii"), PathPatternRequestMatcher.withDefaults().matcher("/rulii-explorer/**"))
+    http.securityMatcher(EndpointRequest.to("rulii"), PathPatternRequestMatcher.withDefaults().matcher("/rulii/**"))
         .authorizeHttpRequests(a -> a.anyRequest().hasRole("RULES"))
         .httpBasic(Customizer.withDefaults());
     return http.build();
@@ -103,11 +101,15 @@ The descriptor can be written at build time from any `@SpringBootTest` and compa
 releases, so a review sees exactly which rules changed:
 
 ```java
-@Autowired ApplicationContext context;
+@SpringBootTest(properties = "rulii.explorer.enabled=true")
+class DescriptorSnapshotTest {
 
-@Test
-void writeDescriptor() throws IOException {
-    RuliiDescriptors.write(context, Path.of("target/rules.json"));
+    @Autowired ApplicationContext context;
+
+    @Test
+    void writeDescriptor() throws IOException {
+        RuliiDescriptors.write(context, Path.of("target/rules.json"));
+    }
 }
 ```
 

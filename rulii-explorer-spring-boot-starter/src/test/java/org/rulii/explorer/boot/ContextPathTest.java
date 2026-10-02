@@ -47,10 +47,10 @@ class ContextPathTest {
 
     @Test
     void uiPointsAtTheRelocatedEndpoint() {
-        Http.Response response = Http.get(port, "/app/rulii-explorer");
+        Http.Response response = Http.get(port, "/app/rulii");
         assertEquals(200, response.status());
         assertTrue(response.body().contains("<meta name=\"rulii-descriptor\" content=\"/app/manage/rulii\">"), response.body());
-        assertTrue(response.body().contains("src=\"/app/rulii-explorer/" + page.assetSegment() + "/app/main.js\""), response.body());
-        assertEquals(200, Http.get(port, "/app/rulii-explorer/" + page.assetSegment() + "/app/main.js").status());
+        assertTrue(response.body().contains("src=\"/app/rulii/" + page.assetSegment() + "/app/main.js\""), response.body());
+        assertEquals(200, Http.get(port, "/app/rulii/" + page.assetSegment() + "/app/main.js").status());
     }
 }

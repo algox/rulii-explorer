@@ -142,7 +142,7 @@ class ScaleTest {
             List<String> errors = new ArrayList<>();
             page.onPageError(e -> errors.add(e));
             page.onConsoleMessage(m -> { if ("error".equals(m.type())) errors.add(m.text()); });
-            String base = "http://localhost:" + port + "/rulii-explorer/";
+            String base = "http://localhost:" + port + "/rulii/";
 
             long t0 = System.nanoTime();
             page.navigate(base);

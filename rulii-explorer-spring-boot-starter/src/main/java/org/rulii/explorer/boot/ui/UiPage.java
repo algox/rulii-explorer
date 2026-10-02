@@ -46,7 +46,7 @@ public final class UiPage {
     /** Where the UI jar keeps the files. Not under {@code META-INF/resources}, so Spring Boot does not serve them on its own. */
     public static final String RESOURCE_ROOT = "META-INF/rulii-explorer/";
     public static final String ASSET_LOCATION = "classpath:/" + RESOURCE_ROOT;
-    public static final String DEFAULT_PATH = "/rulii-explorer";
+    public static final String DEFAULT_PATH = "/rulii";
 
     private static final Pattern META = Pattern.compile("<meta name=\"rulii-descriptor\" content=\"[^\"]*\">");
     private static final Pattern VERSION_SAFE = Pattern.compile("[A-Za-z0-9._-]+");
@@ -57,7 +57,7 @@ public final class UiPage {
     private final String template;
 
     /**
-     * @param uiPath  where the UI is served, e.g. {@code /rulii-explorer}; normalised to a leading slash and no trailing slash.
+     * @param uiPath  where the UI is served, e.g. {@code /rulii}; normalised to a leading slash and no trailing slash.
      * @param version the explorer version used in the asset path; sanitised to {@code [A-Za-z0-9._-]}, {@code dev} when unknown.
      */
     public UiPage(String uiPath, String version) {
@@ -73,7 +73,7 @@ public final class UiPage {
         return new UiPage(uiPath, Explorer.version());
     }
 
-    /** The UI path: {@code /rulii-explorer}. */
+    /** The UI path: {@code /rulii}. */
     public String path() {
         return path;
     }
@@ -91,12 +91,12 @@ public final class UiPage {
         return segment;
     }
 
-    /** The resource handler pattern for the assets: {@code /rulii-explorer/1.0.0/**} ({@code /rulii-explorer/1.0.0-SNAPSHOT-k3x9/**} for snapshots). */
+    /** The resource handler pattern for the assets: {@code /rulii/1.0.0/**} ({@code /rulii/1.0.0-SNAPSHOT-k3x9/**} for snapshots). */
     public String assetPattern() {
         return path + "/" + segment + "/**";
     }
 
-    /** The absolute asset base for a request: {@code /app/rulii-explorer/1.0.0}. */
+    /** The absolute asset base for a request: {@code /app/rulii/1.0.0}. */
     public String assetsBase(String contextPath) {
         return normaliseContext(contextPath) + path + "/" + segment;
     }
@@ -114,7 +114,7 @@ public final class UiPage {
         return META.matcher(html).replaceFirst("<meta name=\"rulii-descriptor\" content=\"" + descriptorPath + "\">");
     }
 
-    /** {@code "rulii-explorer/"} → {@code "/rulii-explorer"}; null or blank → the default. */
+    /** {@code "rulii/"} → {@code "/rulii"}; null or blank → the default. */
     public static String normalisePath(String path) {
         if (path == null || path.isBlank() || path.equals("/")) return DEFAULT_PATH;
         String p = path.trim();

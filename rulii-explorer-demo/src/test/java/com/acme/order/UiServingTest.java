@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The demo serves the explorer UI next to its descriptor, with nothing configured beyond the
- * endpoint exposure in application.yaml.
+ * endpoint exposure in application.properties.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UiServingTest {
@@ -41,12 +41,12 @@ class UiServingTest {
     @Test
     void servesTheExplorer() throws Exception {
         HttpClient client = HttpClient.newHttpClient();
-        HttpResponse<String> page = client.send(HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/rulii-explorer")).build(), HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> page = client.send(HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/rulii")).build(), HttpResponse.BodyHandlers.ofString());
         assertEquals(200, page.statusCode());
         assertTrue(page.body().contains("<meta name=\"rulii-descriptor\" content=\"/actuator/rulii\">"), page.body());
         assertTrue(page.body().contains("<rx-app></rx-app>"), page.body());
 
-        java.util.regex.Matcher m = java.util.regex.Pattern.compile("src=\"(/rulii-explorer/[^/]+/app/main.js)\"").matcher(page.body());
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("src=\"(/rulii/[^/]+/app/main.js)\"").matcher(page.body());
         assertTrue(m.find(), "the page links its entry point");
         HttpResponse<String> asset = client.send(HttpRequest.newBuilder(URI.create("http://localhost:" + port + m.group(1))).build(), HttpResponse.BodyHandlers.ofString());
         assertEquals(200, asset.statusCode());

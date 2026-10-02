@@ -14,7 +14,7 @@ The first release. Requires rulii 2.1.0, rulii-spring 2.1.0 and Spring Boot 4.1 
   their text and a binding scan.
 - **Problems**: unresolved targets, lookups that use a rule's name instead of its registry name,
   duplicate names, unused rules, missing descriptions, and artifacts that could not be described.
-- **Explorer UI** at `/rulii-explorer`: overview with an application map, pages for rules,
+- **Explorer UI** at `/rulii`: overview with an application map, pages for rules,
   validators, compiled rules, rule sets, rule flows (flowchart and outline), bindings, packages
   and problems; search with a command palette (Ctrl/⌘ K); light and dark themes; every screen has
   an address.
@@ -23,7 +23,9 @@ The first release. Requires rulii 2.1.0, rulii-spring 2.1.0 and Spring Boot 4.1 
   handlers; selection is shared with the outline.
 - **Spring Boot**: auto-configuration for Spring MVC and WebFlux, context and base paths, a separate
   management port (the UI follows the endpoint), `rulii.explorer.*` properties, and
-  `RuliiDescriptors.write` for a build-time descriptor in CI.
+  `RuliiDescriptors.write` for a build-time descriptor in CI. Off by default:
+  `rulii.explorer.enabled=true` turns it on, so a production deployment never shows its rules
+  unless someone chose to.
 - **Quality**: golden descriptors and expression corpus, a Boot integration matrix, in-browser unit
   tests, screenshots of every screen and state, axe-core accessibility checks, and a scale test with
   a thousand generated artifacts.

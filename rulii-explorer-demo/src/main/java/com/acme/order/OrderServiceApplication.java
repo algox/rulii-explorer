@@ -27,7 +27,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * {@code @Rule} classes and from Java builders; two deliberate defects make the problems list
  * interesting.
  *
- * <p>Run it and open {@code /actuator/rulii} (JSON) or {@code /rulii-explorer/} (UI).
+ * <p>Run it and open {@code /actuator/rulii} (JSON) or {@code /rulii/} (UI).
  *
  * @author Max Arulananthan
  * @since 1.0

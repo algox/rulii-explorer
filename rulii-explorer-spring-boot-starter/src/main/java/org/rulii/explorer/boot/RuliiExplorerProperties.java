@@ -23,11 +23,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * The {@code rulii.explorer.*} properties (SOLUTION §8.2).
  *
  * <pre>
- * rulii.explorer.enabled=true            # master switch; the endpoint still needs Actuator exposure
+ * rulii.explorer.enabled=true            # master switch, off by default; the endpoint still needs Actuator exposure
  * rulii.explorer.include-sources=true    # file, line and class names in the descriptor (NFR-4)
  * rulii.explorer.application-name=       # shown in the top bar; defaults to spring.application.name
  * rulii.explorer.ui.enabled=true         # serve the UI
- * rulii.explorer.ui.path=/rulii-explorer # where
+ * rulii.explorer.ui.path=/rulii # where
  * </pre>
  *
  * @author Max Arulananthan
@@ -36,8 +36,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "rulii.explorer")
 public class RuliiExplorerProperties {
 
-    /** Master switch. The endpoint still needs {@code management.endpoints.web.exposure.include=rulii}. */
-    private boolean enabled = true;
+    /** Master switch, off by default so rules are never shown unless someone chose to. The endpoint still needs {@code management.endpoints.web.exposure.include=rulii}. */
+    private boolean enabled = false;
 
     /** Include file, line and class names in the descriptor. Turn off for deployments that must not reveal them. */
     private boolean includeSources = true;
@@ -83,10 +83,10 @@ public class RuliiExplorerProperties {
     public static class Ui {
 
         /** Serve the single-page app. Turn off to keep the JSON endpoint only. */
-        private boolean enabled = true;
+        private boolean enabled = false;
 
         /** Where the UI is served. */
-        private String path = "/rulii-explorer";
+        private String path = "/rulii";
 
         public Ui() {
             super();

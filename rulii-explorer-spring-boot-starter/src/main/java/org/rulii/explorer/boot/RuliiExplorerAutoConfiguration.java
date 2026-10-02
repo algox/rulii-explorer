@@ -43,7 +43,8 @@ import java.util.List;
 /**
  * Wires the explorer into a Spring Boot application (SOLUTION §8.1). Applies after rulii-spring's
  * {@link RuleConfig}, only when a {@link RuleRegistry} bean exists and {@code rulii.explorer.enabled}
- * is not false. Every bean is overridable.
+ * is true: the explorer is off by default, so a production deployment never shows its rules unless
+ * someone turned it on. Every bean is overridable.
  *
  * <ul>
  *   <li>{@link DescriptorService}: builds and caches the descriptor on first request.</li>
@@ -61,7 +62,7 @@ import java.util.List;
  */
 @AutoConfiguration(after = RuleConfig.class)
 @ConditionalOnBean(RuleRegistry.class)
-@ConditionalOnProperty(prefix = "rulii.explorer", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "rulii.explorer", name = "enabled", havingValue = "true")
 @EnableConfigurationProperties(RuliiExplorerProperties.class)
 @Import({UiMvcConfiguration.class, UiWebFluxConfiguration.class})
 public class RuliiExplorerAutoConfiguration {

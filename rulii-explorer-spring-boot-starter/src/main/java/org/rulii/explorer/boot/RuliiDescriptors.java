@@ -29,7 +29,7 @@ import java.nio.file.Path;
  * {@code @SpringBootTest}, without a web layer, so CI can diff it against the previous release.
  *
  * <pre>{@code
- * @SpringBootTest
+ * @SpringBootTest(properties = "rulii.explorer.enabled=true")
  * class DescriptorSnapshotTest {
  *     @Autowired ApplicationContext context;
  *

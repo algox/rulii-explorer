@@ -39,9 +39,9 @@ class UiDisabledTest {
     @Test
     void uiIsNotServed() {
         assertEquals(200, Http.get(port, "/actuator/rulii").status());
-        assertEquals(404, Http.get(port, "/rulii-explorer").status());
-        assertEquals(404, Http.get(port, "/rulii-explorer/").status());
-        assertEquals(404, Http.get(port, "/rulii-explorer/1.0.0-SNAPSHOT/app/main.js").status());
+        assertEquals(404, Http.get(port, "/rulii").status());
+        assertEquals(404, Http.get(port, "/rulii/").status());
+        assertEquals(404, Http.get(port, "/rulii/1.0.0-SNAPSHOT/app/main.js").status());
     }
 
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -60,7 +60,7 @@ class UiDisabledTest {
             assertEquals(200, response.status());
             assertTrue(response.body().contains("href=\"/rules/" + page.assetSegment() + "/app/design/tokens.css\""), response.body());
             assertEquals(200, Http.get(port, "/rules/" + page.assetSegment() + "/app/main.js").status());
-            assertEquals(404, Http.get(port, "/rulii-explorer").status());
+            assertEquals(404, Http.get(port, "/rulii").status());
         }
     }
 }

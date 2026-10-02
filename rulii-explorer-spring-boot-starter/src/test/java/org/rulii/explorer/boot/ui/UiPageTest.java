@@ -28,24 +28,24 @@ class UiPageTest {
 
     @Test
     void rewritesAssetsAndTheDescriptorMeta() {
-        UiPage page = new UiPage("/rulii-explorer", "1.2.3");
+        UiPage page = new UiPage("/rulii", "1.2.3");
         String html = page.render("/app", "/app/manage/rulii");
         assertTrue(html.contains("<meta name=\"rulii-descriptor\" content=\"/app/manage/rulii\">"), html);
-        assertTrue(html.contains("href=\"/app/rulii-explorer/1.2.3/app/design/tokens.css\""), html);
-        assertTrue(html.contains("src=\"/app/rulii-explorer/1.2.3/app/main.js\""), html);
-        assertTrue(html.contains("\"lit\": \"/app/rulii-explorer/1.2.3/vendor/lit/lit-core.min.js\""), html);
+        assertTrue(html.contains("href=\"/app/rulii/1.2.3/app/design/tokens.css\""), html);
+        assertTrue(html.contains("src=\"/app/rulii/1.2.3/app/main.js\""), html);
+        assertTrue(html.contains("\"lit\": \"/app/rulii/1.2.3/vendor/lit/lit-core.min.js\""), html);
         assertFalse(html.contains("\"./"), "every relative reference is rewritten");
-        assertEquals("/rulii-explorer/1.2.3/**", page.assetPattern());
-        assertEquals("/rulii-explorer/1.2.3", page.assetsBase(""));
-        assertEquals("/rulii-explorer/1.2.3", page.assetsBase(null));
-        assertEquals("/app/rulii-explorer/1.2.3", page.assetsBase("/app/"));
+        assertEquals("/rulii/1.2.3/**", page.assetPattern());
+        assertEquals("/rulii/1.2.3", page.assetsBase(""));
+        assertEquals("/rulii/1.2.3", page.assetsBase(null));
+        assertEquals("/app/rulii/1.2.3", page.assetsBase("/app/"));
     }
 
     @Test
     void normalisesPathsAndVersions() {
-        assertEquals("/rulii-explorer", UiPage.normalisePath(null));
-        assertEquals("/rulii-explorer", UiPage.normalisePath(" "));
-        assertEquals("/rulii-explorer", UiPage.normalisePath("/"));
+        assertEquals("/rulii", UiPage.normalisePath(null));
+        assertEquals("/rulii", UiPage.normalisePath(" "));
+        assertEquals("/rulii", UiPage.normalisePath("/"));
         assertEquals("/rules", UiPage.normalisePath("rules/"));
         assertEquals("/a/b", UiPage.normalisePath("/a/b//"));
         assertEquals("dev", new UiPage("/x", null).version(), "unknown version");

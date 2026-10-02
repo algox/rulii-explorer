@@ -51,10 +51,10 @@ class ManagementPortTest {
 
     @Test
     void uiFollowsTheDescriptorToTheManagementPort() {
-        Http.Response html = Http.get(managementPort, "/rulii-explorer");
+        Http.Response html = Http.get(managementPort, "/rulii");
         assertEquals(200, html.status(), html.body());
         assertTrue(html.body().contains("<meta name=\"rulii-descriptor\" content=\"/actuator/rulii\">"), html.body());
-        assertEquals(200, Http.get(managementPort, "/rulii-explorer/" + page.assetSegment() + "/app/main.js").status());
-        assertEquals(404, Http.get(serverPort, "/rulii-explorer").status(), "not on the application port");
+        assertEquals(200, Http.get(managementPort, "/rulii/" + page.assetSegment() + "/app/main.js").status());
+        assertEquals(404, Http.get(serverPort, "/rulii").status(), "not on the application port");
     }
 }
