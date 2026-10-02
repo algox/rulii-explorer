@@ -31,6 +31,7 @@ class RxPalette extends RxElement {
             const input = dialog.querySelector('input');
             if (input) { input.value = ''; input.focus(); }
         } else if (!this.state.paletteOpen && dialog.open) {
+            if (dialog.contains(document.activeElement)) document.activeElement.blur(); // focus must not linger in a hidden field
             dialog.close();
         }
     }
@@ -95,6 +96,7 @@ class RxPalette extends RxElement {
                     <span><kbd class="rx-kbd">↵</kbd>open</span>
                     <span><kbd class="rx-kbd">tab</kbd>filter by type</span>
                     <span><kbd class="rx-kbd">esc</kbd>close</span>
+                    <button type="button" class="rx-palette-help" @click=${() => this.store.set({paletteOpen: false, helpOpen: true})}><kbd class="rx-kbd">?</kbd>help</button>
                     <span class="rx-spacer"></span>
                     <span>Names, conditions, error codes and bindings</span>
                 </div>

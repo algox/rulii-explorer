@@ -66,7 +66,7 @@ function flowchartTools(host) {
             <span class="rx-zoom-pct">100%</span>
             <button type="button" aria-label="Zoom in" @click=${() => { const s = stage(); if (s) s.zoomBy(1.25); }}>${icon('zoomIn', {size: 14})}</button>
         </div>
-        <button type="button" class="rx-icon-btn rx-icon-btn-sm" aria-label="Fit to screen" title="Fit to screen" @click=${() => { const s = stage(); if (s) s.fit(28, true); }}>${icon('fit', {size: 14})}</button>
+        <button type="button" class="rx-icon-btn rx-icon-btn-sm" aria-label="Fit to screen" title="Fit to screen (F)" @click=${() => { const s = stage(); if (s) s.fit(28, true); }}>${icon('fit', {size: 14})}</button>
         <button type="button" class="rx-icon-btn rx-icon-btn-sm" aria-label="Toggle minimap" @click=${() => { const c = chart(); if (c) c.minimapOn = !c.minimapOn; }}>${icon('minimap', {size: 14})}</button>
     </div>`;
 }

@@ -1,5 +1,5 @@
 import {html, nothing} from 'lit';
-import {RxElement} from '../../components/base.js';
+import {RxElement, keyIsFree, noDialogOpen} from '../../components/base.js';
 import {glyph, icon} from '../../components/icons.js';
 import {breadcrumb} from '../../components/common.js';
 import {routes, navigate} from '../../routing/router.js';
@@ -41,8 +41,15 @@ class RxGraph extends RxElement {
         this.hovered = null;
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this.onKey = (e) => { if (e.key === 'f' && !e.ctrlKey && !e.metaKey && !e.altKey && keyIsFree(e) && noDialogOpen() && this.stage) { e.preventDefault(); this.stage.fit(32, true); } };
+        addEventListener('keydown', this.onKey);
+    }
+
     disconnectedCallback() {
         super.disconnectedCallback();
+        removeEventListener('keydown', this.onKey);
         if (this.stage) this.stage.destroy();
         this.stage = null;
         this.renderedKey = null;
@@ -186,7 +193,6 @@ class RxGraph extends RxElement {
         const focus = this.focusNode;
         if (!this.stage) {
             this.stage = new GraphStage(stageEl, {onZoom: (k) => { const el = this.querySelector('.rx-zoom-pct'); if (el) el.textContent = Math.round(k * 100) + '%'; }});
-            this.onKey = (e) => { if (e.key === 'f' && !e.ctrlKey && !e.metaKey && e.target === document.body) this.stage.fit(32, true); };
         }
         this.stage.setMinimap(this.querySelector('.rx-minimap'));
         const grouped = !focus && this.graph.nodes.size <= GROUP_LIMIT;

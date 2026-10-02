@@ -13,6 +13,7 @@
  * @property {'plain'|'raw'} exprView   the global Plain / Raw choice (FR-17)
  * @property {Set<string>} expanded     expanded sidebar packages
  * @property {boolean} paletteOpen
+ * @property {boolean} helpOpen       the help sheet (?)
  */
 
 const THEME_KEY = 'rx.theme';
@@ -45,7 +46,8 @@ class Store extends EventTarget {
         theme: remembered(THEME_KEY, ['light', 'dark'], 'system'),
         exprView: remembered(EXPR_KEY, ['plain', 'raw'], 'plain'),
         expanded: new Set(),
-        paletteOpen: false
+        paletteOpen: false,
+        helpOpen: false
     };
 
     get state() {

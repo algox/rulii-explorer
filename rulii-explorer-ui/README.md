@@ -6,8 +6,8 @@ written, with Lit, d3, ELK and the fonts copied into `vendor/` (SOLUTION.md §9 
 
 The files are deliberately *not* under `META-INF/resources/`, so Spring Boot does not serve them
 on its own. The starter serves them: the page at `rulii.explorer.ui.path` (default
-`/rulii-explorer`) with the descriptor address filled in, and the assets under
-`/rulii-explorer/{explorer version}/` with a year of caching. Opening `index.html` from any plain
+`/rulii`) with the descriptor address filled in, and the assets under
+`/rulii/{explorer version}/` with a year of caching. Opening `index.html` from any plain
 static server also works; it then expects the descriptor at `/actuator/rulii`.
 
 ## Layout
@@ -25,7 +25,7 @@ META-INF/rulii-explorer/
     routing/            router.js (hash routes)
     graph-engine/       vendor.js (lazy d3/ELK), layout.js (ELK adapter + cache), stage.js (pan, zoom, minimap)
     features/
-      shell/            app, topbar, sidebar, command palette, hover card
+      shell/            app, topbar, sidebar, command palette, help sheet (?), hover card
       overview/         landing page with the application map
       artifact/         rule, validator, compiled, rule set, rule flow (flowchart + outline), package pages
       graph/            dependency graph: model, d3 renderer, selected-artifact panel, page

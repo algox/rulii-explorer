@@ -130,6 +130,27 @@ class BrowserTest {
             page.waitForSelector(".rx-palette[open]");
             page.keyboard().press("Escape");
             page.waitForFunction("() => !document.querySelector('.rx-palette').open");
+            // The help sheet: ? opens it, Escape closes it, and the palette footer opens it too
+            page.keyboard().press("?");
+            page.waitForSelector(".rx-help[open]");
+            page.keyboard().press("Escape");
+            page.waitForFunction("() => !document.querySelector('.rx-help').open");
+            page.keyboard().press("Control+k");
+            page.waitForSelector(".rx-palette[open]");
+            page.click(".rx-palette-help");
+            page.waitForSelector(".rx-help[open]");
+            page.waitForFunction("() => !document.querySelector('.rx-palette').open");
+            page.click(".rx-help button[aria-label='Close help']");
+            page.waitForFunction("() => !document.querySelector('.rx-help').open");
+            // F fits a flowchart from the keyboard: the zoom changes from the fitted value after zooming in
+            page.navigate(base + "/case/ok/#/ruleflow/orderProcessingFlow");
+            page.waitForSelector(".rx-fnode");
+            page.click(".rx-zoom button[aria-label='Zoom in']");
+            page.click(".rx-zoom button[aria-label='Zoom in']");
+            String zoomed = (String) page.evaluate("() => document.querySelector('.rx-zoom-pct').textContent");
+            page.focus("main");
+            page.keyboard().press("f");
+            page.waitForFunction("z => document.querySelector('.rx-zoom-pct').textContent !== z", zoomed);
             // Tab reaches the sidebar, the actions and the content, and every stop is visible
             page.navigate(base + "/case/ok/#/ruleflow/orderProcessingFlow?view=outline");
             page.waitForSelector(".rx-outline");
@@ -176,6 +197,7 @@ class BrowserTest {
                 screen("package", "ok", "/package/rules/order", ".rx-rows", false),
                 screen("problems", "ok", "/problems", ".rx-article", true),
                 screen("search", "ok", "", ".rx-stats", true, p -> { p.keyboard().press("Control+k"); p.waitForSelector(".rx-palette[open]"); p.keyboard().type("total"); p.waitForSelector(".rx-option"); }),
+                screen("help", "ok", "", ".rx-stats", true, p -> { p.keyboard().press("?"); p.waitForSelector(".rx-help[open]"); }),
                 screen("loading", "slow", "", ".rx-progress", false),
                 screen("state-empty", "empty", "", ".rx-state", false),
                 screen("state-not-exposed", "notexposed", "", ".rx-state", false),

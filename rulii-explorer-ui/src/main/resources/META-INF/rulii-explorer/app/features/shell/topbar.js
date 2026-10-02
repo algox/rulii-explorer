@@ -27,6 +27,9 @@ class RxTopbar extends RxElement {
                 <kbd class="rx-kbd">${IS_MAC ? '⌘K' : 'Ctrl K'}</kbd>
             </button>
             <div class="rx-spacer"></div>
+            <button type="button" class="rx-icon-btn rx-icon-btn-lg" @click=${() => this.store.set({helpOpen: true})} aria-label="Help: keyboard, addresses and the flowchart legend" title="Help (?)" aria-keyshortcuts="?">
+                ${icon('help', {size: 17, width: 1.8})}
+            </button>
             <button type="button" class="rx-icon-btn rx-icon-btn-lg" @click=${() => this.store.toggleTheme()} aria-label=${dark ? 'Switch to light theme' : 'Switch to dark theme'} title=${dark ? 'Switch to light theme' : 'Switch to dark theme'}>
                 ${icon(dark ? 'sun' : 'moon', {size: 17, width: 1.8})}
             </button>

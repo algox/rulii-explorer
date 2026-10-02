@@ -30,7 +30,8 @@ const PATHS = {
     zoomIn: 'M5 12h14M12 5v14',
     fit: 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5',
     minimap: 'M3.5 5h17v14h-17zM12 11h6v5h-6z',
-    chevronUp: 'M6 15l6-6 6 6'
+    chevronUp: 'M6 15l6-6 6 6',
+    help: 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0M9.3 9.6a2.8 2.8 0 1 1 3.9 2.6c-.8.4-1.2 1-1.2 1.8M12 17v.3'
 };
 
 /**

@@ -1,5 +1,5 @@
 import {html, nothing} from 'lit';
-import {RxElement} from '../../components/base.js';
+import {RxElement, keyIsFree, noDialogOpen} from '../../components/base.js';
 import {GraphStage} from '../../graph-engine/stage.js';
 import {layout, roundedPath} from '../../graph-engine/layout.js';
 import {clipText, FONT_CAPTION, FONT_MONO, FONT_NAME, loadD3} from '../../graph-engine/vendor.js';
@@ -29,8 +29,15 @@ class RxFlowchart extends RxElement {
         this.svg = null;
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this.onKey = (e) => { if (e.key === 'f' && !e.ctrlKey && !e.metaKey && !e.altKey && keyIsFree(e) && noDialogOpen() && this.stage) { e.preventDefault(); this.stage.fit(28, true); } };
+        addEventListener('keydown', this.onKey);
+    }
+
     disconnectedCallback() {
         super.disconnectedCallback();
+        removeEventListener('keydown', this.onKey);
         if (this.stage) this.stage.destroy();
         this.stage = null;
         this.renderedKey = null;

@@ -18,6 +18,8 @@ The first release. Requires rulii 2.1.0, rulii-spring 2.1.0 and Spring Boot 4.1 
   validators, compiled rules, rule sets, rule flows (flowchart and outline), bindings, packages
   and problems; search with a command palette (Ctrl/⌘ K); light and dark themes; every screen has
   an address.
+  `?` opens a help sheet with the keyboard, the addresses and the flowchart legend; GUIDE.md is
+  the full guide, with a reference for every problem code.
 - **Graphs**: the dependency graph focused on one artifact or for the whole application grouped by
   package, and a flowchart per rule flow with decisions, loops, scopes, an async lane and exception
   handlers; selection is shared with the outline.

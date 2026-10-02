@@ -1,5 +1,5 @@
 import {html} from 'lit';
-import {RxElement} from '../../components/base.js';
+import {RxElement, keyIsFree} from '../../components/base.js';
 
 /**
  * The shell: top bar, sidebar and the content area, which shows the screen for the current
@@ -10,14 +10,16 @@ class RxApp extends RxElement {
     connectedCallback() {
         super.connectedCallback();
         this.onKey = (e) => {
-            const target = e.target;
-            const typing = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+            const typing = !keyIsFree(e);
             if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
                 e.preventDefault();
                 this.store.set({paletteOpen: !this.state.paletteOpen});
             } else if (e.key === '/' && !typing && !this.state.paletteOpen) {
                 e.preventDefault();
                 this.store.set({paletteOpen: true});
+            } else if (e.key === '?' && !typing) {
+                e.preventDefault();
+                this.store.set({helpOpen: !this.state.helpOpen, paletteOpen: false});
             }
         };
         addEventListener('keydown', this.onKey);
@@ -61,6 +63,7 @@ class RxApp extends RxElement {
                 <main class="rx-main" id="rx-main" tabindex="-1">${this.content()}</main>
             </div>
             <rx-palette></rx-palette>
+            <rx-help></rx-help>
             <rx-hovercard></rx-hovercard>`;
     }
 

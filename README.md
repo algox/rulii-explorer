@@ -55,7 +55,8 @@ mvn -pl rulii-explorer-demo spring-boot:run
   that could not be described. Each one says why it matters and how to fix it.
 - **Search** across names, conditions, error codes and bindings: the search field or Ctrl/⌘ K.
 - Every screen has an address you can share. Light and dark themes follow the operating system
-  unless you choose.
+  unless you choose. Press `?` for the keyboard, the addresses and the flowchart legend;
+  [GUIDE.md](GUIDE.md) is the full guide, with a reference for every problem the checks report.
 
 Configuration placeholders such as `${order.minTotal:100}` are shown as written, with their default,
 never with the value the application resolved. The explorer shows what rulii knows for certain and

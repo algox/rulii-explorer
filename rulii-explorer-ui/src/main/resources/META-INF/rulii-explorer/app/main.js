@@ -6,6 +6,7 @@ import './features/shell/app.js';
 import './features/shell/topbar.js';
 import './features/shell/sidebar.js';
 import './features/shell/palette.js';
+import './features/shell/help.js';
 import './features/shell/hovercard.js';
 import './features/overview/overview.js';
 import './features/problems/problems.js';

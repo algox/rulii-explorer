@@ -1,6 +1,17 @@
 import {LitElement} from 'lit';
 import {store} from '../state/store.js';
 
+/** True when a key press is not typing into a field: shortcuts may act on it. */
+export function keyIsFree(event) {
+    const t = event.target;
+    return !(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable));
+}
+
+/** True when no dialog (the palette or the help sheet) is open. */
+export function noDialogOpen() {
+    return !document.querySelector('dialog[open]');
+}
+
 /**
  * The base for every explorer element. Renders into the light DOM, so the one global
  * stylesheet (app/design/app.css) styles everything and the design tokens need no plumbing.
