@@ -38,6 +38,7 @@
         <r:for-each item="item" source="#ctx.catalog.items">
             <r:run name="RangeCheckRule"/>
             <r:run name="prefixRule"/>
+            <r:run bean-ref="backorderRule"/>
         </r:for-each>
     </r:ruleflow>
 

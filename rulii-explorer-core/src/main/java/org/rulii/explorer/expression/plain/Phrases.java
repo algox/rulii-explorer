@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.rulii.explorer.expression.spel;
+package org.rulii.explorer.expression.plain;
 
 import java.util.List;
 import java.util.Locale;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * @author Max Arulananthan
  * @since 1.0
  */
-final class Phrases {
+public final class Phrases {
 
     private static final Map<String, String> OPERATORS = Map.ofEntries(
             Map.entry(">=", "is at least"),
@@ -89,17 +89,17 @@ final class Phrases {
     }
 
     /** The English for a binary operator, or null when the phrase book has none. */
-    static String operator(String symbol) {
+    public static String operator(String symbol) {
         return OPERATORS.get(symbol);
     }
 
     /** The prefix phrase of a method ("number of"), or null. */
-    static String prefixMethod(String name) {
+    public static String prefixMethod(String name) {
         return PREFIX_METHODS.get(name);
     }
 
     /** The infix phrase of a method ("contains"), or null. */
-    static String infixMethod(String name) {
+    public static String infixMethod(String name) {
         return INFIX_METHODS.get(name);
     }
 
@@ -109,16 +109,16 @@ final class Phrases {
      *
      * @return the phrase and whether it is a prefix ("x of receiver") or infix ("receiver x").
      */
-    static GenericMethod genericMethod(String name) {
+    public static GenericMethod genericMethod(String name) {
         if (name.startsWith("get") && name.length() > 3) return new GenericMethod(humanize(name.substring(3)) + " of", true);
         return new GenericMethod(humanize(name), false);
     }
 
-    record GenericMethod(String phrase, boolean prefix) {
+    public record GenericMethod(String phrase, boolean prefix) {
     }
 
     /** {@code minTotal} reads "min total"; {@code customerID} reads "customer id". */
-    static String humanize(String identifier) {
+    public static String humanize(String identifier) {
         if (identifier == null || identifier.isEmpty()) return identifier;
         return CAMEL.splitAsStream(identifier)
                 .filter(s -> !s.isEmpty())
@@ -127,7 +127,7 @@ final class Phrases {
     }
 
     /** {@code ["order", "shippingAddress"]} reads "order shipping address". */
-    static String humanize(List<String> path) {
+    public static String humanize(List<String> path) {
         return path.stream().map(Phrases::humanize).collect(Collectors.joining(" "));
     }
 }

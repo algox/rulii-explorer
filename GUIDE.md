@@ -198,7 +198,9 @@ description in the builder.
 - **Compiled code**: a lambda or method reference. The explorer shows its signature and the
   bindings it declares, and says that its logic cannot be read. A lock marks it everywhere.
 - **Plain** and **Raw**: the same expression as a sentence or as the original text with syntax
-  colours. Bindings become chips that link to the binding page; placeholders such as
+  colours. SpEL, JavaScript and Java all read as sentences; a part the explorer cannot phrase, such as
+  a function or a regular expression, is shown as written and the page says the translation is
+  partial. Bindings become chips that link to the binding page; placeholders such as
   `${order.minTotal:100}` become chips showing the key and the default.
 - **Binding**: a named value that rules read or write. The binding page lists both sides, and
   notes where compiled code might also change it.

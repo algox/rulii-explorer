@@ -18,6 +18,9 @@
 package org.rulii.explorer.expression.spel;
 
 import org.rulii.explorer.descriptor.Token;
+import org.rulii.explorer.expression.plain.Part;
+import org.rulii.explorer.expression.plain.Phrases;
+import org.rulii.explorer.expression.plain.Placeholders;
 import org.springframework.expression.spel.SpelNode;
 import org.springframework.expression.spel.ast.Assign;
 import org.springframework.expression.spel.ast.BooleanLiteral;
@@ -71,7 +74,7 @@ final class SpelTranslator {
         if (node instanceof VariableReference variable) return variable(variable);
         if (node instanceof CompoundExpression compound) return compound(compound);
         if (node instanceof Assign assign) return assign(assign);
-        if (node instanceof OperatorNot not) return not(translate(not.getChild(0)));
+        if (node instanceof OperatorNot not) return Part.negate(translate(not.getChild(0)));
         if (node instanceof Ternary ternary) return ternary(ternary);
         if (node instanceof Elvis elvis) return elvis(elvis);
         if (node instanceof InlineList list) return inlineList(list);
@@ -176,6 +179,15 @@ final class SpelTranslator {
             return null;
         }
 
+        // items.get(0) is an index: "items at 0"
+        if ("get".equals(name) && args.size() == 1) return new Part().add(target).add(Token.op("at")).add(args.get(0));
+        // A getter is the property: #ctx.order.getTotal() is order total, like #ctx.order.total
+        if (target.path != null && !target.path.isEmpty() && name.startsWith("get") && name.length() > 3 && args.isEmpty()) {
+            List<String> property = new ArrayList<>(target.path);
+            property.add(Character.toLowerCase(name.charAt(3)) + name.substring(4));
+            return Part.binding(property);
+        }
+
         String prefix = Phrases.prefixMethod(name);
         String infix = Phrases.infixMethod(name);
         Part part = new Part();
@@ -184,24 +196,17 @@ final class SpelTranslator {
             part.add(Token.call(prefix)).add(target);
         } else if (infix != null) {
             part.add(target).add(Token.call(infix));
-            appendArguments(part, args);
+            Part.appendArguments(part, args);
         } else {
             Phrases.GenericMethod generic = Phrases.genericMethod(name);
             if (generic.prefix() && args.isEmpty()) {
                 part.add(Token.call(generic.phrase())).add(target);
             } else {
                 part.add(target).add(Token.call(generic.phrase()));
-                appendArguments(part, args);
+                Part.appendArguments(part, args);
             }
         }
         return part;
-    }
-
-    private static void appendArguments(Part part, List<Part> args) {
-        for (int a = 0; a < args.size(); a++) {
-            if (a > 0) part.add(Token.op(","));
-            part.add(args.get(a));
-        }
     }
 
     private static String unquote(String literal) {
@@ -238,39 +243,11 @@ final class SpelTranslator {
             return part.add(left).add(Token.op("==".equals(symbol) ? "is absent" : "is present"));
         }
 
-        addOperand(part, left, logical ? phrase : null);
+        Part.addOperand(part, left, logical ? phrase : null);
         part.add(Token.op(phrase));
-        addOperand(part, right, logical ? phrase : null);
+        Part.addOperand(part, right, logical ? phrase : null);
         if (logical) part.logicalOperator = phrase;
         return part;
-    }
-
-    /** Mixed and/or keeps its grouping visible with parentheses. */
-    private static void addOperand(Part into, Part operand, String parentLogical) {
-        if (parentLogical != null && operand.logicalOperator != null && !parentLogical.equals(operand.logicalOperator)) {
-            into.add(Token.op("(")).add(operand).add(Token.op(")"));
-        } else {
-            into.add(operand);
-        }
-    }
-
-    /**
-     * "not X": when X reads "... is ..." the negation moves inside ("items is not empty"),
-     * otherwise it is prefixed.
-     */
-    private static Part not(Part operand) {
-        Part part = new Part().absorb(operand);
-        for (int i = 0; i < operand.tokens.size(); i++) {
-            Token token = operand.tokens.get(i);
-            boolean phrase = Token.OP.equals(token.t()) || Token.CALL.equals(token.t());
-            if (phrase && (token.text().equals("is") || token.text().startsWith("is "))) {
-                for (int j = 0; j < operand.tokens.size(); j++) {
-                    part.tokens.add(j == i ? new Token(token.t(), "is not" + token.text().substring(2), null, null, null) : operand.tokens.get(j));
-                }
-                return part;
-            }
-        }
-        return part.add(Token.op("not")).add(operand);
     }
 
     private Part between(OperatorBetween between) {
@@ -312,7 +289,7 @@ final class SpelTranslator {
         }
 
         Part part = new Part().add(Token.keyword("the list"));
-        appendArguments(part, items);
+        Part.appendArguments(part, items);
         return part;
     }
 

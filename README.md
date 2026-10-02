@@ -44,6 +44,8 @@ mvn -pl rulii-explorer-demo spring-boot:run
   away), its parameters and the bindings it reads and writes, who uses it, where it is defined. Rule
   sets list their rules in order with their conditions; validators show their error code, message and
   settings; compiled rules say honestly that their logic cannot be read and show the signature.
+  SpEL, JavaScript and Java scripts all read as sentences; anything the explorer cannot phrase is shown
+  as written.
 - **Rule flows** as a flowchart (decisions, loops, scopes, an async lane, exception handlers) and as
   an outline, the text equivalent. Clicking a step shows what it runs.
 - **Dependency graph** focused on one artifact and its neighbourhood, or the whole application

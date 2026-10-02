@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.rulii.explorer.expression.spel;
+package org.rulii.explorer.expression.plain;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,57 +24,65 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The placeholder pre-pass: {@code ${key:default}} is not SpEL, so each placeholder becomes a
- * synthetic variable ({@code #__ph0}) before parsing and is mapped back to a placeholder token
- * after. Values are never resolved (NFR-3). An escaped {@code \${...}} is left alone.
+ * The {@code ${key:default}} placeholders of a script, taken out before parsing and never
+ * resolved (NFR-4). Each one is replaced by a variable the parser accepts: {@code #__ph0} for SpEL,
+ * {@code __ph0} for JavaScript; the translator turns that variable back into a placeholder token,
+ * and {@link #restore(String)} puts the original text back into raw slices.
  *
  * @author Max Arulananthan
  * @since 1.0
  */
-final class Placeholders {
+public final class Placeholders {
 
-    static final String PREFIX = "__ph";
-
+    public static final String PREFIX = "__ph";
     private static final Pattern PLACEHOLDER = Pattern.compile("(?<!\\\\)\\$\\{\\s*([^}:]+?)\\s*(?::([^}]*))?}");
-    private static final Pattern VARIABLE = Pattern.compile("#" + PREFIX + "(\\d+)");
 
-    /** One placeholder: its key, its default as written (null when none) and its original text. */
-    record Placeholder(String key, String defaultValue, String original) {
+    public record Placeholder(String key, String defaultValue, String original) {
     }
 
     private final String rewritten;
     private final List<Placeholder> placeholders;
+    private final Pattern variable;
 
-    private Placeholders(String rewritten, List<Placeholder> placeholders) {
+    private Placeholders(String rewritten, List<Placeholder> placeholders, String marker) {
         super();
         this.rewritten = rewritten;
         this.placeholders = Collections.unmodifiableList(placeholders);
+        this.variable = Pattern.compile(Pattern.quote(marker) + "(\\d+)");
     }
 
-    static Placeholders of(String sourceText) {
+    /** The SpEL form: placeholders become {@code #__phN} variables. */
+    public static Placeholders of(String sourceText) {
+        return of(sourceText, "#" + PREFIX);
+    }
+
+    /**
+     * @param sourceText the script as written.
+     * @param marker     the text put in place of each placeholder, followed by its index: the
+     *                   variable syntax of the language, such as {@code #__ph} or {@code __ph}.
+     */
+    public static Placeholders of(String sourceText, String marker) {
         List<Placeholder> found = new ArrayList<>();
         Matcher matcher = PLACEHOLDER.matcher(sourceText);
         StringBuilder out = new StringBuilder();
-
         while (matcher.find()) {
             found.add(new Placeholder(matcher.group(1), matcher.group(2), matcher.group()));
-            matcher.appendReplacement(out, Matcher.quoteReplacement("#" + PREFIX + (found.size() - 1)));
+            matcher.appendReplacement(out, Matcher.quoteReplacement(marker + (found.size() - 1)));
         }
         matcher.appendTail(out);
-
-        return new Placeholders(out.toString(), found);
+        return new Placeholders(out.toString(), found, marker);
     }
 
-    /** The text with placeholders replaced by synthetic variables; what the parser sees. */
-    String rewritten() {
+    /** The script with every placeholder replaced by its variable. */
+    public String rewritten() {
         return rewritten;
     }
 
     /**
-     * @param variableName a SpEL variable name.
+     * @param variableName a variable name without any language prefix, such as {@code __ph0}.
      * @return the placeholder the variable stands for, or null when it is an ordinary variable.
      */
-    Placeholder forVariable(String variableName) {
+    public Placeholder forVariable(String variableName) {
         if (variableName == null || !variableName.startsWith(PREFIX)) return null;
         try {
             int index = Integer.parseInt(variableName.substring(PREFIX.length()));
@@ -84,9 +92,9 @@ final class Placeholders {
         }
     }
 
-    /** Puts the original placeholder text back into a slice of the rewritten text. */
-    String restore(String rewrittenSlice) {
-        Matcher matcher = VARIABLE.matcher(rewrittenSlice);
+    /** A slice of the rewritten script with the original placeholders put back. */
+    public String restore(String rewrittenSlice) {
+        Matcher matcher = variable.matcher(rewrittenSlice);
         StringBuilder out = new StringBuilder();
         while (matcher.find()) {
             Placeholder placeholder = forVariable(PREFIX + matcher.group(1));

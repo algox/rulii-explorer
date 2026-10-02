@@ -206,8 +206,31 @@
           "language": "js",
           "text": "ctx.order.items.size() >= ${loyalty.bulkItems:10}",
           "plain": {
-            "complete": false,
-            "tokens": [ ]
+            "complete": true,
+            "tokens": [
+              {
+                "t": "call",
+                "text": "number of"
+              },
+              {
+                "t": "binding",
+                "text": "order items",
+                "path": [
+                  "order",
+                  "items"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is at least"
+              },
+              {
+                "t": "placeholder",
+                "text": "loyalty.bulkItems (default 10)",
+                "key": "loyalty.bulkItems",
+                "defaultValue": "10"
+              }
+            ]
           },
           "reads": [
             "order.items"
@@ -220,8 +243,30 @@
             "language": "js",
             "text": "ctx.points += ${loyalty.bulkBonus:100};",
             "plain": {
-              "complete": false,
-              "tokens": [ ]
+              "complete": true,
+              "tokens": [
+                {
+                  "t": "op",
+                  "text": "add"
+                },
+                {
+                  "t": "placeholder",
+                  "text": "loyalty.bulkBonus (default 100)",
+                  "key": "loyalty.bulkBonus",
+                  "defaultValue": "100"
+                },
+                {
+                  "t": "op",
+                  "text": "to"
+                },
+                {
+                  "t": "binding",
+                  "text": "points",
+                  "path": [
+                    "points"
+                  ]
+                }
+              ]
             },
             "reads": [
               "points"
@@ -337,6 +382,160 @@
       }
     },
     {
+      "id": "DeliveryWindowRule",
+      "name": "DeliveryWindowRule",
+      "type": "rule",
+      "kind": "xml-script",
+      "registered": true,
+      "packageId": "rules/order",
+      "description": "Works out how many days the customer has allowed for delivery.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/order/fulfilment.xml",
+        "line": 37
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "java",
+          "text": "ctx.order.getRequestedDeliveryDate() != null && ctx.order.getRequestedDeliveryDate().isAfter(ctx.order.getOrderDate())",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "order requested delivery date",
+                "path": [
+                  "order",
+                  "requestedDeliveryDate"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is present"
+              },
+              {
+                "t": "op",
+                "text": "and"
+              },
+              {
+                "t": "binding",
+                "text": "order requested delivery date",
+                "path": [
+                  "order",
+                  "requestedDeliveryDate"
+                ]
+              },
+              {
+                "t": "call",
+                "text": "is after"
+              },
+              {
+                "t": "binding",
+                "text": "order order date",
+                "path": [
+                  "order",
+                  "orderDate"
+                ]
+              }
+            ]
+          },
+          "reads": [
+            "order.orderDate",
+            "order.requestedDeliveryDate"
+          ],
+          "writes": [ ]
+        },
+        "then": [
+          {
+            "kind": "script",
+            "language": "java",
+            "text": "long days = java.time.temporal.ChronoUnit.DAYS.between(ctx.order.getOrderDate(), ctx.order.getRequestedDeliveryDate());\nctx.deliveryDays = (int) days;",
+            "plain": {
+              "complete": false,
+              "tokens": [
+                {
+                  "t": "keyword",
+                  "text": "let"
+                },
+                {
+                  "t": "literal",
+                  "text": "days"
+                },
+                {
+                  "t": "keyword",
+                  "text": "be"
+                },
+                {
+                  "t": "raw",
+                  "text": "java.time.temporal.ChronoUnit.DAYS.between"
+                },
+                {
+                  "t": "op",
+                  "text": "("
+                },
+                {
+                  "t": "binding",
+                  "text": "order order date",
+                  "path": [
+                    "order",
+                    "orderDate"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": ","
+                },
+                {
+                  "t": "binding",
+                  "text": "order requested delivery date",
+                  "path": [
+                    "order",
+                    "requestedDeliveryDate"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": ")"
+                },
+                {
+                  "t": "keyword",
+                  "text": "then"
+                },
+                {
+                  "t": "op",
+                  "text": "set"
+                },
+                {
+                  "t": "binding",
+                  "text": "delivery days",
+                  "path": [
+                    "deliveryDays"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": "to"
+                },
+                {
+                  "t": "literal",
+                  "text": "days"
+                }
+              ]
+            },
+            "reads": [
+              "order.orderDate",
+              "order.requestedDeliveryDate"
+            ],
+            "writes": [
+              "deliveryDays"
+            ]
+          }
+        ]
+      }
+    },
+    {
       "id": "EmailFormatRule",
       "name": "EmailFormatRule",
       "type": "rule",
@@ -388,6 +587,123 @@
         "settings": {
           "allowLocal": false,
           "allowTopLevelDomain": false
+        }
+      }
+    },
+    {
+      "id": "ExpressShippingRule",
+      "name": "ExpressShippingRule",
+      "type": "rule",
+      "kind": "xml-script",
+      "registered": true,
+      "packageId": "rules/order",
+      "description": "Orders over the express threshold ship express, the rest standard.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/order/fulfilment.xml",
+        "line": 25
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "java",
+          "text": "ctx.order.getTotal().doubleValue() >= ${shipping.expressOver:200}",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "order total",
+                "path": [
+                  "order",
+                  "total"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is at least"
+              },
+              {
+                "t": "placeholder",
+                "text": "shipping.expressOver (default 200)",
+                "key": "shipping.expressOver",
+                "defaultValue": "200"
+              }
+            ]
+          },
+          "reads": [
+            "order.total"
+          ],
+          "writes": [ ]
+        },
+        "then": [
+          {
+            "kind": "script",
+            "language": "java",
+            "text": "ctx.shippingMethod = \"EXPRESS\";",
+            "plain": {
+              "complete": true,
+              "tokens": [
+                {
+                  "t": "op",
+                  "text": "set"
+                },
+                {
+                  "t": "binding",
+                  "text": "shipping method",
+                  "path": [
+                    "shippingMethod"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": "to"
+                },
+                {
+                  "t": "literal",
+                  "text": "\"EXPRESS\""
+                }
+              ]
+            },
+            "reads": [ ],
+            "writes": [
+              "shippingMethod"
+            ]
+          }
+        ],
+        "otherwise": {
+          "kind": "script",
+          "language": "java",
+          "text": "ctx.shippingMethod = \"STANDARD\";",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "op",
+                "text": "set"
+              },
+              {
+                "t": "binding",
+                "text": "shipping method",
+                "path": [
+                  "shippingMethod"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "to"
+              },
+              {
+                "t": "literal",
+                "text": "\"STANDARD\""
+              }
+            ]
+          },
+          "reads": [ ],
+          "writes": [
+            "shippingMethod"
+          ]
         }
       }
     },
@@ -496,8 +812,27 @@
           "language": "js",
           "text": "ctx.order.total.doubleValue() >= ${loyalty.minTotal:25}",
           "plain": {
-            "complete": false,
-            "tokens": [ ]
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "order total",
+                "path": [
+                  "order",
+                  "total"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is at least"
+              },
+              {
+                "t": "placeholder",
+                "text": "loyalty.minTotal (default 25)",
+                "key": "loyalty.minTotal",
+                "defaultValue": "25"
+              }
+            ]
           },
           "reads": [
             "order.total"
@@ -510,8 +845,76 @@
             "language": "js",
             "text": "ctx.points = Math.floor(ctx.order.total.doubleValue()) * (ctx.customer.tier === 'VIP' ? 2 : 1);",
             "plain": {
-              "complete": false,
-              "tokens": [ ]
+              "complete": true,
+              "tokens": [
+                {
+                  "t": "op",
+                  "text": "set"
+                },
+                {
+                  "t": "binding",
+                  "text": "points",
+                  "path": [
+                    "points"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": "to"
+                },
+                {
+                  "t": "binding",
+                  "text": "order total",
+                  "path": [
+                    "order",
+                    "total"
+                  ]
+                },
+                {
+                  "t": "call",
+                  "text": "rounded down"
+                },
+                {
+                  "t": "op",
+                  "text": "times"
+                },
+                {
+                  "t": "keyword",
+                  "text": "if"
+                },
+                {
+                  "t": "binding",
+                  "text": "customer tier",
+                  "path": [
+                    "customer",
+                    "tier"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": "is"
+                },
+                {
+                  "t": "literal",
+                  "text": "\"VIP\""
+                },
+                {
+                  "t": "keyword",
+                  "text": "then"
+                },
+                {
+                  "t": "literal",
+                  "text": "2"
+                },
+                {
+                  "t": "keyword",
+                  "text": "otherwise"
+                },
+                {
+                  "t": "literal",
+                  "text": "1"
+                }
+              ]
             },
             "reads": [
               "customer.tier",
@@ -527,8 +930,28 @@
           "language": "js",
           "text": "ctx.points = 0;",
           "plain": {
-            "complete": false,
-            "tokens": [ ]
+            "complete": true,
+            "tokens": [
+              {
+                "t": "op",
+                "text": "set"
+              },
+              {
+                "t": "binding",
+                "text": "points",
+                "path": [
+                  "points"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "to"
+              },
+              {
+                "t": "literal",
+                "text": "0"
+              }
+            ]
           },
           "reads": [ ],
           "writes": [
@@ -744,8 +1167,27 @@
           "language": "js",
           "text": "ctx.customer.age >= ${loyalty.seniorAge:65}",
           "plain": {
-            "complete": false,
-            "tokens": [ ]
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "customer age",
+                "path": [
+                  "customer",
+                  "age"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is at least"
+              },
+              {
+                "t": "placeholder",
+                "text": "loyalty.seniorAge (default 65)",
+                "key": "loyalty.seniorAge",
+                "defaultValue": "65"
+              }
+            ]
           },
           "reads": [
             "customer.age"
@@ -758,8 +1200,30 @@
             "language": "js",
             "text": "ctx.seniorDiscount = ${loyalty.seniorDiscount:0.05};",
             "plain": {
-              "complete": false,
-              "tokens": [ ]
+              "complete": true,
+              "tokens": [
+                {
+                  "t": "op",
+                  "text": "set"
+                },
+                {
+                  "t": "binding",
+                  "text": "senior discount",
+                  "path": [
+                    "seniorDiscount"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": "to"
+                },
+                {
+                  "t": "placeholder",
+                  "text": "loyalty.seniorDiscount (default 0.05)",
+                  "key": "loyalty.seniorDiscount",
+                  "defaultValue": "0.05"
+                }
+              ]
             },
             "reads": [ ],
             "writes": [
@@ -811,6 +1275,140 @@
           "writes": [ ]
         },
         "then": [ ]
+      }
+    },
+    {
+      "id": "SplitShipmentRule",
+      "name": "SplitShipmentRule",
+      "type": "rule",
+      "kind": "xml-script",
+      "registered": true,
+      "packageId": "rules/order",
+      "description": "Large orders go out in several parcels.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/order/fulfilment.xml",
+        "line": 31
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "java",
+          "text": "ctx.order.getItems().size() > ${shipping.splitAbove:5}",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "call",
+                "text": "number of"
+              },
+              {
+                "t": "binding",
+                "text": "order items",
+                "path": [
+                  "order",
+                  "items"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is more than"
+              },
+              {
+                "t": "placeholder",
+                "text": "shipping.splitAbove (default 5)",
+                "key": "shipping.splitAbove",
+                "defaultValue": "5"
+              }
+            ]
+          },
+          "reads": [
+            "order.items"
+          ],
+          "writes": [ ]
+        },
+        "then": [
+          {
+            "kind": "script",
+            "language": "java",
+            "text": "int parcels = (ctx.order.getItems().size() + 4) / 5;\nctx.parcels = parcels;",
+            "plain": {
+              "complete": true,
+              "tokens": [
+                {
+                  "t": "keyword",
+                  "text": "let"
+                },
+                {
+                  "t": "literal",
+                  "text": "parcels"
+                },
+                {
+                  "t": "keyword",
+                  "text": "be"
+                },
+                {
+                  "t": "call",
+                  "text": "number of"
+                },
+                {
+                  "t": "binding",
+                  "text": "order items",
+                  "path": [
+                    "order",
+                    "items"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": "plus"
+                },
+                {
+                  "t": "literal",
+                  "text": "4"
+                },
+                {
+                  "t": "op",
+                  "text": "divided by"
+                },
+                {
+                  "t": "literal",
+                  "text": "5"
+                },
+                {
+                  "t": "keyword",
+                  "text": "then"
+                },
+                {
+                  "t": "op",
+                  "text": "set"
+                },
+                {
+                  "t": "binding",
+                  "text": "parcels",
+                  "path": [
+                    "parcels"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": "to"
+                },
+                {
+                  "t": "literal",
+                  "text": "parcels"
+                }
+              ]
+            },
+            "reads": [
+              "order.items"
+            ],
+            "writes": [
+              "parcels"
+            ]
+          }
+        ]
       }
     },
     {
@@ -940,6 +1538,90 @@
             "reads": [ ],
             "writes": [
               "order.discount"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "backorderRule",
+      "name": "BackorderRule",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "com.acme.order.config",
+      "description": "Items with nothing in stock are marked as back-ordered.",
+      "source": {
+        "type": "java",
+        "resource": "FulfilmentConfig.java",
+        "line": 47,
+        "className": "com.acme.order.config.FulfilmentConfig",
+        "methodName": "backorderRule"
+      },
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "java",
+          "text": "ctx.item.getQuantity() <= 0",
+          "plain": {
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "item quantity",
+                "path": [
+                  "item",
+                  "quantity"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is at most"
+              },
+              {
+                "t": "literal",
+                "text": "0"
+              }
+            ]
+          },
+          "reads": [
+            "item.quantity"
+          ],
+          "writes": [ ]
+        },
+        "then": [
+          {
+            "kind": "script",
+            "language": "java",
+            "text": "ctx.backordered = true;",
+            "plain": {
+              "complete": true,
+              "tokens": [
+                {
+                  "t": "op",
+                  "text": "set"
+                },
+                {
+                  "t": "binding",
+                  "text": "backordered",
+                  "path": [
+                    "backordered"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": "to"
+                },
+                {
+                  "t": "literal",
+                  "text": "true"
+                }
+              ]
+            },
+            "reads": [ ],
+            "writes": [
+              "backordered"
             ]
           }
         ]
@@ -1089,8 +1771,46 @@
           "language": "js",
           "text": "ctx.points >= ${loyalty.goldPoints:1000} && ctx.customer.tier !== 'GOLD'",
           "plain": {
-            "complete": false,
-            "tokens": [ ]
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "points",
+                "path": [
+                  "points"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is at least"
+              },
+              {
+                "t": "placeholder",
+                "text": "loyalty.goldPoints (default 1000)",
+                "key": "loyalty.goldPoints",
+                "defaultValue": "1000"
+              },
+              {
+                "t": "op",
+                "text": "and"
+              },
+              {
+                "t": "binding",
+                "text": "customer tier",
+                "path": [
+                  "customer",
+                  "tier"
+                ]
+              },
+              {
+                "t": "op",
+                "text": "is not"
+              },
+              {
+                "t": "literal",
+                "text": "\"GOLD\""
+              }
+            ]
           },
           "reads": [
             "customer.tier",
@@ -1104,13 +1824,56 @@
             "language": "js",
             "text": "ctx.customer.setTier('GOLD');\nctx.upgraded = true;",
             "plain": {
-              "complete": false,
-              "tokens": [ ]
+              "complete": true,
+              "tokens": [
+                {
+                  "t": "op",
+                  "text": "set"
+                },
+                {
+                  "t": "binding",
+                  "text": "customer tier",
+                  "path": [
+                    "customer",
+                    "tier"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": "to"
+                },
+                {
+                  "t": "literal",
+                  "text": "\"GOLD\""
+                },
+                {
+                  "t": "keyword",
+                  "text": "then"
+                },
+                {
+                  "t": "op",
+                  "text": "set"
+                },
+                {
+                  "t": "binding",
+                  "text": "upgraded",
+                  "path": [
+                    "upgraded"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": "to"
+                },
+                {
+                  "t": "literal",
+                  "text": "true"
+                }
+              ]
             },
-            "reads": [
-              "customer"
-            ],
+            "reads": [ ],
             "writes": [
+              "customer.tier",
               "upgraded"
             ]
           }
@@ -1149,6 +1912,36 @@
         "members": [
           "ApproveOrderRule",
           "ManualReviewRule"
+        ]
+      }
+    },
+    {
+      "id": "fulfilmentRules",
+      "name": "fulfilmentRules",
+      "type": "ruleset",
+      "kind": "xml",
+      "registered": true,
+      "packageId": "rules/order",
+      "description": "Decides how an approved order ships.",
+      "source": {
+        "type": "xml",
+        "resource": "classpath:rules/order/fulfilment.xml",
+        "line": 16
+      },
+      "parameters": [
+        {
+          "name": "order",
+          "type": "com.acme.order.model.Order",
+          "required": true,
+          "description": "The approved order"
+        }
+      ],
+      "ruleSet": {
+        "validating": false,
+        "members": [
+          "ExpressShippingRule",
+          "SplitShipmentRule",
+          "DeliveryWindowRule"
         ]
       }
     },
@@ -1367,8 +2160,24 @@
               "language": "js",
               "text": "ctx.points > 0",
               "plain": {
-                "complete": false,
-                "tokens": [ ]
+                "complete": true,
+                "tokens": [
+                  {
+                    "t": "binding",
+                    "text": "points",
+                    "path": [
+                      "points"
+                    ]
+                  },
+                  {
+                    "t": "op",
+                    "text": "is more than"
+                  },
+                  {
+                    "t": "literal",
+                    "text": "0"
+                  }
+                ]
               },
               "reads": [
                 "points"
@@ -1393,8 +2202,16 @@
           "language": "js",
           "text": "ctx.points",
           "plain": {
-            "complete": false,
-            "tokens": [ ]
+            "complete": true,
+            "tokens": [
+              {
+                "t": "binding",
+                "text": "points",
+                "path": [
+                  "points"
+                ]
+              }
+            ]
           },
           "reads": [
             "points"
@@ -1484,6 +2301,14 @@
                   "kind": "by-name",
                   "name": "prefixRule",
                   "resolution": "unresolved"
+                }
+              },
+              {
+                "type": "run",
+                "target": {
+                  "kind": "instance",
+                  "id": "backorderRule",
+                  "resolution": "direct"
                 }
               }
             ]
@@ -1793,6 +2618,30 @@
       "resolution": "direct"
     },
     {
+      "from": "fulfilmentRules",
+      "to": "ExpressShippingRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[0]",
+      "resolution": "direct"
+    },
+    {
+      "from": "fulfilmentRules",
+      "to": "SplitShipmentRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[1]",
+      "resolution": "direct"
+    },
+    {
+      "from": "fulfilmentRules",
+      "to": "DeliveryWindowRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[2]",
+      "resolution": "direct"
+    },
+    {
       "from": "loyaltyFlow",
       "to": "loyaltyRules",
       "type": "runs",
@@ -1830,6 +2679,14 @@
       "type": "contains",
       "async": false,
       "path": "members[2]",
+      "resolution": "direct"
+    },
+    {
+      "from": "nightlyRepriceFlow",
+      "to": "backorderRule",
+      "type": "runs",
+      "async": false,
+      "path": "commands[1].body[2]",
       "resolution": "direct"
     },
     {
@@ -1958,6 +2815,14 @@
       "unknownWriters": [ ]
     },
     {
+      "name": "backordered",
+      "readBy": [ ],
+      "writtenBy": [
+        "backorderRule"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
       "name": "catalog",
       "readBy": [
         "nightlyRepriceFlow"
@@ -1993,10 +2858,20 @@
         "pricingRules",
         "tierUpgradeRule"
       ],
-      "writtenBy": [ ],
+      "writtenBy": [
+        "tierUpgradeRule"
+      ],
       "unknownWriters": [
         "fraudScoreRule"
       ]
+    },
+    {
+      "name": "deliveryDays",
+      "readBy": [ ],
+      "writtenBy": [
+        "DeliveryWindowRule"
+      ],
+      "unknownWriters": [ ]
     },
     {
       "name": "fraudCheck",
@@ -2041,6 +2916,7 @@
     {
       "name": "item",
       "readBy": [
+        "backorderRule",
         "rangeCheckRule"
       ],
       "writtenBy": [
@@ -2062,14 +2938,18 @@
         "BulkOrderRule",
         "ConsistentDatesRule",
         "CreditLimitRule",
+        "DeliveryWindowRule",
+        "ExpressShippingRule",
         "FreeShippingRule",
         "LoyaltyPointsRule",
         "ManualReviewRule",
         "MinTotalRule",
         "ShippingAddressRule",
+        "SplitShipmentRule",
         "StockAvailableRule",
         "approvalRules",
         "fraudScoreRule",
+        "fulfilmentRules",
         "loyaltyFlow",
         "loyaltyRules",
         "orderProcessingFlow",
@@ -2084,6 +2964,14 @@
         "StockAvailableRule",
         "fraudScoreRule"
       ]
+    },
+    {
+      "name": "parcels",
+      "readBy": [ ],
+      "writtenBy": [
+        "SplitShipmentRule"
+      ],
+      "unknownWriters": [ ]
     },
     {
       "name": "points",
@@ -2121,6 +3009,14 @@
       "readBy": [ ],
       "writtenBy": [
         "SeniorDiscountRule"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "shippingMethod",
+      "readBy": [ ],
+      "writtenBy": [
+        "ExpressShippingRule"
       ],
       "unknownWriters": [ ]
     },

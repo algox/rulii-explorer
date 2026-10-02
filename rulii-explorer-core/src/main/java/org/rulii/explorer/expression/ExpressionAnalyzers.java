@@ -17,6 +17,8 @@
  */
 package org.rulii.explorer.expression;
 
+import org.rulii.explorer.expression.script.JavaExpressionAnalyzer;
+import org.rulii.explorer.expression.script.JsExpressionAnalyzer;
 import org.rulii.explorer.expression.spel.SpelExpressionAnalyzer;
 
 import java.util.ArrayList;
@@ -45,11 +47,11 @@ public final class ExpressionAnalyzers {
     }
 
     /**
-     * The analyzers the explorer ships with: plain English for SpEL ({@code el}), and a binding
-     * scan (reads and writes, no translation) for JavaScript and Java.
+     * The analyzers the explorer ships with: plain English for SpEL ({@code el}), JavaScript
+     * ({@code js}), and a binding scan (reads and writes, no translation) for Java.
      */
     public static ExpressionAnalyzers defaults() {
-        return new ExpressionAnalyzers(List.of(new SpelExpressionAnalyzer(), new BindingScanAnalyzer()));
+        return new ExpressionAnalyzers(List.of(new SpelExpressionAnalyzer(), new JsExpressionAnalyzer(), new JavaExpressionAnalyzer(), new BindingScanAnalyzer()));
     }
 
     /**

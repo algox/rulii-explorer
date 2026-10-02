@@ -72,20 +72,20 @@ class OrderServiceDescriptorTest {
 
         Map<ArtifactType, Long> byType = descriptor.artifacts().stream()
                 .collect(Collectors.groupingBy(Artifact::type, Collectors.counting()));
-        assertEquals(18L, byType.get(ArtifactType.RULE));
-        assertEquals(4L, byType.get(ArtifactType.RULESET));
+        assertEquals(22L, byType.get(ArtifactType.RULE));
+        assertEquals(5L, byType.get(ArtifactType.RULESET));
         assertEquals(3L, byType.get(ArtifactType.RULEFLOW));
-        assertEquals(25, descriptor.artifacts().size());
+        assertEquals(30, descriptor.artifacts().size());
 
         assertEquals(List.of("com.acme.order.config", "com.acme.order.rules", "rules/order", "rules/pricing"),
                 descriptor.packages().stream().map(p -> p.id()).toList());
 
         Map<ArtifactKind, Long> ruleKinds = descriptor.artifacts().stream().filter(a -> a.type() == ArtifactType.RULE)
                 .collect(Collectors.groupingBy(Artifact::kind, Collectors.counting()));
-        assertEquals(11L, ruleKinds.get(ArtifactKind.XML_SCRIPT));
+        assertEquals(14L, ruleKinds.get(ArtifactKind.XML_SCRIPT));
         assertEquals(2L, ruleKinds.get(ArtifactKind.PREDEFINED_VALIDATOR));
         assertEquals(2L, ruleKinds.get(ArtifactKind.RULE_CLASS));
-        assertEquals(3L, ruleKinds.get(ArtifactKind.JAVA_BUILDER));
+        assertEquals(4L, ruleKinds.get(ArtifactKind.JAVA_BUILDER));
     }
 
     @Test
@@ -115,16 +115,35 @@ class OrderServiceDescriptorTest {
         Artifact points = artifact(descriptor, "LoyaltyPointsRule");
         assertEquals("js", points.rule().given().language());
         assertEquals("ctx.order.total.doubleValue() >= ${loyalty.minTotal:25}", points.rule().given().text());
-        assertFalse(points.rule().given().plain().complete(), "no translation for JavaScript; the text is shown as written");
+        assertTrue(points.rule().given().plain().complete(), "JavaScript reads in plain English like SpEL");
+        assertEquals("order total is at least loyalty.minTotal (default 25)",
+                points.rule().given().plain().tokens().stream().map(t -> t.text()).collect(java.util.stream.Collectors.joining(" ")));
         assertEquals(List.of("order.total"), points.rule().given().reads(), "a method call ends the path");
         assertEquals(List.of("points"), points.rule().then().get(0).writes());
         Artifact upgrade = artifact(descriptor, "tierUpgradeRule");
         assertEquals(ArtifactKind.JAVA_BUILDER, upgrade.kind());
         assertEquals("js", upgrade.rule().then().get(0).language());
-        assertEquals(List.of("customer"), upgrade.rule().then().get(0).reads(), "setTier is a call, not a binding");
-        assertEquals(List.of("upgraded"), upgrade.rule().then().get(0).writes());
+        assertEquals(List.of(), upgrade.rule().then().get(0).reads(), "a setter reads nothing");
+        assertEquals(List.of("customer.tier", "upgraded"), upgrade.rule().then().get(0).writes(), "setTier writes customer tier");
         Artifact flow = artifact(descriptor, "loyaltyFlow");
         assertEquals("js", flow.ruleFlow().returning().language());
+    }
+
+    @Test
+    void javaRulesReadInPlainEnglish() {
+        Descriptor descriptor = descriptor();
+        Artifact express = artifact(descriptor, "ExpressShippingRule");
+        assertEquals("java", express.rule().given().language());
+        assertEquals("ctx.order.getTotal().doubleValue() >= ${shipping.expressOver:200}", express.rule().given().text());
+        assertTrue(express.rule().given().plain().complete(), "Java reads in plain English like SpEL and JavaScript");
+        assertEquals("order total is at least shipping.expressOver (default 200)",
+                express.rule().given().plain().tokens().stream().map(t -> t.text()).collect(java.util.stream.Collectors.joining(" ")));
+        assertEquals(List.of("order.total"), express.rule().given().reads(), "a getter is the property");
+        assertEquals(List.of("shippingMethod"), express.rule().then().get(0).writes());
+        Artifact backorder = artifact(descriptor, "backorderRule");
+        assertEquals(ArtifactKind.JAVA_BUILDER, backorder.kind());
+        assertEquals("java", backorder.rule().then().get(0).language());
+        assertEquals(List.of("backordered"), backorder.rule().then().get(0).writes());
     }
 
     @Test

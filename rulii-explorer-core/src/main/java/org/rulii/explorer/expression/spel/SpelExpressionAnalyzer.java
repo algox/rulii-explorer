@@ -18,6 +18,9 @@
 package org.rulii.explorer.expression.spel;
 
 import org.rulii.explorer.descriptor.Token;
+import org.rulii.explorer.expression.plain.Part;
+import org.rulii.explorer.expression.plain.Phrases;
+import org.rulii.explorer.expression.plain.Placeholders;
 import org.rulii.explorer.expression.ExpressionAnalysis;
 import org.rulii.explorer.expression.ExpressionAnalyzer;
 import org.springframework.expression.ParseException;

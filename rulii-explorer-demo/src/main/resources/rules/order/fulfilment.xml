@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:r="http://www.rulii.org/schema/rulii"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           https://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.rulii.org/schema/rulii
+           https://www.rulii.org/spring/rulii-spring.xsd">
+
+    <!-- Every script in this file is Java, compiled by Janino. The bindings are reachable as
+         ctx with their real types, so a script calls getters and methods the way Java code does;
+         a condition is the last expression, and an action is ordinary statements. -->
+    <r:scripting defaultLanguage="java"/>
+
+    <r:ruleset name="fulfilmentRules" description="Decides how an approved order ships.">
+        <r:param name="order" type="com.acme.order.model.Order" description="The approved order"/>
+        <r:rules>
+            <r:bean-ref name="ExpressShippingRule"/>
+            <r:bean-ref name="SplitShipmentRule"/>
+            <r:bean-ref name="DeliveryWindowRule"/>
+        </r:rules>
+    </r:ruleset>
+
+    <r:rule name="ExpressShippingRule" description="Orders over the express threshold ship express, the rest standard.">
+        <r:given>ctx.order.getTotal().doubleValue() >= ${shipping.expressOver:200}</r:given>
+        <r:then>ctx.shippingMethod = "EXPRESS";</r:then>
+        <r:otherwise>ctx.shippingMethod = "STANDARD";</r:otherwise>
+    </r:rule>
+
+    <r:rule name="SplitShipmentRule" description="Large orders go out in several parcels.">
+        <r:given>ctx.order.getItems().size() > ${shipping.splitAbove:5}</r:given>
+        <r:then>int parcels = (ctx.order.getItems().size() + 4) / 5;
+ctx.parcels = parcels;</r:then>
+    </r:rule>
+
+    <r:rule name="DeliveryWindowRule" description="Works out how many days the customer has allowed for delivery.">
+        <r:given>ctx.order.getRequestedDeliveryDate() != null &amp;&amp; ctx.order.getRequestedDeliveryDate().isAfter(ctx.order.getOrderDate())</r:given>
+        <r:then>long days = java.time.temporal.ChronoUnit.DAYS.between(ctx.order.getOrderDate(), ctx.order.getRequestedDeliveryDate());
+ctx.deliveryDays = (int) days;</r:then>
+    </r:rule>
+
+</beans>

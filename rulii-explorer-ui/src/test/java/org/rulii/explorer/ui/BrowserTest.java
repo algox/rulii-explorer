@@ -185,6 +185,8 @@ class BrowserTest {
                 screen("compiled", "ok", "/rule/fraudScoreRule", ".rx-signature", false),
                 screen("rule-js", "ok", "/rule/LoyaltyPointsRule", ".rx-summary", true),
                 screen("ruleset-js", "ok", "/ruleset/loyaltyRules", ".rx-members", false),
+                screen("rule-java", "ok", "/rule/ExpressShippingRule", ".rx-summary", true),
+                screen("rule-java-builder", "ok", "/rule/backorderRule", ".rx-summary", false),
                 screen("ruleset", "ok", "/ruleset/orderValidationRules", ".rx-members", true),
                 screen("flow-outline", "ok", "/ruleflow/orderProcessingFlow?view=outline", ".rx-outline", true),
                 screen("flow-step", "ok", "/ruleflow/nightlyRepriceFlow?view=outline&step=commands%5B1%5D.body%5B1%5D", ".rx-step[aria-selected]", false),
