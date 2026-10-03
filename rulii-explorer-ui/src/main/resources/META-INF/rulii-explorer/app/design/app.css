@@ -2,6 +2,7 @@
  * rulii explorer: the one stylesheet. Components render into the light DOM, so every class here
  * is global and prefixed rx-. Values come from tokens.css; the few literal numbers are the
  * measurements of the approved screens (design/canvas/*.dc.html).
+
  */
 
 /* ── Reset and ground ───────────────────────────────────────────────────── */
@@ -79,6 +80,14 @@ a.rx-chip:hover { background: var(--rx-selected); }
 }
 .rx-ph-chip .rx-ph-key { font: var(--rx-weight-medium) 12px var(--rx-font-code); color: var(--rx-rule-text); }
 .rx-ph-chip .rx-ph-default { font-size: 11px; color: var(--rx-ink-3); }
+/* The value the script compiled with, when the application shares it: a solid chip, value first. */
+.rx-ph-chip.rx-ph-resolved { border-style: solid; }
+.rx-ph-chip .rx-ph-value { font: var(--rx-weight-medium) 12px var(--rx-font-code); color: var(--rx-ink); }
+.rx-ph-chip .rx-ph-lock { display: inline-flex; align-self: center; color: var(--rx-ink-3); }
+/* In raw code: a small annotation after the placeholder, never part of the copied text. */
+.rx-ph-inline { margin-left: 6px; font-size: 11.5px; color: var(--rx-code-placeholder); opacity: .9; user-select: none; -webkit-user-select: none; }
+.rx-ph-inline-hidden { font-style: italic; color: var(--rx-ink-3); }
+.rx-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 .rx-lock-chip {
   display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600;

@@ -4,8 +4,8 @@ The explorer shows the rules, rule sets and rule flows of a running [rulii](http
 application: what each one checks or does, in plain English, how they fit together, and what is
 likely to fail. It is read-only. Everything on screen comes from the application's rule
 descriptor, and the explorer never guesses: where logic is compiled Java code it says so, and
-configuration placeholders are shown as written, with their default, never with the value the
-application resolved.
+configuration placeholders are shown as written, with their default. The value a placeholder
+resolved to appears only when the application chose to share it (see "Placeholder values" below).
 
 It lives at `/rulii` once the application has `rulii.explorer.enabled=true` and exposes the
 `rulii` Actuator endpoint. [README.md](README.md) covers setup, security and configuration; this
@@ -202,6 +202,15 @@ description in the builder.
   a function or a regular expression, is shown as written and the page says the translation is
   partial. Bindings become chips that link to the binding page; placeholders such as
   `${order.minTotal:100}` become chips showing the key and the default.
+- **Placeholder values**: off by default, the chip shows `order.minTotal` with `default 100` and
+  the rule page says the value stays private. When the application sets
+  `rulii.explorer.placeholders.show-values=always`, the chip reads `order.minTotal = 150` (the
+  default stays beside it when it differs) and the raw view adds a small `→ 150` after the
+  placeholder, outside the copied text. The value is the one the rule compiled with, read from
+  the running application, not a lookup at request time. A key the application excluded
+  (`rulii.explorer.placeholders.exclude`, secrets by default) keeps its chip with a lock and the
+  note names it. The help sheet and the sidebar say nothing about values: look at a rule with a
+  placeholder.
 - **Binding**: a named value that rules read or write. The binding page lists both sides, and
   notes where compiled code might also change it.
 - **Lookup**: a flow step that finds its target by name or by class when it runs, rather than
@@ -232,3 +241,4 @@ Everything the explorer shows is in one document at `/actuator/rulii`, following
 shipped in `rulii-explorer-core` as `rulii-descriptor-1.schema.json`. It is stable in order and
 free of timestamps, so two versions can be diffed. The README shows how to write it from a test so
 that a review sees exactly which rules changed between releases.
+

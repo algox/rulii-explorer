@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
  *
  * @author Max Arulananthan
  * @since 1.0
+ *
  */
 public final class Placeholders {
 
@@ -38,6 +39,33 @@ public final class Placeholders {
     private static final Pattern PLACEHOLDER = Pattern.compile("(?<!\\\\)\\$\\{\\s*([^}:]+?)\\s*(?::([^}]*))?}");
 
     public record Placeholder(String key, String defaultValue, String original) {
+    }
+
+    /**
+     * A placeholder and where it sits in the source text.
+     *
+     * @param start        the index of the {@code $}.
+     * @param end          the index after the closing brace.
+     * @param key          the property key, trimmed.
+     * @param defaultValue the default as written; null when none.
+     */
+    public record Span(int start, int end, String key, String defaultValue) {
+    }
+
+    /**
+     * Every placeholder of a text, in source order. Escaped ones ({@code \${...}}) are not placeholders.
+     *
+     * @param sourceText the script as written; may be null.
+     * @return the spans; empty when there are none.
+     */
+    public static List<Span> find(String sourceText) {
+        if (sourceText == null || !sourceText.contains("${")) return List.of();
+        List<Span> found = new ArrayList<>();
+        Matcher matcher = PLACEHOLDER.matcher(sourceText);
+        while (matcher.find()) {
+            found.add(new Span(matcher.start(), matcher.end(), matcher.group(1), matcher.group(2)));
+        }
+        return Collections.unmodifiableList(found);
     }
 
     private final String rewritten;

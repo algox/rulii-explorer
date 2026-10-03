@@ -3,7 +3,8 @@
   "application": {
     "name": "order-service",
     "ruliiVersion": "2.1.0",
-    "explorerVersion": "1.0.0-SNAPSHOT"
+    "explorerVersion": "1.0.0-SNAPSHOT",
+    "placeholderValues": false
   },
   "packages": [
     {

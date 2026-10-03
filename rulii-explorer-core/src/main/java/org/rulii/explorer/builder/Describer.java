@@ -83,6 +83,7 @@ import java.util.TreeSet;
  *
  * @author Max Arulananthan
  * @since 1.0
+ *
  */
 final class Describer {
 
@@ -92,6 +93,7 @@ final class Describer {
     private final RuleRegistry registry;
     private final Expressions expressions;
     private final boolean includeSources;
+    private final boolean placeholderValues;
     private final String applicationName;
     private final String ruliiVersion;
     private final List<ProblemCheck> checks;
@@ -101,11 +103,12 @@ final class Describer {
     private final List<Reference> references = new ArrayList<>();
     private final List<Problem> problems = new ArrayList<>();
 
-    Describer(RuleRegistry registry, ExpressionAnalyzers analyzers, boolean includeSources, String applicationName,
+    Describer(RuleRegistry registry, ExpressionAnalyzers analyzers, PlaceholderFilter placeholderValues, boolean includeSources, String applicationName,
               String ruliiVersion, List<ProblemCheck> checks) {
         super();
         this.registry = registry;
-        this.expressions = new Expressions(analyzers);
+        this.expressions = new Expressions(analyzers, placeholderValues);
+        this.placeholderValues = placeholderValues != null;
         this.includeSources = includeSources;
         this.applicationName = applicationName;
         this.ruliiVersion = ruliiVersion;
@@ -144,7 +147,7 @@ final class Describer {
                 .thenComparing(Problem::code).thenComparing(Problem::message));
 
         return new Descriptor(Explorer.DESCRIPTOR_VERSION,
-                new ApplicationInfo(applicationName, ruliiVersion, Explorer.version()),
+                new ApplicationInfo(applicationName, ruliiVersion, Explorer.version(), placeholderValues),
                 packages(sortedArtifacts), sortedArtifacts, sortedReferences, bindings(sortedArtifacts), problems);
     }
 

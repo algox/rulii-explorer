@@ -44,6 +44,7 @@ import java.util.Objects;
  *
  * @author Max Arulananthan
  * @since 1.0
+ *
  */
 public final class DescriptorBuilder {
 
@@ -53,6 +54,7 @@ public final class DescriptorBuilder {
     private ExpressionAnalyzers analyzers = ExpressionAnalyzers.defaults();
     private List<ProblemCheck> checks = ProblemChecks.defaults();
     private boolean includeSources = true;
+    private PlaceholderFilter placeholderValues;
 
     private DescriptorBuilder(RuleRegistry registry) {
         super();
@@ -98,12 +100,26 @@ public final class DescriptorBuilder {
     }
 
     /**
+     * Shows the values the scripts' {@code ${key:default}} placeholders compiled with, for the keys
+     * the filter lets through; the others are reported as hidden. The values come from the compiled
+     * script text rulii keeps, never from a lookup, so they are the ones the rules act on. Default:
+     * null, no values (keys and defaults only).
+     *
+     * @param filter which values to show, such as {@link PlaceholderFilter#excluding(java.util.Collection)}
+     *               with {@link PlaceholderFilter#DEFAULT_EXCLUDES}; null shows none.
+     */
+    public DescriptorBuilder placeholderValues(PlaceholderFilter filter) {
+        this.placeholderValues = filter;
+        return this;
+    }
+
+    /**
      * Describes the registry.
      *
      * @return the descriptor; never null.
      */
     public Descriptor build() {
-        return new Describer(registry, analyzers, includeSources, applicationName, ruliiVersion, checks).describe();
+        return new Describer(registry, analyzers, placeholderValues, includeSources, applicationName, ruliiVersion, checks).describe();
     }
 
     private static String ruliiVersionFromManifest() {

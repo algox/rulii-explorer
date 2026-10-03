@@ -26,6 +26,7 @@ import java.util.List;
  * @param kind      script, compiled or composite.
  * @param language  script language ({@code el}, {@code js} ...); script only.
  * @param text      the script as written, placeholders unresolved (FR-14); script only.
+ * @param placeholders the {@code ${key:default}} placeholders of the text in source order, with their compiled values when the application opted in; script only, null when the text has none.
  * @param plain     the plain-English rendering; script only, and only when the language is analysed.
  * @param reads     binding paths read ({@code order.total}); declared parameters for compiled code.
  * @param writes    binding paths written; empty for compiled code, whose writes are unknown.
@@ -35,13 +36,15 @@ import java.util.List;
  *
  * @author Max Arulananthan
  * @since 1.0
+ *
  */
-public record Expression(ExpressionKind kind, String language, String text, Analysis plain, List<String> reads,
+public record Expression(ExpressionKind kind, String language, String text, List<Placeholder> placeholders, Analysis plain, List<String> reads,
                          List<String> writes, String signature, String operator, List<Expression> operands) {
 
     public Expression {
         reads = Lists.copy(reads);
         writes = Lists.copy(writes);
         operands = operands == null ? null : Lists.copy(operands);
+        placeholders = placeholders == null ? null : Lists.copy(placeholders);
     }
 }

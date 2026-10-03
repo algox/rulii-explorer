@@ -8,6 +8,7 @@ const GUIDE_URL = 'https://github.com/algox/rulii-explorer/blob/main/GUIDE.md';
 /**
  * The help sheet (?): the keyboard, the addresses every screen has, and how to read a flowchart.
  * One screen, no prose; the full guide is GUIDE.md in the repository.
+ *
  */
 class RxHelp extends RxElement {
 
@@ -39,7 +40,7 @@ class RxHelp extends RxElement {
                     ${this.legend()}
                 </div>
                 <div class="rx-help-foot">
-                    <span>Everything on screen comes from the application’s rule descriptor. The explorer never guesses: compiled code says so, and placeholders keep their defaults.</span>
+                    <span>Everything on screen comes from the application’s rule descriptor. The explorer never guesses: compiled code says so, and placeholders show their keys and defaults, with the compiled value only when the application chose to share it.</span>
                     <span class="rx-spacer"></span>
                     <a class="rx-link rx-link-arrow" href=${GUIDE_URL} target="_blank" rel="noopener">Full guide${icon('arrowRight', {size: 13})}</a>
                 </div>

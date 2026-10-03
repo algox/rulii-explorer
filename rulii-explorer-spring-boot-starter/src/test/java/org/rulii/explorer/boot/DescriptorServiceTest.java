@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * No web layer: the service caches, refreshes, hides sources on request, and
  * {@link RuliiDescriptors} writes the build-time descriptor (FR-44).
+ *
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE,
         properties = {"rulii.explorer.include-sources=false", "rulii.explorer.application-name=named-by-property"})
@@ -69,6 +70,7 @@ class DescriptorServiceTest {
         Descriptor descriptor = service.snapshot().descriptor();
         assertEquals("named-by-property", descriptor.application().name());
         assertTrue(descriptor.artifacts().stream().allMatch(a -> a.source() == null), "include-sources=false");
+        assertFalse(descriptor.application().placeholderValues(), "placeholder values are off unless asked for");
     }
 
     @Test

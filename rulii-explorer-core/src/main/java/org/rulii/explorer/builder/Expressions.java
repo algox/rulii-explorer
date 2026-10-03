@@ -23,6 +23,7 @@ import org.rulii.explorer.descriptor.Analysis;
 import org.rulii.explorer.descriptor.Expression;
 import org.rulii.explorer.descriptor.ExpressionKind;
 import org.rulii.explorer.descriptor.Parameter;
+import org.rulii.explorer.descriptor.Placeholder;
 import org.rulii.explorer.expression.ExpressionAnalysis;
 import org.rulii.explorer.expression.ExpressionAnalyzers;
 import org.rulii.model.ExpressionInfo;
@@ -51,14 +52,21 @@ import java.util.stream.Collectors;
  *
  * @author Max Arulananthan
  * @since 1.0
+ *
  */
 final class Expressions {
 
     private final ExpressionAnalyzers analyzers;
+    private final PlaceholderFilter placeholderValues;
 
-    Expressions(ExpressionAnalyzers analyzers) {
+    /**
+     * @param analyzers         the script analyzers.
+     * @param placeholderValues which placeholder values to show; null shows none (the default).
+     */
+    Expressions(ExpressionAnalyzers analyzers, PlaceholderFilter placeholderValues) {
         super();
         this.analyzers = analyzers;
+        this.placeholderValues = placeholderValues;
     }
 
     /** The expression of a condition; null when there is none. */
@@ -145,13 +153,30 @@ final class Expressions {
         Analysis plain = analysis.map(a -> new Analysis(a.complete(), a.tokens())).orElse(null);
         List<String> reads = analysis.map(ExpressionAnalysis::reads).orElse(List.of());
         List<String> writes = analysis.map(ExpressionAnalysis::writes).orElse(List.of());
-        return new Expression(ExpressionKind.SCRIPT, info.language(), info.sourceText(), plain, reads, writes,
-                null, null, null);
+        return new Expression(ExpressionKind.SCRIPT, info.language(), info.sourceText(), placeholders(info), plain,
+                reads, writes, null, null, null);
+    }
+
+    /**
+     * The placeholders of a script in source order: as written, or with the values the script
+     * compiled with when the builder asked for them and the filter lets each key through. The
+     * resolved text itself never reaches the descriptor: only the per-placeholder values that
+     * passed the filter do.
+     */
+    private List<Placeholder> placeholders(ExpressionInfo info) {
+        List<Placeholder> found = placeholderValues == null
+                ? PlaceholderValues.asWritten(info.sourceText())
+                : PlaceholderValues.resolve(info.sourceText(), info.resolvedText());
+        if (found.isEmpty()) return null;
+        if (placeholderValues == null) return found;
+        return found.stream()
+                .map(p -> p.value() != null && !placeholderValues.show(p.key(), p.value()) ? p.asHidden() : p)
+                .toList();
     }
 
     private Expression compiled(MethodDefinition method, Role role) {
         List<String> reads = method == null ? List.of() : parameterReads(method);
-        return new Expression(ExpressionKind.COMPILED, null, null, null, reads, List.of(),
+        return new Expression(ExpressionKind.COMPILED, null, null, null, null, reads, List.of(),
                 method == null ? null : signature(method, role), null, null);
     }
 
@@ -160,7 +185,7 @@ final class Expressions {
                 .stream().toList();
         List<String> writes = operands.stream().flatMap(e -> e.writes().stream()).collect(Collectors.toCollection(TreeSet::new))
                 .stream().toList();
-        return new Expression(ExpressionKind.COMPOSITE, null, null, null, reads, writes, null, operator, operands);
+        return new Expression(ExpressionKind.COMPOSITE, null, null, null, null, reads, writes, null, operator, operands);
     }
 
     /**

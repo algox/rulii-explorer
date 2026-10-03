@@ -1,5 +1,6 @@
 /**
  * Labels and small formatting helpers shared by every view. Pure functions of descriptor data.
+ *
  */
 
 export const TYPE_ORDER = ['ruleflow', 'ruleset', 'rule'];
@@ -155,11 +156,23 @@ export function scriptLanguage(artifact) {
 export function plainText(expression) {
     if (!expression) return '';
     if (expression.plain && expression.plain.tokens && expression.plain.tokens.length) {
-        return expression.plain.tokens.map(t => t.text).join(' ').replace(/\s+([,.)])/g, '$1');
+        return expression.plain.tokens.map(t => tokenText(t, expression.placeholders)).join(' ').replace(/\s+([,.)])/g, '$1');
     }
     if (expression.kind === 'compiled') return expression.signature || 'compiled code';
     if (expression.kind === 'composite') return (expression.operands || []).map(plainText).join(' ' + (expression.operator || 'and') + ' ');
     return expression.text || '';
+}
+
+/**
+ * A token as sentence text. A placeholder reads as the value its script compiled with when the
+ * application shares it ("120 (order.minTotal)"); otherwise as the key and default, as written.
+ */
+function tokenText(t, placeholders) {
+    if (t.t !== 'placeholder' || !placeholders || !placeholders.length) return t.text;
+    const def = t.defaultValue == null ? null : t.defaultValue;
+    const entry = placeholders.find(p => p.key === t.key && (p.defaultValue == null ? null : p.defaultValue) === def)
+        || placeholders.find(p => p.key === t.key);
+    return entry && entry.value != null ? entry.value + ' (' + t.key + ')' : t.text;
 }
 
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];

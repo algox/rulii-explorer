@@ -1,10 +1,12 @@
 import {html, nothing} from 'lit';
 import {isCompiled, plainText, shortType} from '../descriptor/format.js';
+import {icon} from './icons.js';
 
 /**
  * Expression rendering (SOLUTION §9.4, FR-14, FR-17): plain English from the descriptor's tokens,
  * or the raw text with syntax colouring. Nothing here interprets an expression; it only shows
  * what the descriptor carries.
+ *
  */
 
 /** The tokens of an analysed expression as inline chips and words. */
@@ -22,19 +24,49 @@ export function plainTokens(expression, options = {}) {
     const parts = [];
     plain.tokens.forEach((t, i) => {
         if (i) parts.push(' ');
-        parts.push(token(t, options));
+        parts.push(token(t, options, expression));
     });
     return html`<span class="rx-plain">${parts}</span>${plain.complete === false ? html`<span class="rx-plain-partial">Partly translated; the raw view has the whole expression.</span>` : nothing}`;
 }
 
-function token(t, options) {
+/**
+ * Every `${key:default}` placeholder of an expression, operands included, as the descriptor
+ * carries them: key and default always; `value` when the application shares the value the
+ * script compiled with; `hidden` when it keeps that value back.
+ */
+export function placeholdersOf(expression) {
+    if (!expression) return [];
+    if (expression.kind === 'composite') return (expression.operands || []).flatMap(placeholdersOf);
+    return expression.placeholders || [];
+}
+
+/** The descriptor's placeholder entry for a key and default, or null. */
+function placeholderEntry(placeholders, key, defaultValue) {
+    if (!placeholders || !placeholders.length || !key) return null;
+    const def = defaultValue == null ? null : defaultValue;
+    return placeholders.find(p => p.key === key && (p.defaultValue == null ? null : p.defaultValue) === def)
+        || placeholders.find(p => p.key === key) || null;
+}
+
+/** The chip for a placeholder: the key, its compiled value when shared, the default when it adds something. */
+function placeholderChip(key, defaultValue, entry) {
+    const value = entry && entry.value != null ? entry.value : null;
+    const hidden = !!(entry && entry.hidden);
+    const title = value != null ? 'Configuration placeholder; the value the rule compiled with'
+        : hidden ? 'Configuration placeholder; the application keeps this value hidden'
+        : 'Configuration placeholder; the resolved value is never shown';
+    const showDefault = defaultValue != null && (value == null || value !== defaultValue);
+    return html`<span class=${'rx-ph-chip' + (value != null ? ' rx-ph-resolved' : '') + (hidden ? ' rx-ph-hidden' : '')} title=${title}><span class="rx-ph-key">${key}</span>${value != null ? html`<span class="rx-ph-value">= ${value}</span>` : nothing}${showDefault ? html`<span class="rx-ph-default">default ${defaultValue}</span>` : nothing}${hidden ? html`<span class="rx-ph-lock">${icon('lock', {size: 11, width: 2})}<span class="rx-sr-only">value hidden</span></span>` : nothing}</span>`;
+}
+
+function token(t, options, expression) {
     const highlight = options.highlight;
     const text = highlight ? mark(t.text, highlight) : t.text;
     switch (t.t) {
         case 'binding':
             return html`<span class="rx-chip" title=${t.path ? t.path.join('.') : t.text}>${text}</span>`;
         case 'placeholder':
-            return html`<span class="rx-ph-chip" title="Configuration placeholder; the resolved value is never shown"><span class="rx-ph-key">${t.key || t.text}</span>${t.defaultValue != null ? html`<span class="rx-ph-default">default ${t.defaultValue}</span>` : nothing}</span>`;
+            return placeholderChip(t.key || t.text, t.defaultValue, placeholderEntry(expression && expression.placeholders, t.key, t.defaultValue));
         case 'literal':
             return html`<span class="rx-lit">${text}</span>`;
         case 'raw':
@@ -96,7 +128,7 @@ const KEYWORDS = new Set(['and', 'or', 'not', 'null', 'true', 'false', 'matches'
  * Splits raw expression text into coloured spans: #variables, @beans, ${placeholders}, strings,
  * numbers, method calls, operators and keywords. Good enough for SpEL, JavaScript and Java.
  */
-export function highlightCode(text) {
+export function highlightCode(text, placeholders = null) {
     if (!text) return nothing;
     const out = [];
     const re = /(\$\{[^}]*\})|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")|(#[A-Za-z_][\w]*|@[A-Za-z_][\w]*)|(\b\d+(?:\.\d+)?[LlDdFf]?\b)|(\b[A-Za-z_][\w]*)(?=\s*\()|(\b[A-Za-z_][\w]*\b)|(==|!=|<=|>=|&&|\|\||\?:|\?\.|[+\-*/%<>=!?:])|(\/\/[^\n]*|\/\*[\s\S]*?\*\/)/g;
@@ -105,7 +137,7 @@ export function highlightCode(text) {
     while ((m = re.exec(text)) !== null) {
         if (m.index > pos) out.push(text.slice(pos, m.index));
         const s = m[0];
-        if (m[1]) out.push(html`<span class="rx-c-ph">${s}</span>`);
+        if (m[1]) out.push(placeholderCode(s, placeholders));
         else if (m[2]) out.push(html`<span class="rx-c-str">${s}</span>`);
         else if (m[3]) out.push(html`<span class="rx-c-var">${s}</span>`);
         else if (m[4]) out.push(html`<span class="rx-c-num">${s}</span>`);
@@ -119,14 +151,32 @@ export function highlightCode(text) {
     return out;
 }
 
+const PLACEHOLDER_TEXT = /^\$\{\s*([^}:]+?)\s*(?::([^}]*))?\}$/;
+
+/**
+ * A `${key:default}` in raw code: the text as written, and after it, when the application shares
+ * the value the script compiled with, a small "→ value" that is not part of the copied text.
+ */
+function placeholderCode(s, placeholders) {
+    const m = PLACEHOLDER_TEXT.exec(s);
+    const entry = m ? placeholderEntry(placeholders, m[1], m[2] == null ? null : m[2]) : null;
+    if (entry && entry.value != null) {
+        return html`<span class="rx-c-ph" title=${m[1] + ' = ' + entry.value}>${s}</span><span class="rx-ph-inline" title="The value the rule compiled with">→ ${entry.value}</span>`;
+    }
+    if (entry && entry.hidden) {
+        return html`<span class="rx-c-ph" title="The application keeps this value hidden">${s}</span><span class="rx-ph-inline rx-ph-inline-hidden">→ hidden</span>`;
+    }
+    return html`<span class="rx-c-ph">${s}</span>`;
+}
+
 /** A raw code block for an expression. */
 export function rawCode(expression, options = {}) {
     if (!expression) return nothing;
     if (isCompiled(expression)) return signatureBox(expression);
     if (expression.kind === 'composite') {
-        return html`<code class=${'rx-code' + (options.inline ? ' rx-code-inline' : '')}>${(expression.operands || []).map((o, i) => html`${i ? html` <span class="rx-c-kw">${expression.operator || 'and'}</span> ` : nothing}${highlightCode(o.text || '')}`)}</code>`;
+        return html`<code class=${'rx-code' + (options.inline ? ' rx-code-inline' : '')}>${(expression.operands || []).map((o, i) => html`${i ? html` <span class="rx-c-kw">${expression.operator || 'and'}</span> ` : nothing}${highlightCode(o.text || '', o.placeholders)}`)}</code>`;
     }
-    return html`<code class=${'rx-code' + (options.inline ? ' rx-code-inline' : '')}>${highlightCode(expression.text || '')}</code>`;
+    return html`<code class=${'rx-code' + (options.inline ? ' rx-code-inline' : '')}>${highlightCode(expression.text || '', expression.placeholders)}</code>`;
 }
 
 /** "boolean test(Order order, Customer customer)" with the return type coloured. */

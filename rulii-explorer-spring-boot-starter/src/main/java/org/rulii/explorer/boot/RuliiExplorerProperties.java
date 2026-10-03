@@ -17,7 +17,11 @@
  */
 package org.rulii.explorer.boot;
 
+import org.rulii.explorer.builder.PlaceholderFilter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The {@code rulii.explorer.*} properties (SOLUTION §8.2).
@@ -27,11 +31,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * rulii.explorer.include-sources=true    # file, line and class names in the descriptor (NFR-4)
  * rulii.explorer.application-name=       # shown in the top bar; defaults to spring.application.name
  * rulii.explorer.ui.enabled=true         # serve the UI
- * rulii.explorer.ui.path=/rulii # where
+ * rulii.explorer.ui.path=/rulii          # where
+ * rulii.explorer.placeholders.show-values=never      # never | always: the values ${key:default} placeholders compiled with
+ * rulii.explorer.placeholders.exclude=*password*,... # key globs whose values stay hidden (replaces the default list)
+ * rulii.explorer.placeholders.additional-exclude=    # key globs hidden on top of the list above
  * </pre>
  *
  * @author Max Arulananthan
  * @since 1.0
+ *
  */
 @ConfigurationProperties(prefix = "rulii.explorer")
 public class RuliiExplorerProperties {
@@ -47,8 +55,14 @@ public class RuliiExplorerProperties {
 
     private final Ui ui = new Ui();
 
+    private final Placeholders placeholders = new Placeholders();
+
     public RuliiExplorerProperties() {
         super();
+    }
+
+    public Placeholders getPlaceholders() {
+        return placeholders;
     }
 
     public boolean isEnabled() {
@@ -106,6 +120,69 @@ public class RuliiExplorerProperties {
 
         public void setPath(String path) {
             this.path = path;
+        }
+    }
+
+    /** Whether to show the values that {@code ${key:default}} placeholders compiled with. */
+    public enum ShowValues {
+        /** Keys and defaults only, as written. The default. */
+        NEVER,
+        /** The compiled value of every placeholder whose key is not excluded. */
+        ALWAYS
+    }
+
+    /**
+     * The placeholder settings. Values are the ones the scripts compiled with, read from the
+     * compiled script text rulii keeps: what the rules act on, not a lookup at request time.
+     */
+    public static class Placeholders {
+
+        /** Show the values placeholders compiled with. Off by default: configuration values are not the explorer's to reveal. */
+        private ShowValues showValues = ShowValues.NEVER;
+
+        /**
+         * Key globs whose values stay hidden ({@code *} any run, {@code ?} one character, case-insensitive,
+         * whole key). Setting this replaces the default list; use {@code additional-exclude} to add to it.
+         */
+        private List<String> exclude = new ArrayList<>(PlaceholderFilter.DEFAULT_EXCLUDES);
+
+        /** Key globs hidden on top of {@code exclude}. */
+        private List<String> additionalExclude = new ArrayList<>();
+
+        public Placeholders() {
+            super();
+        }
+
+        public ShowValues getShowValues() {
+            return showValues;
+        }
+
+        public void setShowValues(ShowValues showValues) {
+            this.showValues = showValues;
+        }
+
+        public List<String> getExclude() {
+            return exclude;
+        }
+
+        public void setExclude(List<String> exclude) {
+            this.exclude = exclude;
+        }
+
+        public List<String> getAdditionalExclude() {
+            return additionalExclude;
+        }
+
+        public void setAdditionalExclude(List<String> additionalExclude) {
+            this.additionalExclude = additionalExclude;
+        }
+
+        /** Every excluded pattern: the list and the additions. */
+        public List<String> allExcludes() {
+            List<String> all = new ArrayList<>();
+            if (exclude != null) all.addAll(exclude);
+            if (additionalExclude != null) all.addAll(additionalExclude);
+            return all;
         }
     }
 }

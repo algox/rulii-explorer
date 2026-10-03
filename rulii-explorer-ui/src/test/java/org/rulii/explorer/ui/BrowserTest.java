@@ -53,6 +53,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * <p>The descriptor is the demo application's golden file, served by a small JDK HTTP server
  * together with the UI files, so no Spring Boot is involved and the pages are deterministic.
+ *
  */
 class BrowserTest {
 
@@ -181,6 +182,7 @@ class BrowserTest {
                 screen("overview", "ok", "", ".rx-stats", true),
                 screen("rule", "ok", "/rule/MinTotalRule", ".rx-summary", true),
                 screen("rule-raw", "ok", "/rule/MinTotalRule", ".rx-summary", false, p -> { p.click(".rx-seg button:nth-child(2)"); p.waitForSelector(".rx-raw-grid"); }),
+                screen("rule-hidden-placeholder", "ok", "/rule/VipDiscountRule", ".rx-ph-hidden", false),
                 screen("validator", "ok", "/rule/EmailFormatRule", ".rx-summary", false),
                 screen("compiled", "ok", "/rule/fraudScoreRule", ".rx-signature", false),
                 screen("rule-js", "ok", "/rule/LoyaltyPointsRule", ".rx-summary", true),

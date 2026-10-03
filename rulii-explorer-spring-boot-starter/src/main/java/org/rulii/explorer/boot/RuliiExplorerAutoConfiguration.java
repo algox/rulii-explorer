@@ -20,13 +20,19 @@ package org.rulii.explorer.boot;
 import org.rulii.explorer.boot.ui.UiMvcConfiguration;
 import org.rulii.explorer.boot.ui.UiPage;
 import org.rulii.explorer.boot.ui.UiWebFluxConfiguration;
+import org.rulii.explorer.builder.PlaceholderFilter;
 import org.rulii.explorer.expression.ExpressionAnalyzer;
 import org.rulii.explorer.expression.ExpressionAnalyzers;
 import org.rulii.explorer.problem.ProblemCheck;
 import org.rulii.explorer.problem.ProblemChecks;
 import org.rulii.registry.RuleRegistry;
 import org.rulii.spring.config.RuleConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.actuate.endpoint.SanitizableData;
+import org.springframework.boot.actuate.endpoint.Sanitizer;
+import org.springframework.boot.actuate.endpoint.SanitizingFunction;
 import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnAvailableEndpoint;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -39,6 +45,7 @@ import org.springframework.core.env.Environment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Wires the explorer into a Spring Boot application (SOLUTION §8.1). Applies after rulii-spring's
@@ -60,12 +67,15 @@ import java.util.List;
  * @author Max Arulananthan
  * @since 1.0
  */
+
 @AutoConfiguration(after = RuleConfig.class)
 @ConditionalOnBean(RuleRegistry.class)
 @ConditionalOnProperty(prefix = "rulii.explorer", name = "enabled", havingValue = "true")
 @EnableConfigurationProperties(RuliiExplorerProperties.class)
 @Import({UiMvcConfiguration.class, UiWebFluxConfiguration.class})
 public class RuliiExplorerAutoConfiguration {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RuliiExplorerAutoConfiguration.class);
 
     public RuliiExplorerAutoConfiguration() {
         super();
@@ -75,7 +85,8 @@ public class RuliiExplorerAutoConfiguration {
     @ConditionalOnMissingBean
     public DescriptorService ruliiDescriptorService(RuleRegistry ruleRegistry, RuliiExplorerProperties properties,
                                                     Environment environment, ObjectProvider<ExpressionAnalyzer> analyzers,
-                                                    ObjectProvider<ProblemCheck> checks) {
+                                                    ObjectProvider<ProblemCheck> checks,
+                                                    ObjectProvider<SanitizingFunction> sanitizingFunctions) {
         String applicationName = properties.getApplicationName() != null
                 ? properties.getApplicationName() : environment.getProperty("spring.application.name");
 
@@ -85,7 +96,29 @@ public class RuliiExplorerAutoConfiguration {
         List<ProblemCheck> allChecks = new ArrayList<>(checks.orderedStream().toList());
         allChecks.addAll(ProblemChecks.defaults());
 
-        return new DescriptorService(ruleRegistry, applicationName, properties.isIncludeSources(), allAnalyzers, allChecks);
+        PlaceholderFilter placeholderValues = placeholderFilter(properties.getPlaceholders(), sanitizingFunctions.orderedStream().toList());
+
+        return new DescriptorService(ruleRegistry, applicationName, properties.isIncludeSources(), placeholderValues,
+                allAnalyzers, allChecks);
+    }
+
+    /**
+     * The filter behind {@code rulii.explorer.placeholders}: null when values are off; otherwise the
+     * excluded key globs, and the application's {@link SanitizingFunction} beans (the ones its
+     * {@code env} endpoint already uses) so a value they would mask stays hidden here too.
+     */
+    static PlaceholderFilter placeholderFilter(RuliiExplorerProperties.Placeholders settings, List<SanitizingFunction> sanitizingFunctions) {
+        if (settings.getShowValues() != RuliiExplorerProperties.ShowValues.ALWAYS) return null;
+
+        List<String> excludes = settings.allExcludes();
+        PlaceholderFilter filter = PlaceholderFilter.excluding(excludes);
+        if (!sanitizingFunctions.isEmpty()) {
+            Sanitizer sanitizer = new Sanitizer(sanitizingFunctions);
+            filter = filter.and((key, value) -> Objects.equals(value, sanitizer.sanitize(new SanitizableData(null, key, value), true)));
+        }
+        LOGGER.info("rulii explorer shows the values placeholders compiled with; keys matching {} stay hidden{}", excludes,
+                sanitizingFunctions.isEmpty() ? "" : ", and so does anything the application's " + sanitizingFunctions.size() + " sanitizing function(s) would mask");
+        return filter;
     }
 
     @Bean

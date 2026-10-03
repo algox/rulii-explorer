@@ -19,6 +19,7 @@ package org.rulii.explorer.boot;
 
 import org.rulii.explorer.Explorer;
 import org.rulii.explorer.builder.DescriptorBuilder;
+import org.rulii.explorer.builder.PlaceholderFilter;
 import org.rulii.explorer.descriptor.Descriptor;
 import org.rulii.explorer.descriptor.DescriptorJson;
 import org.rulii.explorer.expression.ExpressionAnalyzer;
@@ -45,6 +46,7 @@ import java.util.List;
  *
  * @author Max Arulananthan
  * @since 1.0
+ *
  */
 public class DescriptorService {
 
@@ -68,6 +70,7 @@ public class DescriptorService {
     private final RuleRegistry registry;
     private final String applicationName;
     private final boolean includeSources;
+    private final PlaceholderFilter placeholderValues;
     private final List<ExpressionAnalyzer> analyzers;
     private final List<ProblemCheck> checks;
 
@@ -82,10 +85,24 @@ public class DescriptorService {
      */
     public DescriptorService(RuleRegistry registry, String applicationName, boolean includeSources,
                              List<ExpressionAnalyzer> analyzers, List<ProblemCheck> checks) {
+        this(registry, applicationName, includeSources, null, analyzers, checks);
+    }
+
+    /**
+     * @param registry          the registry to describe; must not be null.
+     * @param applicationName   the application name to report; may be null.
+     * @param includeSources    whether to include file, line and class names.
+     * @param placeholderValues which placeholder values to show; null shows none.
+     * @param analyzers         the expression analyzers, in order; the defaults are appended.
+     * @param checks            the problem checks; the defaults are appended.
+     */
+    public DescriptorService(RuleRegistry registry, String applicationName, boolean includeSources,
+                             PlaceholderFilter placeholderValues, List<ExpressionAnalyzer> analyzers, List<ProblemCheck> checks) {
         super();
         this.registry = registry;
         this.applicationName = applicationName;
         this.includeSources = includeSources;
+        this.placeholderValues = placeholderValues;
         this.analyzers = List.copyOf(analyzers);
         this.checks = List.copyOf(checks);
     }
@@ -121,6 +138,7 @@ public class DescriptorService {
             Descriptor descriptor = DescriptorBuilder.of(registry)
                     .applicationName(applicationName)
                     .includeSources(includeSources)
+                    .placeholderValues(placeholderValues)
                     .analyzers(analyzers)
                     .checks(checks)
                     .build();

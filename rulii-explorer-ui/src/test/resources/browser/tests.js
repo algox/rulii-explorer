@@ -2,6 +2,7 @@
  * In-browser unit tests for the explorer's modules (SOLUTION §10). A minimal runner: each test
  * is a name and an async function; results land in window.__rxResults for the JUnit driver.
  * The descriptor is the demo application's golden file, served at /actuator/rulii.
+ *
  */
 import {render} from 'lit';
 import {parseRoute, routes} from '/rulii-explorer/app/routing/router.js';
@@ -104,7 +105,7 @@ test('search finds error codes, camel-case prefixes and respects the type filter
 
 test('summaries say what the data supports', () => {
     const a = (id) => index.byId.get(id);
-    has(artifactSummary(a('MinTotalRule'), index), 'Passes when order total is at least order.minTotal (default 100).');
+    has(artifactSummary(a('MinTotalRule'), index), 'Passes when order total is at least 120 (order.minTotal).');
     eq(artifactSummary(a('EmailFormatRule'), index), 'Fails with customer.email.invalid when customer email is not a valid email address.');
     has(artifactSummary(a('fraudScoreRule'), index), 'Takes the order and the customer. Its logic is compiled Java code');
     eq(artifactSummary(a('orderValidationRules'), index), 'Checks 8 rules in order and stops when number of rule violations is at least 3. Runs only if order is present.');
@@ -135,6 +136,10 @@ test('format helpers', () => {
     eq(identifierWords('MinTotalRule'), ['min', 'total', 'rule']);
     eq(['commands[11]', 'commands[2]'].sort(compareNatural), ['commands[2]', 'commands[11]']);
     eq(plainText(index.byId.get('CreditLimitRule').rule.given), 'customer open balance plus order total is at most customer credit limit');
+    eq(plainText(index.byId.get('MinTotalRule').rule.given), 'order total is at least 120 (order.minTotal)', 'a shared placeholder value reads as the value');
+    const hidden = JSON.parse(JSON.stringify(index.byId.get('MinTotalRule').rule.given));
+    hidden.placeholders = [{key: 'order.minTotal', defaultValue: '100', hidden: true}];
+    eq(plainText(hidden), 'order total is at least order.minTotal (default 100)', 'a hidden one reads as written');
 });
 
 test('plain rendering: chips for bindings and placeholders', () => {
@@ -143,6 +148,37 @@ test('plain rendering: chips for bindings and placeholders', () => {
     eq(el.querySelectorAll('.rx-chip').length, 1);
     eq(el.querySelector('.rx-ph-key').textContent, 'order.minTotal');
     eq(el.querySelector('.rx-ph-default').textContent, 'default 100');
+});
+
+test('placeholder values: shown, equal to the default, hidden, and in raw code', () => {
+    const given = JSON.parse(JSON.stringify(index.byId.get('MinTotalRule').rule.given));
+    given.placeholders = [{key: 'order.minTotal', defaultValue: '100', value: '150'}];
+    let el = rendered(plainTokens(given));
+    eq(el.querySelector('.rx-ph-value').textContent, '= 150');
+    eq(el.querySelector('.rx-ph-default').textContent, 'default 100', 'the default stays when it differs');
+    ok(el.querySelector('.rx-ph-chip.rx-ph-resolved'));
+
+    given.placeholders = [{key: 'order.minTotal', defaultValue: '100', value: '100'}];
+    el = rendered(plainTokens(given));
+    eq(el.querySelector('.rx-ph-value').textContent, '= 100');
+    ok(!el.querySelector('.rx-ph-default'), 'no default when it equals the value');
+
+    given.placeholders = [{key: 'order.minTotal', defaultValue: '100', hidden: true}];
+    el = rendered(plainTokens(given));
+    ok(el.querySelector('.rx-ph-chip.rx-ph-hidden'));
+    ok(!el.querySelector('.rx-ph-value'));
+    eq(el.querySelector('.rx-ph-default').textContent, 'default 100');
+    el = rendered(rawCode(given));
+    has(el.querySelector('.rx-ph-inline').textContent, 'hidden');
+
+    given.placeholders = [{key: 'order.minTotal', defaultValue: '100', value: '150'}];
+    el = rendered(rawCode(given));
+    has(el.querySelector('.rx-c-ph').textContent, '${order.minTotal:100}');
+    eq(el.querySelector('.rx-ph-inline').textContent, '→ 150');
+
+    given.placeholders = undefined;
+    el = rendered(rawCode(given));
+    ok(!el.querySelector('.rx-ph-inline'), 'nothing added when the descriptor carries no values');
 });
 
 test('raw rendering: syntax colours', () => {

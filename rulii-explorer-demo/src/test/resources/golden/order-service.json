@@ -3,7 +3,8 @@
   "application": {
     "name": "order-service",
     "ruliiVersion": "unknown",
-    "explorerVersion": "1.0.0-SNAPSHOT"
+    "explorerVersion": "1.0.0-SNAPSHOT",
+    "placeholderValues": true
   },
   "packages": [
     {
@@ -205,6 +206,13 @@
           "kind": "script",
           "language": "js",
           "text": "ctx.order.items.size() >= ${loyalty.bulkItems:10}",
+          "placeholders": [
+            {
+              "key": "loyalty.bulkItems",
+              "defaultValue": "10",
+              "value": "10"
+            }
+          ],
           "plain": {
             "complete": true,
             "tokens": [
@@ -242,6 +250,13 @@
             "kind": "script",
             "language": "js",
             "text": "ctx.points += ${loyalty.bulkBonus:100};",
+            "placeholders": [
+              {
+                "key": "loyalty.bulkBonus",
+                "defaultValue": "100",
+                "value": "100"
+              }
+            ],
             "plain": {
               "complete": true,
               "tokens": [
@@ -609,6 +624,13 @@
           "kind": "script",
           "language": "java",
           "text": "ctx.order.getTotal().doubleValue() >= ${shipping.expressOver:200}",
+          "placeholders": [
+            {
+              "key": "shipping.expressOver",
+              "defaultValue": "200",
+              "value": "200"
+            }
+          ],
           "plain": {
             "complete": true,
             "tokens": [
@@ -726,6 +748,13 @@
           "kind": "script",
           "language": "el",
           "text": "#ctx.order.total >= ${shipping.freeOver:75}",
+          "placeholders": [
+            {
+              "key": "shipping.freeOver",
+              "defaultValue": "75",
+              "value": "75"
+            }
+          ],
           "plain": {
             "complete": true,
             "tokens": [
@@ -811,6 +840,13 @@
           "kind": "script",
           "language": "js",
           "text": "ctx.order.total.doubleValue() >= ${loyalty.minTotal:25}",
+          "placeholders": [
+            {
+              "key": "loyalty.minTotal",
+              "defaultValue": "25",
+              "value": "30"
+            }
+          ],
           "plain": {
             "complete": true,
             "tokens": [
@@ -1060,6 +1096,13 @@
           "kind": "script",
           "language": "el",
           "text": "#ctx.order.total >= ${order.minTotal:100}",
+          "placeholders": [
+            {
+              "key": "order.minTotal",
+              "defaultValue": "100",
+              "value": "120"
+            }
+          ],
           "plain": {
             "complete": true,
             "tokens": [
@@ -1166,6 +1209,13 @@
           "kind": "script",
           "language": "js",
           "text": "ctx.customer.age >= ${loyalty.seniorAge:65}",
+          "placeholders": [
+            {
+              "key": "loyalty.seniorAge",
+              "defaultValue": "65",
+              "value": "65"
+            }
+          ],
           "plain": {
             "complete": true,
             "tokens": [
@@ -1199,6 +1249,13 @@
             "kind": "script",
             "language": "js",
             "text": "ctx.seniorDiscount = ${loyalty.seniorDiscount:0.05};",
+            "placeholders": [
+              {
+                "key": "loyalty.seniorDiscount",
+                "defaultValue": "0.05",
+                "value": "0.05"
+              }
+            ],
             "plain": {
               "complete": true,
               "tokens": [
@@ -1296,6 +1353,13 @@
           "kind": "script",
           "language": "java",
           "text": "ctx.order.getItems().size() > ${shipping.splitAbove:5}",
+          "placeholders": [
+            {
+              "key": "shipping.splitAbove",
+              "defaultValue": "5",
+              "value": "5"
+            }
+          ],
           "plain": {
             "complete": true,
             "tokens": [
@@ -1508,6 +1572,13 @@
             "kind": "script",
             "language": "el",
             "text": "#ctx.order.discount = ${pricing.vipDiscount:0.10}",
+            "placeholders": [
+              {
+                "key": "pricing.vipDiscount",
+                "defaultValue": "0.10",
+                "hidden": true
+              }
+            ],
             "plain": {
               "complete": true,
               "tokens": [
@@ -1698,6 +1769,13 @@
           "kind": "script",
           "language": "el",
           "text": "#ctx.item.price > 0 && #ctx.item.price < ${pricing.maxPrice:10000}",
+          "placeholders": [
+            {
+              "key": "pricing.maxPrice",
+              "defaultValue": "10000",
+              "value": "10000"
+            }
+          ],
           "plain": {
             "complete": true,
             "tokens": [
@@ -1770,6 +1848,13 @@
           "kind": "script",
           "language": "js",
           "text": "ctx.points >= ${loyalty.goldPoints:1000} && ctx.customer.tier !== 'GOLD'",
+          "placeholders": [
+            {
+              "key": "loyalty.goldPoints",
+              "defaultValue": "1000",
+              "value": "1000"
+            }
+          ],
           "plain": {
             "complete": true,
             "tokens": [

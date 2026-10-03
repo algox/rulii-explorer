@@ -1,21 +1,25 @@
 import {html, nothing} from 'lit';
 import {icon} from '../../components/icons.js';
 import {bindingChip, card, requiredPill} from '../../components/common.js';
-import {plainTokens, rawCode, segmented, signatureBox, slotCaption, highlightCode} from '../../components/expression.js';
+import {plainTokens, rawCode, segmented, signatureBox, slotCaption, highlightCode, placeholdersOf} from '../../components/expression.js';
 import {expressionsOf, isCompiled, isScript, shortType, compareNatural} from '../../descriptor/format.js';
 import {validatorPhrase, validatedValue} from '../../descriptor/summaries.js';
 
 /**
  * The bodies of the three rule pages: a script rule (S-Rule), a predefined validator
  * (S-Validator) and a compiled rule (S-Compiled). Each returns the left column's cards.
+ *
  */
 
 export function ruleBody(a, host) {
     const view = host.state.exprView;
     const index = host.state.index;
     const rule = a.rule || {then: []};
-    const hasPlaceholder = expressionsOf(a).some(e => e.expression.plain && e.expression.plain.tokens && e.expression.plain.tokens.some(t => t.t === 'placeholder'));
-    const placeholderKeys = [...new Set(expressionsOf(a).flatMap(e => (e.expression.plain && e.expression.plain.tokens || []).filter(t => t.t === 'placeholder').map(t => t.key)))];
+    const placeholders = expressionsOf(a).flatMap(e => placeholdersOf(e.expression));
+    const hasPlaceholder = placeholders.length > 0;
+    const placeholderKeys = [...new Set(placeholders.map(p => p.key))];
+    const hiddenKeys = [...new Set(placeholders.filter(p => p.hidden).map(p => p.key))];
+    const valuesShared = !!(host.state.descriptor && host.state.descriptor.application && host.state.descriptor.application.placeholderValues);
     const plain = html`<div class="rx-plain-grid">
         ${rule.preCondition ? html`<span class="rx-k">Runs only if</span><span class="rx-v">${plainTokens(rule.preCondition)}</span>` : nothing}
         <span class="rx-k">Passes when</span>
@@ -40,8 +44,24 @@ export function ruleBody(a, host) {
             ${parametersCard(a)}
             ${bindingsCard(a, index, {})}
         </div>
-        ${hasPlaceholder ? html`<div class="rx-note">${icon('lock', {size: 16, width: 1.9})}<p>The explorer shows the placeholder${placeholderKeys.length === 1 ? ' ' : 's '}${placeholderKeys.map((k, i) => html`${i ? ', ' : ''}<span class="rx-mono">${k}</span>`)} and ${placeholderKeys.length === 1 ? 'its' : 'their'} default${placeholderKeys.length === 1 ? '' : 's'}, never the value the application resolved. Configuration values stay private.</p></div>` : nothing}
+        ${hasPlaceholder ? placeholderNote(placeholderKeys, hiddenKeys, valuesShared) : nothing}
         ${rule.then.some(isCompiled) || (rule.given && isCompiled(rule.given)) ? compiledNote() : nothing}`;
+}
+
+const keyList = (keys) => keys.map((k, i) => html`${i ? ', ' : ''}<span class="rx-mono">${k}</span>`);
+
+/**
+ * The note under a rule with `${key:default}` placeholders. Values off: the explorer shows keys
+ * and defaults only. Values on: they are the ones the rules compiled with, and the note names any
+ * key the application keeps hidden.
+ */
+function placeholderNote(keys, hiddenKeys, valuesShared) {
+    const one = keys.length === 1;
+    if (!valuesShared) {
+        return html`<div class="rx-note">${icon('lock', {size: 16, width: 1.9})}<p>The explorer shows the placeholder${one ? ' ' : 's '}${keyList(keys)} and ${one ? 'its' : 'their'} default${one ? '' : 's'}, never the value the application resolved. Configuration values stay private.</p></div>`;
+    }
+    const oneHidden = hiddenKeys.length === 1;
+    return html`<div class="rx-note rx-note-info">${icon('info', {size: 16, width: 1.9})}<p>Placeholder values are the ones ${one ? 'this rule' : 'these expressions'} compiled with, read from the running application. ${hiddenKeys.length ? html`The application keeps ${oneHidden ? 'the value of ' : 'the values of '}${keyList(hiddenKeys)} hidden.` : nothing}</p></div>`;
 }
 
 export function validatorBody(a, host) {

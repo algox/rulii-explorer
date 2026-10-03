@@ -21,7 +21,8 @@
       "properties": {
         "name": { "type": "string" },
         "ruliiVersion": { "type": "string" },
-        "explorerVersion": { "type": "string" }
+        "explorerVersion": { "type": "string" },
+        "placeholderValues": { "type": "boolean" }
       }
     },
     "package": {
@@ -82,12 +83,23 @@
         "kind": { "enum": ["script", "compiled", "composite"] },
         "language": { "type": "string" },
         "text": { "type": "string" },
+        "placeholders": { "type": "array", "items": { "$ref": "#/$defs/placeholder" } },
         "plain": { "$ref": "#/$defs/analysis" },
         "reads": { "type": "array", "items": { "type": "string" } },
         "writes": { "type": "array", "items": { "type": "string" } },
         "signature": { "type": "string" },
         "operator": { "type": "string" },
         "operands": { "type": "array", "items": { "$ref": "#/$defs/expression" } }
+      }
+    },
+    "placeholder": {
+      "type": "object",
+      "required": ["key"],
+      "properties": {
+        "key": { "type": "string" },
+        "defaultValue": { "type": "string" },
+        "value": { "type": "string" },
+        "hidden": { "type": "boolean" }
       }
     },
     "analysis": {
@@ -277,3 +289,4 @@
     }
   }
 }
+

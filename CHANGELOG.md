@@ -7,8 +7,15 @@ The first release. Requires rulii 2.1.0, rulii-spring 2.1.0 and Spring Boot 4.1 
 - **Descriptor**: one JSON document describing every rule, rule set and rule flow of a running
   application, served read-only by the `rulii` Actuator endpoint (`GET /actuator/rulii`, opt-in
   through `management.endpoints.web.exposure.include`). Versioned (`descriptorVersion` 1.0) with a
-  JSON Schema, stable ordering, and no secrets: configuration placeholders are shown as written,
-  never resolved; compiled code is described by its signature only.
+  JSON Schema, stable ordering, and no secrets by default: configuration placeholders are shown
+  as written; compiled code is described by its signature only.
+- **Placeholder values** (opt-in): `rulii.explorer.placeholders.show-values=always` adds to each
+  `${key:default}` placeholder the value the script compiled with, taken from the compiled text
+  rulii keeps rather than looked up again. Keys matching `*password*`, `*secret*`, `*token*`,
+  `*credential*` or `*private*` stay hidden (`exclude` replaces the list, `additional-exclude`
+  adds to it), and so does anything the application's Actuator `SanitizingFunction` beans would
+  mask. The UI shows `key = value` chips, a `→ value` annotation in the raw view, and a lock on
+  hidden keys.
 - **Plain English**: SpEL, JavaScript and Java conditions and actions are translated into
   sentences, with bindings and placeholders as chips; the raw expression is one click away.
 - **Problems**: unresolved targets, lookups that use a rule's name instead of its registry name,
@@ -41,3 +48,4 @@ The first release. Requires rulii 2.1.0, rulii-spring 2.1.0 and Spring Boot 4.1 
 - **Quality**: golden descriptors and expression corpus, a Boot integration matrix, in-browser unit
   tests, screenshots of every screen and state, axe-core accessibility checks, and a scale test with
   a thousand generated artifacts.
+

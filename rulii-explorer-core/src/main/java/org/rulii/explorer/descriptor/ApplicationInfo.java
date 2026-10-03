@@ -23,9 +23,12 @@ package org.rulii.explorer.descriptor;
  * @param name            the application name; null when unknown.
  * @param ruliiVersion    the rulii version in use; {@code "unknown"} when the jar has no manifest version.
  * @param explorerVersion the explorer version that built the descriptor.
+ * @param placeholderValues true when the descriptor carries the values the scripts compiled with, for the
+ *                        placeholders the application chose to show (see {@code Expression.placeholders}).
  *
  * @author Max Arulananthan
  * @since 1.0
+ *
  */
-public record ApplicationInfo(String name, String ruliiVersion, String explorerVersion) {
+public record ApplicationInfo(String name, String ruliiVersion, String explorerVersion, boolean placeholderValues) {
 }

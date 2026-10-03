@@ -60,9 +60,14 @@ mvn -pl rulii-explorer-demo spring-boot:run
   unless you choose. Press `?` for the keyboard, the addresses and the flowchart legend;
   [GUIDE.md](GUIDE.md) is the full guide, with a reference for every problem the checks report.
 
-Configuration placeholders such as `${order.minTotal:100}` are shown as written, with their default,
-never with the value the application resolved. The explorer shows what rulii knows for certain and
-does not guess.
+Configuration placeholders such as `${order.minTotal:100}` are shown as written, with their default.
+By default the value the application resolved is never shown. An application can opt in with
+`rulii.explorer.placeholders.show-values=always`: the explorer then shows, next to each placeholder,
+the value the script compiled with, read from the running application rather than looked up again.
+Keys matching `*password*`, `*secret*`, `*token*`, `*credential*` or `*private*` stay hidden, as
+does anything the application's own Actuator `SanitizingFunction` beans would mask; add your own
+patterns with `rulii.explorer.placeholders.additional-exclude`. The explorer shows what rulii knows
+for certain and does not guess.
 
 ## Configuration
 
@@ -73,6 +78,9 @@ does not guess.
 | `rulii.explorer.ui.path` | `/rulii` | Where the UI is served. |
 | `rulii.explorer.include-sources` | `true` | Include file names, line numbers and class names in the descriptor. |
 | `rulii.explorer.application-name` | `spring.application.name` | The name shown in the top bar. |
+| `rulii.explorer.placeholders.show-values` | `never` | `always` shows the value each `${key:default}` placeholder compiled with, next to the key and default. |
+| `rulii.explorer.placeholders.exclude` | `*password*,*secret*,*token*,*credential*,*private*` | Key globs whose values stay hidden (case-insensitive, whole key). Setting it replaces the list. |
+| `rulii.explorer.placeholders.additional-exclude` | | Key globs hidden on top of `exclude`, such as `pricing.vipDiscount`. |
 
 Context paths, a custom `management.endpoints.web.base-path` and a separate `management.server.port`
 are all respected; with a separate management port the UI is served there too, next to the endpoint.
@@ -151,5 +159,6 @@ Grotesk and JetBrains Mono fonts (OFL-1.1). The full texts are in
 `rulii-explorer-ui/src/main/resources/THIRD-PARTY-NOTICES.md`.
 
 ## License
+
 
 Apache License 2.0. See [LICENSE](LICENSE).

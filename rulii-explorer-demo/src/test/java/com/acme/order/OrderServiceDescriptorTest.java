@@ -47,6 +47,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * translations of the XML rules, and the golden file the UI milestones build against. Rerun
  * with {@code -Dgolden.update=true} after an intended change and review the diff.
  */
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class OrderServiceDescriptorTest {
 
@@ -182,6 +183,26 @@ class OrderServiceDescriptorTest {
         assertEquals("orderServices", flow.ruleFlow().commands().get(0).bind().label(), "bind ref keeps the bean name");
         assertEquals("fraudScoreRule", flow.ruleFlow().commands().get(3).target().id());
         assertEquals("immutable", flow.ruleFlow().commands().get(3).mode());
+    }
+
+    @Test
+    void placeholderValuesAreSharedExceptTheExcludedOnes() {
+        Descriptor descriptor = descriptor();
+        assertTrue(descriptor.application().placeholderValues(), "the demo opts in");
+
+        var minTotal = artifact(descriptor, "MinTotalRule").rule().given().placeholders().get(0);
+        assertEquals("order.minTotal", minTotal.key());
+        assertEquals("100", minTotal.defaultValue(), "as written in validation.xml");
+        assertEquals("120", minTotal.value(), "as compiled from application.properties");
+
+        var vip = artifact(descriptor, "VipDiscountRule").rule().then().get(0).placeholders().get(0);
+        assertEquals("pricing.vipDiscount", vip.key());
+        assertNull(vip.value(), "additional-exclude hides it");
+        assertEquals(Boolean.TRUE, vip.hidden());
+        assertFalse(DescriptorJson.toJson(descriptor).contains("0.15"), "the hidden value is nowhere in the descriptor");
+
+        var gold = artifact(descriptor, "tierUpgradeRule").rule().given().placeholders().get(0);
+        assertEquals("1000", gold.value(), "a Java-built JavaScript rule carries its value too");
     }
 
     @Test
