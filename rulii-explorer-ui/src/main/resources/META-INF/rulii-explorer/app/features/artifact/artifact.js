@@ -168,7 +168,7 @@ export function sourceCard(a, index) {
     const lang = scriptLanguage(a);
     const rows = [];
     if (text) rows.push(html`<span class="rx-k">Defined in</span><span class="rx-v" style="flex-wrap: nowrap"><span class="rx-mono rx-ellipsis" title=${text}>${text}</span>${copyButton(text, 'Copy source location')}</span>`);
-    if (lang) rows.push(html`<span class="rx-k">Language</span><span class="rx-v">${lang.name} <span class="rx-mono rx-muted">${lang.code}</span></span>`);
+    if (lang) rows.push(html`<span class="rx-k">Language</span><span class="rx-v">${lang.long} <span class="rx-mono rx-muted">${lang.codes.join(', ')}</span></span>`);
     if (a.packageId) rows.push(html`<span class="rx-k">Package</span><span class="rx-v"><a class="rx-mono" href=${routes.package(a.packageId)}>${a.packageId}</a></span>`);
     if (a.className || (a.source && a.source.className && a.source.className !== text)) rows.push(html`<span class="rx-k">Class</span><span class="rx-v"><span class="rx-mono rx-ellipsis" title=${a.className || a.source.className}>${a.className || a.source.className}</span></span>`);
     if (a.source && a.source.methodName) rows.push(html`<span class="rx-k">Method</span><span class="rx-v"><span class="rx-mono">${a.source.methodName}()</span></span>`);

@@ -1,6 +1,7 @@
 import {html, nothing} from 'lit';
 import {RxElement} from '../../components/base.js';
 import {glyph, icon} from '../../components/icons.js';
+import {languageTag} from '../../components/common.js';
 import {routes, navigate} from '../../routing/router.js';
 import {markRanges, plainTokens, mark} from '../../components/expression.js';
 import {identifierWords, joinWords} from '../../descriptor/format.js';
@@ -129,7 +130,7 @@ class RxPalette extends RxElement {
                 <span class="rx-opt-name">${markRanges(a.name, hit.nameMatches)}</span>
                 ${this.snippet(hit, words)}
             </div>
-            <span class="rx-opt-meta">${a.packageId || ''}</span>
+            <span class="rx-opt-meta">${languageTag(a, {nonDefaultOnly: true, small: true})}${a.packageId || ''}</span>
             ${selected ? html`<kbd class="rx-kbd">↵</kbd>` : html`<span></span>`}
         </div>`;
     }

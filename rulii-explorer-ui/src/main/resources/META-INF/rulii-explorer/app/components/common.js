@@ -1,6 +1,6 @@
 import {html, nothing} from 'lit';
 import {glyph, icon} from './icons.js';
-import {kindLabel, sourceText, typeLabel} from '../descriptor/format.js';
+import {kindLabel, scriptLanguage, sourceText, typeLabel} from '../descriptor/format.js';
 import {routes} from '../routing/router.js';
 
 /**
@@ -31,6 +31,17 @@ export function bindingChip(path, direction, index) {
 
 export function kindCaption(artifact) {
     return html`<span class="rx-kind">${kindLabel(artifact)}</span>`;
+}
+
+/**
+ * The script language as a tag: the name ("JavaScript") with `full`, else the code ("js").
+ * `nonDefaultOnly` leaves SpEL, rulii's default, untagged, for dense rows; `small` is the row size.
+ */
+export function languageTag(artifact, options = {}) {
+    const lang = scriptLanguage(artifact);
+    if (!lang) return nothing;
+    if (options.nonDefaultOnly && lang.code === 'el') return nothing;
+    return html`<span class=${'rx-lang-tag' + (options.small ? ' rx-lang-tag-sm' : '')} title=${'Written in ' + lang.long}>${options.full ? lang.name : lang.code}</span>`;
 }
 
 export function sourceInline(artifact) {

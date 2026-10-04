@@ -33,7 +33,9 @@ The first release. Requires rulii 2.1.0, rulii-spring 2.1.0 and Spring Boot 4.1 
   like their SpEL twin; statements read one after another, getters are the property, setters
   such as `ctx.customer.setTier('GOLD')` are writes, `Math` and number conversions have phrases,
   and functions, lambdas, `new`, static calls, regular expressions and object literals are shown
-  as written with their arguments translated. The demo has a loyalty rule set, a flow and a Java-built
+  as written with their arguments translated. The language is named everywhere a rule is shown:
+  the kind caption (`XML · JavaScript`), a tag beside the Plain / Raw toggle, and a small `js` or
+  `java` mark in the sidebar and the search for rules that are not SpEL. The demo has a loyalty rule set, a flow and a Java-built
   rule in JavaScript (GraalJS), in `rules/pricing/loyalty.xml` and `LoyaltyConfig`, and a
   fulfilment rule set plus a Java-built rule in Java (Janino), in `rules/order/fulfilment.xml`
   and `FulfilmentConfig`.

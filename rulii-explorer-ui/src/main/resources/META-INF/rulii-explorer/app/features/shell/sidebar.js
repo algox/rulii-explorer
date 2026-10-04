@@ -1,6 +1,7 @@
 import {html, nothing} from 'lit';
 import {RxElement} from '../../components/base.js';
 import {glyph, icon} from '../../components/icons.js';
+import {languageTag} from '../../components/common.js';
 import {routes} from '../../routing/router.js';
 import {typeLabel} from '../../descriptor/format.js';
 
@@ -48,6 +49,7 @@ class RxSidebar extends RxElement {
         return html`<a class=${'rx-nav-row' + (child ? ' rx-nav-row-child' : '')} href=${routes.artifact(a)} aria-current=${current === a.id ? 'page' : nothing} title=${a.description || a.name}>
             ${glyph(a.type, {size: child ? 10 : 12, undescribed})}
             <span class="rx-name">${a.name}</span>
+            ${a.type === 'rule' ? languageTag(a, {nonDefaultOnly: true, small: true}) : nothing}
             ${undescribed ? html`<span class="rx-nav-undescribed">not described</span>` : worst ? html`<span class=${'rx-dot rx-dot-' + worst} aria-label=${worst} title=${worst}></span>` : nothing}
         </a>`;
     }

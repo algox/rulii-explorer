@@ -276,6 +276,17 @@ a.rx-chip:hover { background: var(--rx-selected); }
 .rx-meta-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .rx-kind { font-size: 12.5px; color: var(--rx-ink-3); }
 .rx-kind .rx-mono { font-size: 12px; font-weight: 500; }
+
+/* The script language: "JavaScript" beside the Plain / Raw toggle; "js" / "java" in dense rows, where SpEL (the default) is not tagged. */
+.rx-lang-tag {
+  display: inline-flex; align-items: center; flex-shrink: 0; white-space: nowrap;
+  font: var(--rx-weight-medium) 11.5px var(--rx-font-code); color: var(--rx-ink-2);
+  background: var(--rx-sunken); border: 1px solid var(--rx-line); border-radius: var(--rx-radius-xs); padding: 1px 6px;
+}
+.rx-lang-tag-sm { font-size: 10.5px; padding: 0 5px; color: var(--rx-ink-3); }
+.rx-opt-meta .rx-lang-tag-sm { margin-right: 8px; }
+.rx-nav-row .rx-lang-tag-sm { background: var(--rx-card); }
+.rx-card-tools { display: inline-flex; align-items: center; gap: 10px; }
 .rx-source-inline { font: var(--rx-weight-medium) 12px var(--rx-font-code); color: var(--rx-ink-3); }
 
 .rx-title-row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; min-width: 0; }

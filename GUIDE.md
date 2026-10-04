@@ -218,9 +218,13 @@ description in the builder.
   They usually agree. When they do not, pages show "bean *registryName*" next to the title.
 - **Inline, not a bean**: a rule defined inside a rule set or flow rather than registered on its
   own. Its id is a path, such as `orderRules/members[2]`.
-- **Kind**: how an artifact was built. `XML · script` is an XML rule with an expression,
-  `@Rule class` a Java class, `Validator · r:email` a predefined validator, `Java builder ·
-  script` or `· lambda` a rule built in Java code, with an expression or with compiled code.
+- **Kind**: how an artifact was built, and in which language. `XML · SpEL`, `XML · JavaScript`
+  or `XML · Java` is an XML rule with an expression in that language, `@Rule class` a Java class,
+  `Validator · r:email` a predefined validator, `Java builder · SpEL` (or another language) a rule
+  built in Java code with an expression, `Java builder · lambda` one with compiled code. The
+  language also sits beside the Plain / Raw toggle on the rule page, and a small `js` or `java`
+  tag marks rules that are not SpEL in the sidebar and the search, since SpEL is rulii's default.
+  A rule whose expressions use different languages says `mixed`.
 - **Compiled code**: a lambda or method reference. The explorer shows its signature and the
   bindings it declares, and says that its logic cannot be read. A lock marks it everywhere.
 - **Plain** and **Raw**: the same expression as a sentence or as the original text with syntax

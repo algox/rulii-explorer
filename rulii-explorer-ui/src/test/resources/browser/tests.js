@@ -11,7 +11,7 @@ import {resolveSource, absoluteUrl, sourceLabel} from '/rulii-explorer/app/descr
 import {buildIndex, problemPath} from '/rulii-explorer/app/descriptor/indexes.js';
 import {buildSearch} from '/rulii-explorer/app/search/search.js';
 import {artifactSummary, bindingSummary, commandParts, problemsHeadline, kindCaption} from '/rulii-explorer/app/descriptor/summaries.js';
-import {durationText, kindLabel, plainText, shortType, sourceText, identifierWords, compareNatural} from '/rulii-explorer/app/descriptor/format.js';
+import {durationText, kindLabel, kindShort, scriptLanguage, languageName, plainText, shortType, sourceText, identifierWords, compareNatural} from '/rulii-explorer/app/descriptor/format.js';
 import {plainTokens, rawCode, highlightCode, mark} from '/rulii-explorer/app/components/expression.js';
 
 const tests = [];
@@ -152,13 +152,33 @@ test('summaries say what the data supports', () => {
 
 test('kind labels', () => {
     const a = (id) => index.byId.get(id);
-    eq(kindLabel(a('MinTotalRule')), 'XML · script');
+    eq(kindLabel(a('MinTotalRule')), 'XML · SpEL');
+    eq(kindLabel(a('LoyaltyPointsRule')), 'XML · JavaScript');
+    eq(kindLabel(a('ExpressShippingRule')), 'XML · Java');
     eq(kindLabel(a('EmailFormatRule')), 'Validator · r:email');
     eq(kindLabel(a('ConsistentDatesRule')), '@Rule class');
     eq(kindLabel(a('fraudScoreRule')), 'Java builder · lambda');
-    eq(kindLabel(a('rangeCheckRule')), 'Java builder · script');
+    eq(kindLabel(a('rangeCheckRule')), 'Java builder · SpEL');
+    eq(kindLabel(a('tierUpgradeRule')), 'Java builder · JavaScript');
+    eq(kindLabel(a('backorderRule')), 'Java builder · Java');
     eq(kindLabel(a('orderValidationRules')), 'XML · validating');
     eq(kindLabel(a('approvalRules')), 'XML');
+    eq(kindShort(a('fraudScoreRule')), 'Java builder');
+    eq(kindShort(a('backorderRule')), 'Java builder · Java');
+});
+
+test('script languages: one, none, mixed', () => {
+    const a = (id) => index.byId.get(id);
+    eq(scriptLanguage(a('MinTotalRule')), {code: 'el', name: 'SpEL', long: 'SpEL', codes: ['el']});
+    eq(scriptLanguage(a('backorderRule')), {code: 'java', name: 'Java', long: 'Java (Janino)', codes: ['java']});
+    eq(scriptLanguage(a('fraudScoreRule')), null, 'compiled code has no language');
+    eq(scriptLanguage(a('ConsistentDatesRule')), null);
+    const mixed = {type: 'rule', kind: 'xml-script', rule: {given: {kind: 'script', language: 'el', text: 'true'}, then: [{kind: 'script', language: 'js', text: 'x'}]}};
+    eq(scriptLanguage(mixed), {code: 'mixed', name: 'mixed', long: 'SpEL and JavaScript', codes: ['el', 'js']});
+    eq(kindLabel(mixed), 'XML · mixed');
+    eq(kindLabel({type: 'rule', kind: 'xml-script', rule: {given: {kind: 'script', text: 'true'}}}), 'XML · SpEL', 'no language code means SpEL, rulii’s default');
+    eq(languageName('java', true), 'Java (Janino)');
+    eq(languageName('groovy'), 'groovy');
 });
 
 test('format helpers', () => {

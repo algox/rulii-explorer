@@ -17,15 +17,20 @@ export function typeLabel(type, plural = false) {
     return plural ? t.many : t.one;
 }
 
-/** The kind caption under a title: "XML · script", "Validator · r:email", "@Rule class", "Java builder · lambda". */
+/**
+ * The kind caption under a title: "XML · SpEL", "XML · JavaScript", "Validator · r:email",
+ * "@Rule class", "Java builder · Java", "Java builder · lambda". A script rule names its language;
+ * "script" only when the descriptor does not say.
+ */
 export function kindLabel(artifact) {
     const kind = artifact.kind;
     if (artifact.type === 'rule') {
+        const lang = scriptLanguage(artifact);
         switch (kind) {
-            case 'xml-script': return 'XML · script';
+            case 'xml-script': return 'XML · ' + (lang ? lang.name : 'script');
             case 'predefined-validator': return 'Validator · r:' + (artifact.validation && artifact.validation.validator || 'validator');
             case 'rule-class': return '@Rule class';
-            case 'java-builder': return 'Java builder' + (hasScript(artifact) ? ' · script' : hasCompiled(artifact) ? ' · lambda' : '');
+            case 'java-builder': return 'Java builder' + (hasScript(artifact) ? ' · ' + (lang ? lang.name : 'script') : hasCompiled(artifact) ? ' · lambda' : '');
             default: return 'Unknown';
         }
     }
@@ -34,7 +39,7 @@ export function kindLabel(artifact) {
     return base;
 }
 
-/** Short kind for list rows: "XML · script", "Validator · r:email", "@Rule class", "Java builder". */
+/** Short kind for list rows: "XML · SpEL", "Validator · r:email", "@Rule class", "Java builder". */
 export function kindShort(artifact) {
     const label = kindLabel(artifact);
     return label.replace(/ · (lambda|validating)$/, '');
@@ -143,13 +148,30 @@ export function sourceText(source) {
     return text;
 }
 
-/** The language of the first script expression, as a name and its descriptor code. */
+const LANGUAGES = {
+    el: ['SpEL', 'SpEL'],
+    spel: ['SpEL', 'SpEL'],
+    js: ['JavaScript', 'JavaScript (GraalJS)'],
+    javascript: ['JavaScript', 'JavaScript (GraalJS)'],
+    java: ['Java', 'Java (Janino)']
+};
+
+/** "SpEL", "JavaScript", "Java"; with `long`, the engine too: "Java (Janino)". Unknown codes are shown as written. */
+export function languageName(code, long = false) {
+    const names = LANGUAGES[code];
+    return names ? names[long ? 1 : 0] : code;
+}
+
+/**
+ * The language of an artifact's script expressions: `{code, name, long, codes}`, or null without
+ * any. When the expressions disagree (rulii allows a language per expression) the code and name
+ * are `mixed` and `long` lists them, so the caption never names just the first one.
+ */
 export function scriptLanguage(artifact) {
-    const first = expressionsOf(artifact).find(e => isScript(e.expression));
-    if (!first) return null;
-    const code = first.expression.language || 'el';
-    const names = {el: 'SpEL', spel: 'SpEL', js: 'JavaScript', javascript: 'JavaScript', java: 'Java (Janino)'};
-    return {name: names[code] || code, code};
+    const codes = [...new Set(expressionsOf(artifact).filter(e => isScript(e.expression)).map(e => e.expression.language || 'el'))];
+    if (!codes.length) return null;
+    if (codes.length > 1) return {code: 'mixed', name: 'mixed', long: codes.map(c => languageName(c)).join(' and '), codes};
+    return {code: codes[0], name: languageName(codes[0]), long: languageName(codes[0], true), codes};
 }
 
 /** The plain-English text of an expression, for list rows and search. */

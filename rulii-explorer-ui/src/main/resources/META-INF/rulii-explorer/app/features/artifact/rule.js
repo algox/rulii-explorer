@@ -1,6 +1,6 @@
 import {html, nothing} from 'lit';
 import {icon} from '../../components/icons.js';
-import {bindingChip, card, requiredPill} from '../../components/common.js';
+import {bindingChip, card, languageTag, requiredPill} from '../../components/common.js';
 import {plainTokens, rawCode, segmented, signatureBox, slotCaption, highlightCode, placeholdersOf} from '../../components/expression.js';
 import {expressionsOf, isCompiled, isScript, shortType, compareNatural} from '../../descriptor/format.js';
 import {validatorPhrase, validatedValue} from '../../descriptor/summaries.js';
@@ -39,7 +39,7 @@ export function ruleBody(a, host) {
         <span class="rx-v">${rule.otherwise ? rawCode(rule.otherwise) : html`<span class="rx-none">none</span>`}</span>
     </div>`;
     return html`
-        ${card('What it checks', view === 'raw' ? raw : plain, {action: segmented(view, v => host.store.setExprView(v))})}
+        ${card('What it checks', view === 'raw' ? raw : plain, {action: html`<span class="rx-card-tools">${languageTag(a, {full: true})}${segmented(view, v => host.store.setExprView(v))}</span>`})}
         <div class="rx-grid-2">
             ${parametersCard(a)}
             ${bindingsCard(a, index, {})}
@@ -85,7 +85,7 @@ export function validatorBody(a, host) {
         ${settings.length ? html`<span class="rx-k">settings</span><span class="rx-v"><code class="rx-code">${settings.map(([k, val], i) => html`${i ? '\n' : ''}<span class="rx-c-fn">${k}</span><span class="rx-c-kw"> = </span>${highlightCode(JSON.stringify(val))}`)}</code></span>` : nothing}
     </div>`;
     return html`
-        ${card('What it checks', view === 'raw' ? raw : plain, {action: segmented(view, x => host.store.setExprView(x))})}
+        ${card('What it checks', view === 'raw' ? raw : plain, {action: html`<span class="rx-card-tools">${languageTag(a, {full: true})}${segmented(view, x => host.store.setExprView(x))}</span>`})}
         <div class="rx-grid-2">
             ${card('When it fails', html`
                 <div class="rx-kv rx-kv-66">
