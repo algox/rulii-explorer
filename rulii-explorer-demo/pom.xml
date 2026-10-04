@@ -26,6 +26,11 @@
         <graalvm.version>25.4.4.1.1</graalvm.version>
         <!-- Janino compiles the Java rules in rules/order/fulfilment.xml and FulfilmentConfig; rulii declares it provided too -->
         <janino.version>3.1.12</janino.version>
+        <!-- On a plain JDK 17 GraalVM 25's native attach helper refuses to load and Truffle warns at startup that it
+             runs interpreter-only. The scripts still work, so the warning is noise: silence it for spring-boot:run
+             (jvmArguments below) and for the tests (Surefire picks up argLine). -->
+        <polyglot.jvm.args>-Dpolyglotimpl.AttachLibraryFailureAction=ignore</polyglot.jvm.args>
+        <argLine>${polyglot.jvm.args}</argLine>
     </properties>
 
     <dependencies>
@@ -74,6 +79,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <jvmArguments>${polyglot.jvm.args}</jvmArguments>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
