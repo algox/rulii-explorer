@@ -1,7 +1,7 @@
 import {html, nothing, svg} from 'lit';
 import {RxElement} from '../../components/base.js';
 import {glyph, icon} from '../../components/icons.js';
-import {artifactLink, breadcrumb, card, copyButton, copyLinkButton, graphButton, kindCaption, sourceInline, typeBadge} from '../../components/common.js';
+import {artifactLink, breadcrumb, card, copyButton, copyLinkButton, graphButton, kindCaption, sourceInline, tagChips, typeBadge} from '../../components/common.js';
 import {routes} from '../../routing/router.js';
 import {hasCompiled, hasScript, isCompiled, plainText, scriptLanguage, sourceText, typeLabel} from '../../descriptor/format.js';
 import {artifactSummary} from '../../descriptor/summaries.js';
@@ -55,8 +55,16 @@ export function isRuleCompiled(a) {
 export function pageHeader(a, index, options = {}) {
     const group = typeLabel(a.type, true);
     const crumbs = [{text: group, href: routes.overview()}];
-    if (a.packageId) crumbs.push({text: a.packageId, href: routes.package(a.packageId), mono: true});
+    const category = index.categories.of.get(a.id);
+    if (category) {
+        // Where it belongs, one crumb per level; the package stays in the Source card.
+        const levels = category.path.split('/');
+        levels.forEach((name, i) => crumbs.push({text: name, href: routes.category(levels.slice(0, i + 1).join('/'))}));
+    } else if (a.packageId) {
+        crumbs.push({text: a.packageId, href: routes.package(a.packageId), mono: true});
+    }
     crumbs.push({text: a.name});
+    const via = category && category.inherited ? index.byId.get(category.from) : null;
     const undescribed = index.undescribed.has(a.id);
     return html`<div class="rx-head-row">
         <div class="rx-page-head">
@@ -66,12 +74,14 @@ export function pageHeader(a, index, options = {}) {
                 ${kindCaption(a)}
                 ${options.compiled ? html`<span class="rx-lock-chip">${icon('lock', {size: 11, width: 2.2})}compiled</span>` : nothing}
                 ${sourceInline(a)}
+                ${via ? html`<span class="rx-sep-dot"></span><span class="rx-kind rx-via-note">category via ${artifactLink(via, {glyph: false, class: 'rx-via-link'})}</span>` : nothing}
             </div>
             <div class="rx-title-row">
                 <h1 class="rx-h1">${a.name}</h1>
                 ${a.registered !== false ? html`<span class="rx-bean">bean <span class="rx-chip">${a.id}</span></span>` : html`<span class="rx-bean">inline, not a bean</span>`}
             </div>
             ${a.description ? html`<p class="rx-subtitle">${a.description}</p>` : html`<p class="rx-subtitle rx-muted">No description.</p>`}
+            ${tagChips(a)}
         </div>
         <div class="rx-actions">
             ${copyLinkButton('Copy link to this ' + typeLabel(a.type).toLowerCase())}

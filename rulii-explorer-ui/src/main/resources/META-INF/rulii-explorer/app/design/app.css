@@ -251,6 +251,19 @@ a.rx-chip:hover { background: var(--rx-selected); }
 .rx-nav-problems.rx-nav-problems-warning { color: var(--rx-warning); }
 .rx-nav-problems.rx-nav-problems-info { color: var(--rx-info); }
 .rx-nav-undescribed { font-size: 11px; color: var(--rx-ink-2); font-weight: 600; }
+/* Category rows read as names, not code; folders ("All rules", "Uncategorised") are buttons styled as rows. */
+.rx-nav-row-cat .rx-name { font-size: 13px; font-weight: 500; }
+.rx-nav-row-folder { width: 100%; background: none; border: 0; text-align: left; font: inherit; cursor: pointer; }
+.rx-nav-row-folder .rx-name { font-size: 13px; font-weight: 500; }
+/* A rule set row with its own expand toggle beside the link */
+.rx-nav-row-wrap { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.rx-nav-row-wrap > .rx-nav-row { flex-grow: 1; min-width: 0; }
+.rx-nav-toggle {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 22px; height: 22px;
+  border: 0; border-radius: var(--rx-radius-sm); background: none; color: var(--rx-ink-3); cursor: pointer;
+}
+.rx-nav-toggle:hover { background: var(--rx-hover); color: var(--rx-ink); }
+.rx-nav-toggle[aria-expanded="true"] { color: var(--rx-ink-2); }
 .rx-sidebar-foot { margin-top: auto; padding: 12px 10px 0; font-size: 11.5px; color: var(--rx-ink-3); flex-shrink: 0; }
 
 .rx-main { min-width: 0; min-height: 0; overflow-y: auto; overflow-x: hidden; position: relative; display: flex; flex-direction: column; }
@@ -529,6 +542,31 @@ a.rx-stat:hover { border-color: var(--rx-line-strong); }
 .rx-pkg-bar .rx-seg-ruleset { background: var(--rx-ruleset); }
 .rx-pkg-bar .rx-seg-ruleflow { background: var(--rx-flow); }
 .rx-pkg-count { font-size: 12.5px; font-weight: 600; color: var(--rx-ink-2); text-align: right; }
+/* The categories card: the same grid, names in the UI face, indented per level */
+.rx-cat-grid .rx-pkg-name a { font: 600 13px var(--rx-font-ui); }
+.rx-cat-grid .rx-cat-none { font-size: 13px; font-weight: 500; color: var(--rx-ink-3); }
+
+/* ── Tags ───────────────────────────────────────────────────────────────── */
+
+.rx-tags { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.rx-tag {
+  display: inline-flex; align-items: center; height: 22px; padding: 0 9px; border-radius: var(--rx-radius-pill);
+  background: var(--rx-accent-soft); color: var(--rx-accent); border: 1px solid transparent;
+  font: 600 11.5px var(--rx-font-ui); letter-spacing: 0.01em; white-space: nowrap; cursor: pointer;
+  transition: border-color var(--rx-duration-fast) var(--rx-ease), background var(--rx-duration-fast) var(--rx-ease);
+}
+.rx-tag:hover { border-color: var(--rx-accent); }
+.rx-tag-static { cursor: default; height: 18px; padding: 0 7px; font-size: 10.5px; }
+.rx-tag-static:hover { border-color: transparent; }
+.rx-hc-tags { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+.rx-tag-list { display: flex; flex-direction: column; gap: 8px; }
+.rx-tag-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.rx-via { font-size: 11px; color: var(--rx-ink-3); font-style: italic; margin-left: 8px; }
+.rx-via-note { font-style: italic; }
+.rx-via-link { color: var(--rx-ink-2); font-weight: 600; font-style: normal; }
+.rx-via-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.rx-page-head .rx-tags { margin-top: 2px; }
+.rx-pill-filter { color: var(--rx-accent); background: var(--rx-accent-soft); border-color: transparent; white-space: nowrap; }
 
 /* ── Problems page ──────────────────────────────────────────────────────── */
 

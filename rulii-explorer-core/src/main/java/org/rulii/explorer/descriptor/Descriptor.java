@@ -27,7 +27,7 @@ import java.util.List;
  * <p>Output is stable (FR-43): lists are sorted, keys are in declaration order, and nothing in
  * the body depends on when it was built.
  *
- * @param descriptorVersion the contract version, {@code "1.0"}; additive changes keep the major.
+ * @param descriptorVersion the contract version, {@code "1.1"}; additive changes keep the major (1.1 added artifact category and tags).
  * @param application       the application and the library versions.
  * @param packages          every package an artifact belongs to, sorted by id.
  * @param artifacts         every artifact, sorted by type then id.

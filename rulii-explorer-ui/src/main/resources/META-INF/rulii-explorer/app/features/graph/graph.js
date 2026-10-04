@@ -24,12 +24,13 @@ export const GROUP_LIMIT = 200;
  */
 class RxGraph extends RxElement {
 
-    static properties = {types: {state: true}, packageId: {state: true}, legendOpen: {state: true}, minimapOn: {state: true}, laying: {state: true}, failure: {state: true}};
+    static properties = {types: {state: true}, packageId: {state: true}, categoryId: {state: true}, legendOpen: {state: true}, minimapOn: {state: true}, laying: {state: true}, failure: {state: true}};
 
     constructor() {
         super();
         this.types = new Set(['ruleflow', 'ruleset', 'rule']);
         this.packageId = '';
+        this.categoryId = '';
         this.legendOpen = true;
         this.minimapOn = true;
         this.laying = false;
@@ -75,7 +76,7 @@ class RxGraph extends RxElement {
         if (!full) { full = fullGraph(index); fullGraphs.set(index, full); }
         const focus = this.focusNode;
         const base = focus ? focusGraph(full, focus.id, this.depth) : {nodes: full.nodes, edges: full.edges, hidden: 0};
-        return {full, graph: filterGraph(base, {types: this.types, packageId: this.packageId}), focus};
+        return {full, graph: filterGraph(base, {types: this.types, packageId: this.packageId, categoryId: this.categoryId}), focus};
     }
 
     go(patch) {
@@ -104,7 +105,7 @@ class RxGraph extends RxElement {
                     <h1 class="rx-h1 rx-h1-md">Dependency graph</h1>
                     ${focus
                         ? html`<p class="rx-subtitle rx-subtitle-sm" style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap">Focused on <span class=${'rx-art-link rx-art-link-' + focus.type} style="font-family: var(--rx-font-ui); font-size: 14px">${glyph(focus.type, {size: 11})}${focus.name}</span> and ${this.depth === 'all' ? 'everything connected to it' : 'everything ' + depthWords[this.depth] + ' away from it'}.</p>`
-                        : html`<p class="rx-subtitle rx-subtitle-sm">All ${plural(total, 'artifact')} in ${descriptor.application.name || 'the application'}${total <= GROUP_LIMIT ? ', grouped by the package they are defined in' : '; flows on the left, rules on the right'}.</p>`}
+                        : html`<p class="rx-subtitle rx-subtitle-sm">All ${plural(total, 'artifact')} in ${descriptor.application.name || 'the application'}${total <= GROUP_LIMIT ? (index.categories.has ? ', grouped by category' : ', grouped by the package they are defined in') : '; flows on the left, rules on the right'}.</p>`}
                     <div class="rx-flow-bar">
                         <div class="rx-tabs" role="tablist" aria-label="Graph views">
                             <button type="button" role="tab" class="rx-tab" aria-selected=${!!focus} @click=${() => { if (!focus) { const id = this.query.selected; if (id && index.byId.has(id)) this.go({focus: id}); } }} aria-disabled=${!focus && !(this.query.selected && index.byId.has(this.query.selected))} title=${focus ? nothing : 'Select an artifact, then focus on it'}>Focus</button>
@@ -119,19 +120,26 @@ class RxGraph extends RxElement {
                         ${['ruleflow', 'ruleset', 'rule'].map(t => html`<button type="button" class="rx-gchip" aria-pressed=${this.types.has(t)} @click=${() => this.toggleType(t)}>${glyph(t, {size: 10})}${typeLabel(t, true)}</button>`)}
                     </div>
                     <span class="rx-vbar" aria-hidden="true" style="height: 20px"></span>
-                    <span class="rx-overline">Package</span>
-                    <select class="rx-gselect" aria-label="Package" .value=${this.packageId} @change=${(e) => { this.packageId = e.target.value; }}>
-                        <option value="">All packages</option>
-                        ${index.packages.map(p => html`<option value=${p.pkg.id} ?selected=${p.pkg.id === this.packageId}>${p.pkg.id}</option>`)}
-                    </select>
+                    ${index.categories.has ? html`
+                        <span class="rx-overline">Category</span>
+                        <select class="rx-gselect" aria-label="Category" .value=${this.categoryId} @change=${(e) => { this.categoryId = e.target.value; }}>
+                            <option value="">All categories</option>
+                            ${[...index.categories.byPath.keys()].map(path => html`<option value=${path} ?selected=${path === this.categoryId}>${path}</option>`)}
+                            ${index.categories.uncategorised.length ? html`<option value="none" ?selected=${this.categoryId === 'none'}>Uncategorised</option>` : nothing}
+                        </select>` : html`
+                        <span class="rx-overline">Package</span>
+                        <select class="rx-gselect" aria-label="Package" .value=${this.packageId} @change=${(e) => { this.packageId = e.target.value; }}>
+                            <option value="">All packages</option>
+                            ${index.packages.map(p => html`<option value=${p.pkg.id} ?selected=${p.pkg.id === this.packageId}>${p.pkg.id}</option>`)}
+                        </select>`}
                     ${focus ? html`<span class="rx-vbar" aria-hidden="true" style="height: 20px"></span>
                         <span class="rx-overline">Depth</span>
                         <div class="rx-seg" role="group" aria-label="Depth">${DEPTHS.map(d => html`<button type="button" aria-pressed=${this.depth === d} @click=${() => this.go({depth: d})}>${d === 'all' ? 'All' : d + (d === '1' ? ' step' : ' steps')}</button>`)}</div>` : nothing}
                     <span class="rx-spacer"></span>
-                    ${!focus && graph.nodes.size > GROUP_LIMIT ? html`<span class="rx-small" style="font-size: 12px" title="ELK's grouped layout takes minutes at this size; filter by package to see one package with its box">Packages are not drawn above ${GROUP_LIMIT} artifacts</span>` : nothing}
+                    ${!focus && graph.nodes.size > GROUP_LIMIT ? html`<span class="rx-small" style="font-size: 12px" title="ELK's grouped layout takes minutes at this size; filter to one group to see it with its box">Groups are not drawn above ${GROUP_LIMIT} artifacts</span>` : nothing}
                     <span class="rx-small" style="font-size: 12.5px">${focus
                         ? 'Showing ' + (graph.nodes.size - missing) + ' of ' + total + ' artifacts'
-                        : plural(graph.nodes.size - missing, 'artifact') + ' · ' + plural(index.packages.length, 'package') + (missing ? ' · ' + missing + ' not registered' : '')}</span>
+                        : plural(graph.nodes.size - missing, 'artifact') + ' · ' + (index.categories.has ? plural(index.categories.byPath.size, 'category', 'categories') : plural(index.packages.length, 'package')) + (missing ? ' · ' + missing + ' not registered' : '')}</span>
                 </div>
                 <div class="rx-stage-wrap">
                     <div class="rx-stage" role="group" aria-label=${describeGraph(graph, index, focus)} @click=${() => this.select('')}></div>

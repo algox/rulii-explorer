@@ -12,6 +12,7 @@
          ctx with their real types, so a script calls getters and methods the way Java code does;
          a condition is the last expression, and an action is ordinary statements. -->
     <r:scripting defaultLanguage="java"/>
+    <r:defaults category="Fulfilment" tags="shipping"/>
 
     <r:ruleset name="fulfilmentRules" description="Decides how an approved order ships.">
         <r:param name="order" type="com.acme.order.model.Order" description="The approved order"/>

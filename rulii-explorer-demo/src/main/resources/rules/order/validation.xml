@@ -9,6 +9,8 @@
            https://www.rulii.org/spring/rulii-spring.xsd">
 
     <r:scripting defaultLanguage="el"/>
+    <!-- Every rule in this file belongs to Orders / Validation; a rule can still add its own tags. -->
+    <r:defaults category="Orders/Validation" tags="orders"/>
 
     <!-- Everything an order must satisfy before it is processed. Validating: severe violations
          stop processing; the rule set gives up after three. -->

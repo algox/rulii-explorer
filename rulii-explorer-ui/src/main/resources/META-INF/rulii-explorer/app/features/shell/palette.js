@@ -6,6 +6,7 @@ import {routes, navigate} from '../../routing/router.js';
 import {markRanges, plainTokens, mark} from '../../components/expression.js';
 import {identifierWords, joinWords} from '../../descriptor/format.js';
 import {externalSourcesAllowed} from '../../descriptor/source.js';
+import {parseQuery} from '../../search/search.js';
 
 const TYPE_CYCLE = [null, 'rule', 'ruleset', 'ruleflow', 'binding'];
 const TYPE_NAMES = {rule: 'rules', ruleset: 'rule sets', ruleflow: 'rule flows', binding: 'bindings'};
@@ -26,12 +27,14 @@ class RxPalette extends RxElement {
         const dialog = this.querySelector('dialog');
         if (!dialog) return;
         if (this.state.paletteOpen && !dialog.open) {
-            this.query = '';
+            const preset = this.state.paletteQuery || '';
+            this.query = preset;
             this.selected = 0;
             this.typeFilter = null;
             dialog.showModal();
             const input = dialog.querySelector('input');
-            if (input) { input.value = ''; input.focus(); }
+            if (input) { input.value = preset; input.focus(); }
+            if (preset) this.store.set({paletteQuery: null}); // consumed; the next plain open starts empty
         } else if (!this.state.paletteOpen && dialog.open) {
             if (dialog.contains(document.activeElement)) document.activeElement.blur(); // focus must not linger in a hidden field
             dialog.close();
@@ -42,10 +45,17 @@ class RxPalette extends RxElement {
         if (this.state.paletteOpen) this.store.set({paletteOpen: false});
     }
 
+    /** The query split into text and filters (`tag:vip`, `in:Pricing`). */
+    parsed() {
+        return parseQuery(this.query);
+    }
+
     results() {
         const search = this.state.search;
-        if (!search || !this.query.trim()) return [];
-        return search.query(this.query, {type: this.typeFilter || undefined});
+        if (!search) return [];
+        const {text, tags, category} = this.parsed();
+        if (!text.trim() && !tags.length && !category) return [];
+        return search.query(text, {type: this.typeFilter || undefined, tags, category});
     }
 
     flat(groups) {
@@ -73,7 +83,9 @@ class RxPalette extends RxElement {
     render() {
         const groups = this.results();
         const hits = this.flat(groups);
-        const words = identifierWords(this.query);
+        const parsed = this.parsed();
+        const words = identifierWords(parsed.text);
+        const asked = this.query.trim().length > 0;
         let i = 0;
         return html`<dialog class="rx-palette" aria-label="Search everything" @cancel=${(e) => { e.preventDefault(); this.close(); }} @close=${() => this.close()} @click=${(e) => { if (e.target === e.currentTarget) this.close(); }}>
             <div class="rx-palette-box">
@@ -84,14 +96,16 @@ class RxPalette extends RxElement {
                            @input=${(e) => { this.query = e.target.value; this.selected = 0; }} @keydown=${(e) => this.onKey(e, groups)}
                            role="combobox" aria-expanded=${hits.length > 0} aria-controls="rx-palette-results" aria-activedescendant=${hits.length ? 'rx-opt-' + this.selected : nothing}>
                     ${this.typeFilter ? html`<span class="rx-pill">${TYPE_NAMES[this.typeFilter]}</span>` : nothing}
-                    ${this.query.trim() ? html`<span class="rx-small">${hits.length} ${hits.length === 1 ? 'result' : 'results'}</span>` : nothing}
+                    ${parsed.tags.map(t => html`<span class="rx-pill rx-pill-filter">tag ${t}</span>`)}
+                    ${parsed.category ? html`<span class="rx-pill rx-pill-filter">in ${parsed.category}</span>` : nothing}
+                    ${asked ? html`<span class="rx-small">${hits.length} ${hits.length === 1 ? 'result' : 'results'}</span>` : nothing}
                     <kbd class="rx-kbd">esc</kbd>
                 </label>
                 <div class="rx-palette-list" role="listbox" id="rx-palette-results" aria-label="Results">
                     ${groups.map(g => html`
                         <div class="rx-palette-group rx-overline"><span>${g.label}</span><span>${g.hits.length}</span></div>
                         ${g.hits.map(hit => { const idx = i++; return this.option(hit, idx, words); })}`)}
-                    ${this.query.trim() && !hits.length ? html`<div class="rx-palette-empty">Nothing matches “${this.query}”${this.typeFilter ? ' among ' + TYPE_NAMES[this.typeFilter] : ''}.</div>` : nothing}
+                    ${asked && !hits.length ? html`<div class="rx-palette-empty">Nothing matches “${this.query}”${this.typeFilter ? ' among ' + TYPE_NAMES[this.typeFilter] : ''}.</div>` : nothing}
                 </div>
                 <div class="rx-palette-foot">
                     <span><kbd class="rx-kbd">↑</kbd><kbd class="rx-kbd">↓</kbd>move</span>
@@ -101,7 +115,7 @@ class RxPalette extends RxElement {
                     <button type="button" class="rx-palette-help" @click=${() => this.store.set({paletteOpen: false, helpOpen: true})}><kbd class="rx-kbd">?</kbd>help</button>
                     ${externalSourcesAllowed() ? html`<button type="button" class="rx-palette-help" @click=${() => this.store.set({paletteOpen: false, sourceOpen: true})}>${icon('globe', {size: 12, width: 2})}open a descriptor</button>` : nothing}
                     <span class="rx-spacer"></span>
-                    <span>Names, conditions, error codes and bindings</span>
+                    <span>Names, conditions, codes, bindings · <span class="rx-mono">tag:vip</span> · <span class="rx-mono">in:Pricing</span></span>
                 </div>
             </div>
         </dialog>`;

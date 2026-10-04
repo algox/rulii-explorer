@@ -14,27 +14,50 @@ import {expressionsOf, identifierWords, plainText, typeLabel, compareNatural} fr
  * @property {{label: string, expression?: object, text?: string}|null} snippet
  */
 
+/**
+ * Splits a palette query into its text and its filters: `tag:vip` keeps artifacts carrying the
+ * tag (several must all match), `in:Pricing` keeps a category and the ones below it (a level
+ * prefix works too: `in:loyal` finds Pricing/Loyalty). A bare `tag:` or `in:` is ignored.
+ *
+ * @returns {{text: string, tags: string[], category: string|null}}
+ */
+export function parseQuery(raw) {
+    const tags = [];
+    let category = null;
+    const text = [];
+    for (const token of String(raw || '').split(/\s+/)) {
+        if (!token) continue;
+        const m = /^(tag|in|category):(.*)$/i.exec(token);
+        if (!m) text.push(token);
+        else if (m[2] && m[1].toLowerCase() === 'tag') tags.push(m[2].toLowerCase());
+        else if (m[2]) category = m[2].toLowerCase();
+    }
+    return {text: text.join(' '), tags, category};
+}
+
 export function buildSearch(descriptor, index) {
     const docs = [];
     for (const a of descriptor.artifacts) docs.push(artifactDoc(a, index));
     for (const b of descriptor.bindings) docs.push(bindingDoc(b, index));
     return {
         /**
-         * @param {string} query
-         * @param {{limit?: number, type?: string}} [options]
+         * @param {string} query   the text (filters already split off by {@link parseQuery})
+         * @param {{limit?: number, type?: string, tags?: string[], category?: string|null}} [options]
          * @returns {Array<{type: string, label: string, hits: Hit[]}>} groups in sidebar order
          */
         query(query, options = {}) {
             const terms = identifierWords(query).filter(Boolean);
-            if (!terms.length) return [];
+            const filtered = (options.tags && options.tags.length > 0) || !!options.category;
+            if (!terms.length && !filtered) return [];
             const hits = [];
             for (const doc of docs) {
                 if (options.type && doc.type !== options.type) continue;
-                const hit = score(doc, terms, query.trim().toLowerCase());
+                if (filtered && (doc.kind !== 'artifact' || !matchesFilters(doc, options))) continue;
+                const hit = terms.length ? score(doc, terms, query.trim().toLowerCase()) : listed(doc);
                 if (hit) hits.push(hit);
             }
             hits.sort((a, b) => b.score - a.score || compareNatural(a.name, b.name));
-            const limit = options.limit || 24;
+            const limit = options.limit || (terms.length ? 24 : 60);
             const grouped = new Map();
             for (const hit of hits.slice(0, limit)) {
                 const key = hit.type;
@@ -59,6 +82,9 @@ function artifactDoc(a, index) {
     if (a.id !== a.name) keywords.push(a.id.toLowerCase());
     if (a.className) keywords.push(a.className.toLowerCase());
     keywords.push(a.kind, a.type);
+    const tags = (a.tags || []).map(t => t.toLowerCase());
+    keywords.push(...tags);
+    const category = index.categories && index.categories.of.get(a.id);
     const paths = new Set();
     for (const {expression} of expressionsOf(a)) {
         for (const p of expression.reads || []) paths.add(p.toLowerCase());
@@ -70,8 +96,23 @@ function artifactDoc(a, index) {
         name: a.name, nameLower: a.name.toLowerCase(), nameWords: identifierWords(a.name),
         description: (a.description || '').toLowerCase(),
         packageId: (a.packageId || '').toLowerCase(),
+        category: category ? category.path.toLowerCase() : '',
+        tags,
         expressions, keywords, paths: [...paths]
     };
+}
+
+function matchesFilters(doc, options) {
+    for (const t of options.tags || []) if (!doc.tags.includes(t)) return false;
+    const c = options.category;
+    if (!c) return true;
+    return doc.category === c || doc.category.startsWith(c + '/') || doc.category.split('/').some(level => level.startsWith(c));
+}
+
+/** A hit for a filter-only query: every match listed, in name order, with its description as the snippet. */
+function listed(doc) {
+    return {kind: doc.kind, type: doc.type, artifact: doc.artifact, binding: doc.binding, name: doc.name, score: 1, nameMatches: [],
+        snippet: doc.description ? {label: null, text: doc.description} : null};
 }
 
 function bindingDoc(b, index) {

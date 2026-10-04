@@ -12,6 +12,7 @@
          ctx, the way #ctx reaches them in SpEL, and Java objects keep their methods. The explorer
          keeps the script text and scans it for the bindings it reads and writes. -->
     <r:scripting defaultLanguage="js"/>
+    <r:defaults category="Pricing/Loyalty" tags="loyalty"/>
 
     <r:ruleset name="loyaltyRules" description="Awards loyalty points and the perks that come with them.">
         <r:param name="order" type="com.acme.order.model.Order" description="The approved order"/>
@@ -23,7 +24,7 @@
         </r:rules>
     </r:ruleset>
 
-    <r:rule name="LoyaltyPointsRule" description="Orders above the minimum earn a point per currency unit, twice that for VIP customers.">
+    <r:rule name="LoyaltyPointsRule" description="Orders above the minimum earn a point per currency unit, twice that for VIP customers." tags="vip">
         <r:given>ctx.order.total.doubleValue() >= ${loyalty.minTotal:25}</r:given>
         <r:then>ctx.points = Math.floor(ctx.order.total.doubleValue()) * (ctx.customer.tier === 'VIP' ? 2 : 1);</r:then>
         <r:otherwise>ctx.points = 0;</r:otherwise>

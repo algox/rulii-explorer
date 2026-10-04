@@ -2,6 +2,7 @@ import {html, nothing} from 'lit';
 import {glyph, icon} from './icons.js';
 import {kindLabel, scriptLanguage, sourceText, typeLabel} from '../descriptor/format.js';
 import {routes} from '../routing/router.js';
+import {store} from '../state/store.js';
 
 /**
  * Small shared templates: badges, links, cards, copy buttons. Every page composes these so the
@@ -31,6 +32,13 @@ export function bindingChip(path, direction, index) {
 
 export function kindCaption(artifact) {
     return html`<span class="rx-kind">${kindLabel(artifact)}</span>`;
+}
+
+/** An artifact's tags as chips; each opens the search filtered to that tag. */
+export function tagChips(artifact) {
+    const tags = artifact && artifact.tags || [];
+    if (!tags.length) return nothing;
+    return html`<span class="rx-tags" aria-label="Tags">${tags.map(t => html`<button type="button" class="rx-tag" title=${'Everything tagged ' + t} @click=${() => store.set({paletteOpen: true, paletteQuery: 'tag:' + t})}>${t}</button>`)}</span>`;
 }
 
 /**

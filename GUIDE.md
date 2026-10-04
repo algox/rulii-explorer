@@ -88,7 +88,44 @@ registered. Selection, focus and depth are all in the address, so a view can be 
 `Ctrl K`, `⌘ K` or `/` opens the search over everything: names, conditions, error codes and
 binding paths. Results are grouped by type with the match underlined; `Tab` cycles the type
 filter, `↑` `↓` move, `↵` opens, `Esc` closes. Camel-case prefixes work: `ordervalidation` finds
-`orderValidationRules`.
+`orderValidationRules`. `tag:vip` and `in:Pricing` narrow the results to a tag or a category
+(see "Categories and tags"); on their own they list everything that matches.
+
+## Categories and tags
+
+![A category page](guide/categories.png)
+
+Rules, rule sets and flows can say where they belong and what they are about, and the explorer
+organises itself around that instead of around packages and class names:
+
+- A **category** is the one place an artifact lives, such as `Pricing` or `Pricing/Loyalty`
+  (`/` separates the levels). When an application uses categories, the sidebar opens with the
+  category tree, each category opening into its sub-categories and its artifacts; the overview
+  lists the categories with their counts; the whole-application graph draws a box per category;
+  and the breadcrumb of every page shows the category instead of the package. Each category has
+  a page at `#/category/{path}`. A rule with no category of its own that belongs to exactly one
+  rule set with a category is shown under that set's, marked *via* the set, since a member of a
+  Pricing set is a pricing rule. Anything else without a category sits under **Uncategorised**,
+  and the Problems page lists it as `UNCATEGORISED`.
+- **Tags** are short labels, any number per artifact, shown as chips under the description.
+  Click one to search for everything that carries it. In the search, `tag:vip` keeps only
+  artifacts with that tag, `in:Pricing` only those in that category and the ones below it (a
+  level prefix works: `in:loyal`), and both combine with ordinary words.
+
+Declaring them, in XML:
+
+```xml
+<r:defaults category="Pricing" tags="pricing"/>          <!-- for every artifact in this file -->
+<r:rule name="VipDiscountRule" tags="vip" description="…"> …
+<r:ruleflow name="nightlyRepriceFlow" category="Pricing/Catalogue" tags="nightly"> …
+```
+
+An element's `category` replaces the file default; its `tags` are added to the default's. On a
+`@Rule` class, `@Category("Pricing")` and `@Tags({"vip", "discount"})` sit beside `@Description`;
+in the builders, `.category("Pricing").tags("vip")`. Nothing is ever inferred from a package or
+a file name. Without any categories the sidebar falls back to grouping rules by the rule set that
+runs them, with the ones in no rule set listed separately, and the overview shows where artifacts
+are defined instead.
 
 ## Opening another descriptor
 
@@ -144,6 +181,7 @@ Every screen has an address that survives a reload and can be pasted into a revi
 | `#/graph?selected={id}` | The whole application with one artifact selected |
 | `#/binding/{name}` | A binding |
 | `#/package/{id}` | A package |
+| `#/category/{path}` | A category, such as `#/category/Pricing/Loyalty` |
 | `?descriptor={url}#/…` | Any screen, read from another application's descriptor or a saved JSON at that address (before the `#`) |
 
 Step addresses follow the flow's structure: `commands[1]` is the second top-level step,
@@ -208,6 +246,16 @@ The artifact has no description, so readers see only its name and the generated 
 *Fix*: add `@Description` to a `@Rule` class, a `description` attribute in XML, or the
 description in the builder.
 
+### `UNCATEGORISED` (info)
+
+The application files its artifacts by category, and this one declares none. It shows under
+*Uncategorised*, or under its rule set's category when it belongs to exactly one that has one.
+An application that never categorised anything gets none of these, so they appear only once
+categories are adopted.
+
+*Fix*: add `@Category` to a `@Rule` class, a `category` attribute in XML (or
+`<r:defaults category="…"/>` for the whole file), or `.category("…")` in the builder.
+
 ## Vocabulary
 
 - **Artifact**: a rule, rule set or rule flow. The glyphs are a circle (rule), a rounded square
@@ -225,6 +273,10 @@ description in the builder.
   language also sits beside the Plain / Raw toggle on the rule page, and a small `js` or `java`
   tag marks rules that are not SpEL in the sidebar and the search, since SpEL is rulii's default.
   A rule whose expressions use different languages says `mixed`.
+- **Category** and **tags**: where an artifact belongs (one, hierarchical with `/`) and what it
+  is about (any number), declared by the application. See "Categories and tags" above. A
+  **package** is where it is defined, a technical fact kept on the Source card, the package page
+  and the breadcrumb of uncategorised artifacts.
 - **Compiled code**: a lambda or method reference. The explorer shows its signature and the
   bindings it declares, and says that its logic cannot be read. A lock marks it everywhere.
 - **Plain** and **Raw**: the same expression as a sentence or as the original text with syntax

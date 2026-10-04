@@ -284,7 +284,7 @@ class BrowserTest {
                 screen("graph-focus", "ok", "/graph?focus=orderValidationRules", ".rx-gnode", true),
                 screen("graph-focus-flow", "ok", "/graph?focus=orderProcessingFlow&depth=2", ".rx-gnode", false),
                 screen("graph-all", "ok", "/graph", ".rx-gnode", true),
-                screen("graph-all-selected", "ok", "/graph?selected=nightlyRepriceFlow", ".rx-gaside", false),
+                screen("graph-all-selected", "ok", "/graph?selected=nightlyRepriceFlow", ".rx-gnode", false, p -> p.waitForSelector(".rx-gaside")),
                 screen("binding", "ok", "/binding/order", ".rx-xref", false),
                 screen("package", "ok", "/package/rules/order", ".rx-rows", false),
                 screen("problems", "ok", "/problems", ".rx-article", true),
@@ -299,6 +299,12 @@ class BrowserTest {
                 screen("state-partial", "partial", "", ".rx-note-warning", false),
                 screen("state-partial-rule", "partial", "/rule/StockAvailableRule", ".rx-undescribed-card", false),
                 screen("missing", "ok", "/rule/Nope", ".rx-state", false),
+                screen("sidebar-categories", "ok", "/rule/LoyaltyPointsRule", ".rx-summary", true),
+                screen("category", "ok", "/category/Pricing", ".rx-rows", true),
+                screen("category-leaf", "ok", "/category/Pricing/Loyalty", ".rx-rows", false),
+                screen("search-tag", "ok", "", ".rx-stats", false, p -> { p.keyboard().press("Control+k"); p.waitForSelector(".rx-palette[open]"); p.keyboard().type("tag:vip"); p.waitForSelector(".rx-option"); }),
+                screen("overview-no-categories", "nocategories", "", ".rx-stats", false, p -> { p.click(".rx-nav-toggle"); p.waitForSelector(".rx-nav-children"); }),
+                screen("rule-no-categories", "nocategories", "/rule/MinTotalRule", ".rx-summary", false),
                 screen("source-dialog", "ok", "", ".rx-stats", true, p -> { p.click(".rx-source-chip"); p.waitForSelector(".rx-source[open]"); }),
                 screen("source-remote", "ok", withDescriptor(remote + "/cors/descriptor", "/"), ".rx-stats", true),
                 screen("source-file", "ok", "", ".rx-stats", false, p -> { p.click(".rx-source-chip"); p.waitForSelector(".rx-source[open]"); p.setInputFiles(".rx-source input[type=file]", GOLDEN); p.waitForSelector(".rx-source-chip-file"); p.waitForSelector(".rx-stats"); }),
@@ -440,10 +446,18 @@ class BrowserTest {
                 try { Thread.sleep(4000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
                 send(exchange, 200, "application/json", golden);
             }
+            case "nocategories" -> send(exchange, 200, "application/json", withoutCategories(golden));
             case "partial" -> send(exchange, 200, "application/json", golden.replace("\"problems\": [",
                     "\"problems\": [ {\"severity\": \"error\", \"code\": \"UNDESCRIBABLE\", \"artifact\": \"StockAvailableRule\", \"message\": \"IllegalStateException: Could not read the rule definition of bean 'StockAvailableRule'\"},"));
             default -> send(exchange, 200, "application/json", golden);
         }
+    }
+
+    /** The golden descriptor as an application that never categorised anything: no categories, no tags, no UNCATEGORISED problems. */
+    static String withoutCategories(String json) {
+        return json.replaceAll("\\s*\"category\": \"[^\"]*\",", "")
+                .replaceAll("\\s*\"tags\": \\[[^\\]]*\\],", "")
+                .replaceAll(",?\\s*\\{\\s*\"severity\": \"info\",\\s*\"code\": \"UNCATEGORISED\"[^}]*\\}", "");
     }
 
     private static void file(HttpExchange exchange, Path file) throws IOException {

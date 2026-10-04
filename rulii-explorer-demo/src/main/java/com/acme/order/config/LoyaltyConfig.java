@@ -43,6 +43,7 @@ public class LoyaltyConfig {
     public Rule tierUpgradeRule() {
         return Rule.builder()
                 .name("TierUpgradeRule", "Customers who have earned enough points move up to the GOLD tier.")
+                .category("Pricing/Loyalty").tags("loyalty", "vip")
                 .given(Condition.builder().build(Script.builder().build("js",
                         "ctx.points >= ${loyalty.goldPoints:1000} && ctx.customer.tier !== 'GOLD'")))
                 .then(Action.builder().build(Script.builder().build("js",

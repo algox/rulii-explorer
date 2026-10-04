@@ -65,7 +65,7 @@ class BuildFailureTest {
     void failureBecomesAnErrorPayload() {
         Http.Response response = Http.get(port, "/actuator/rulii");
         assertEquals(500, response.status());
-        assertTrue(response.body().contains("\"descriptorVersion\":\"1.0\""), response.body());
+        assertTrue(response.body().contains("\"descriptorVersion\":\"1.1\""), response.body());
         assertTrue(response.body().contains("registry exploded"), response.body());
         assertEquals(200, Http.get(port, "/actuator/health").status(), "the application is unaffected");
     }

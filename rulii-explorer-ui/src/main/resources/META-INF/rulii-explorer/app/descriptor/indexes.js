@@ -19,6 +19,24 @@ import {TYPE_ORDER, compareNatural, expressionsOf, walkCommands, sourceText} fro
  * @property {Set<string>} undescribed       artifacts with an UNDESCRIBABLE problem
  * @property {Map<string, object>} kindCounts  per type: kind → count
  * @property {Map<string, Map<string, {command: object, number: string, parent: object}>>} commandsByPath  per flow id
+ * @property {Categories} categories   the category tree, tags, and which artifact sits where (descriptor 1.1)
+ *
+ * @typedef {object} Categories
+ * @property {boolean} has                 whether any artifact declares a category; the sidebar and graph group by it when true
+ * @property {CategoryNode[]} roots        top-level categories in natural order
+ * @property {Map<string, CategoryNode>} byPath   every category, by its full path ("Pricing/Loyalty")
+ * @property {Map<string, {path: string, inherited: boolean, from?: string}>} of   artifact id → its category: its own, or
+ *           for a rule in exactly one rule set that has one, that set's (inherited, with the set's id)
+ * @property {object[]} uncategorised      registered artifacts with no category, own or inherited
+ * @property {Map<string, object[]>} tags  tag → artifacts, tags in natural order
+ *
+ * @typedef {object} CategoryNode
+ * @property {string} path
+ * @property {string} name                 the last level
+ * @property {CategoryNode[]} children
+ * @property {object[]} artifacts          directly in this category, flows then sets then rules
+ * @property {{rule: number, ruleset: number, ruleflow: number, total: number}} counts   direct
+ * @property {{rule: number, ruleset: number, ruleflow: number, total: number}} totals   including sub-categories
  */
 
 export function buildIndex(d) {
@@ -101,11 +119,71 @@ export function buildIndex(d) {
         commandsByPath.set(flow.id, map);
     }
 
+    // Categories and tags
+    const categories = buildCategories(d.artifacts, usedBy);
+
     return {
         descriptor: d, byId, byType, byPackage, packages, usedBy, uses, bindings, bindingPaths,
-        problemsByArtifact, worstByArtifact, problemCounts, undescribed, kindCounts, commandsByPath,
+        problemsByArtifact, worstByArtifact, problemCounts, undescribed, kindCounts, commandsByPath, categories,
         counts: {rule: byType.rule.length, ruleset: byType.ruleset.length, ruleflow: byType.ruleflow.length, packages: packages.length}
     };
+}
+
+/**
+ * The category tree. An artifact's own category wins; a rule without one that belongs to exactly
+ * one rule set with an own category is shown under that set's, marked inherited, because a member
+ * of a Pricing set is a pricing rule in every practical sense. Nothing is inferred from packages.
+ */
+function buildCategories(artifacts, usedBy) {
+    const of = new Map();
+    let own = 0;
+    for (const a of artifacts) if (a.category) { of.set(a.id, {path: a.category, inherited: false}); own++; }
+    for (const a of artifacts) {
+        if (of.has(a.id) || a.type !== 'rule') continue;
+        const sets = [...new Set((usedBy.get(a.id) || []).filter(r => r.type === 'contains').map(r => r.from))];
+        if (sets.length !== 1) continue;
+        const parent = of.get(sets[0]);
+        if (parent && !parent.inherited) of.set(a.id, {path: parent.path, inherited: true, from: sets[0]});
+    }
+    const byPath = new Map();
+    const roots = [];
+    const zero = () => ({rule: 0, ruleset: 0, ruleflow: 0, total: 0});
+    const node = (path) => {
+        let n = byPath.get(path);
+        if (n) return n;
+        const cut = path.lastIndexOf('/');
+        n = {path, name: cut >= 0 ? path.slice(cut + 1) : path, children: [], artifacts: [], counts: zero(), totals: zero()};
+        byPath.set(path, n);
+        if (cut >= 0) node(path.slice(0, cut)).children.push(n);
+        else roots.push(n);
+        return n;
+    };
+    for (const a of artifacts) {
+        const c = of.get(a.id);
+        if (c) node(c.path).artifacts.push(a);
+    }
+    const sortArtifacts = (list) => list.sort((a, b) => TYPE_ORDER.indexOf(a.type) - TYPE_ORDER.indexOf(b.type) || compareNatural(a.name, b.name));
+    const finish = (n) => {
+        n.children.sort((x, y) => compareNatural(x.name, y.name));
+        sortArtifacts(n.artifacts);
+        for (const a of n.artifacts) { n.counts[a.type]++; n.counts.total++; }
+        for (const t of ['rule', 'ruleset', 'ruleflow', 'total']) n.totals[t] = n.counts[t];
+        for (const c of n.children) { finish(c); for (const t of ['rule', 'ruleset', 'ruleflow', 'total']) n.totals[t] += c.totals[t]; }
+    };
+    roots.sort((x, y) => compareNatural(x.name, y.name));
+    for (const r of roots) finish(r);
+    // "Uncategorised" only means something once categories are in use; before that, nothing is missing one.
+    const uncategorised = own > 0 ? sortArtifacts(artifacts.filter(a => !of.has(a.id) && a.registered !== false)) : [];
+    const tags = new Map();
+    for (const a of artifacts) for (const t of a.tags || []) push(tags, t, a);
+    for (const list of tags.values()) sortArtifacts(list);
+    return {has: own > 0, roots, byPath, of, uncategorised, tags: new Map([...tags.entries()].sort((x, y) => compareNatural(x[0], y[0])))};
+}
+
+/** The parents of a category path, shortest first: "Pricing/Loyalty/Gold" → ["Pricing", "Pricing/Loyalty"]. */
+export function categoryParents(path) {
+    const levels = path.split('/');
+    return levels.slice(0, -1).map((_, i) => levels.slice(0, i + 1).join('/'));
 }
 
 function push(map, key, value) {

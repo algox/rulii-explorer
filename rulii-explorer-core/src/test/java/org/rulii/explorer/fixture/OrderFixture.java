@@ -54,6 +54,7 @@ public final class OrderFixture {
 
     public final Rule minTotalRule = Rule.builder()
             .name("MinTotalRule", "Order total must meet the minimum.")
+            .category(" Orders / Validation ").tags("total", "vip", "total")
             .given(condition((Integer total) -> total >= 100))
             .then(action((Integer total) -> {}))
             .build();
@@ -93,6 +94,7 @@ public final class OrderFixture {
 
     public final RuleSet<?> orderValidationRules = RuleSet.builder()
             .with("orderValidationRules", "Checks that an order is valid.")
+            .category("Orders/Validation").tags("validation")
             .param("order", Object.class, true, "The order")
             .param("customer", Object.class, false)
             .validating()
@@ -106,6 +108,7 @@ public final class OrderFixture {
     public final RuleFlow<?> orderProcessingFlow = RuleFlow.builder()
             .name("orderProcessingFlow")
             .description("Validates, scores, prices and approves an order.")
+            .category("Orders")
             .param("order", Object.class, true, "The order")
             .bind("reviewQueue", "queue-a")                                                        // commands[0]
             .run(orderValidationRules, spec -> spec.as("validation"))                             // commands[1]

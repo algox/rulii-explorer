@@ -108,6 +108,26 @@ class OrderServiceDescriptorTest {
         List<String> missing = bySeverity.get(ProblemSeverity.INFO).stream()
                 .filter(p -> p.code().equals(ProblemCodes.MISSING_DESCRIPTION)).map(Problem::artifact).toList();
         assertEquals(List.of("ConsistentDatesRule", "StockAvailableRule"), missing);
+
+        List<String> uncategorised = bySeverity.get(ProblemSeverity.INFO).stream()
+                .filter(p -> p.code().equals(ProblemCodes.UNCATEGORISED)).map(Problem::artifact).toList();
+        assertEquals(List.of("StockAvailableRule"), uncategorised, "the one artifact left without a category, on purpose");
+    }
+
+    @Test
+    void categoriesAndTagsFromXmlDefaultsAnnotationsAndBuilders() {
+        Descriptor descriptor = descriptor();
+        Artifact points = artifact(descriptor, "LoyaltyPointsRule");
+        assertEquals("Pricing/Loyalty", points.category(), "from <r:defaults> in loyalty.xml");
+        assertEquals(List.of("loyalty", "vip"), points.tags(), "the file's tag, then the rule's own");
+        assertEquals("Pricing/Catalogue", artifact(descriptor, "nightlyRepriceFlow").category(), "an element's category replaces the file default");
+        assertEquals("Orders/Validation", artifact(descriptor, "ConsistentDatesRule").category(), "@Category on the class");
+        assertEquals(List.of("orders", "dates"), artifact(descriptor, "ConsistentDatesRule").tags(), "@Tags on the class");
+        assertEquals("Risk", artifact(descriptor, "fraudScoreRule").category(), "the builder");
+        assertEquals(List.of("risk", "fraud"), artifact(descriptor, "fraudScoreRule").tags());
+        assertEquals("Orders/Validation", artifact(descriptor, "EmailFormatRule").category(), "a predefined validator takes the file default");
+        assertNull(artifact(descriptor, "StockAvailableRule").category());
+        assertNull(artifact(descriptor, "StockAvailableRule").tags(), "absent, not empty, so the JSON leaves it out");
     }
 
     @Test

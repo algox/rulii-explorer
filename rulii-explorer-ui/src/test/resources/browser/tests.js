@@ -8,8 +8,8 @@ import {render} from 'lit';
 import {parseRoute, routes} from '/rulii-explorer/app/routing/router.js';
 import {loadDescriptor, fromText} from '/rulii-explorer/app/descriptor/loader.js';
 import {resolveSource, absoluteUrl, sourceLabel} from '/rulii-explorer/app/descriptor/source.js';
-import {buildIndex, problemPath} from '/rulii-explorer/app/descriptor/indexes.js';
-import {buildSearch} from '/rulii-explorer/app/search/search.js';
+import {buildIndex, problemPath, categoryParents} from '/rulii-explorer/app/descriptor/indexes.js';
+import {buildSearch, parseQuery} from '/rulii-explorer/app/search/search.js';
 import {artifactSummary, bindingSummary, commandParts, problemsHeadline, kindCaption} from '/rulii-explorer/app/descriptor/summaries.js';
 import {durationText, kindLabel, kindShort, scriptLanguage, languageName, plainText, shortType, sourceText, identifierWords, compareNatural} from '/rulii-explorer/app/descriptor/format.js';
 import {plainTokens, rawCode, highlightCode, mark} from '/rulii-explorer/app/components/expression.js';
@@ -82,6 +82,7 @@ test('routes parse and build', () => {
     eq(parseRoute('#/'), {name: 'overview', query: {}});
     eq(parseRoute('#/rule/MinTotalRule'), {name: 'artifact', type: 'rule', id: 'MinTotalRule', query: {}});
     eq(parseRoute(routes.package('rules/order')), {name: 'package', id: 'rules/order', query: {}});
+    eq(parseRoute(routes.category('Pricing/Loyalty')), {name: 'category', id: 'Pricing/Loyalty', query: {}});
     eq(parseRoute(routes.artifact('ruleflow', 'nightlyRepriceFlow', {step: 'commands[1].body[1]'})).query.step, 'commands[1].body[1]');
     eq(parseRoute('#/problems?severity=error'), {name: 'problems', query: {severity: 'error'}});
     eq(parseRoute('#/nope').name, 'missing');
@@ -95,6 +96,49 @@ test('index counts and groups', () => {
     eq(index.byType.ruleflow.map(a => a.id), ['loyaltyFlow', 'nightlyRepriceFlow', 'orderProcessingFlow']);
 });
 
+test('index categories: tree, inheritance, uncategorised and tags', () => {
+    const c = index.categories;
+    ok(c.has, 'the demo uses categories');
+    eq(c.roots.map(n => n.name), ['Fulfilment', 'Orders', 'Pricing', 'Risk']);
+    eq(c.byPath.get('Pricing').children.map(n => n.path), ['Pricing/Catalogue', 'Pricing/Loyalty']);
+    eq(c.byPath.get('Pricing/Loyalty').artifacts.map(a => a.id), ['loyaltyFlow', 'loyaltyRules', 'BulkOrderRule', 'LoyaltyPointsRule', 'SeniorDiscountRule', 'tierUpgradeRule'], 'flows, then sets, then rules');
+    eq(c.byPath.get('Pricing').counts.total, 3, 'direct: pricingRules, FreeShippingRule, VipDiscountRule');
+    eq(c.byPath.get('Pricing').totals.total, 3 + c.byPath.get('Pricing/Catalogue').totals.total + c.byPath.get('Pricing/Loyalty').totals.total);
+    eq(c.of.get('ConsistentDatesRule'), {path: 'Orders/Validation', inherited: false});
+    // StockAvailableRule declares no category (the UNCATEGORISED problem says so) but sits in one rule set that has one
+    eq(c.of.get('StockAvailableRule'), {path: 'Orders/Validation', inherited: true, from: 'orderValidationRules'});
+    eq(c.uncategorised.map(a => a.id), [], 'so nothing in the demo is left without a home');
+    eq([...c.tags.keys()].slice(0, 4), ['dates', 'fraud', 'loyalty', 'nightly']);
+    eq(c.tags.get('vip').map(a => a.id), ['LoyaltyPointsRule', 'tierUpgradeRule', 'VipDiscountRule'], 'by name: TierUpgradeRule before VipDiscountRule');
+    eq(categoryParents('Pricing/Loyalty/Gold'), ['Pricing', 'Pricing/Loyalty']);
+    // Inheritance: a rule with no category of its own, in exactly one categorised set, is shown under that set's
+    const plain = JSON.parse(JSON.stringify(descriptor));
+    for (const a of plain.artifacts) if (a.id === 'MinTotalRule' || a.id === 'fraudScoreRule') { delete a.category; delete a.tags; }
+    const again = buildIndex(plain).categories;
+    eq(again.of.get('MinTotalRule'), {path: 'Orders/Validation', inherited: true, from: 'orderValidationRules'});
+    eq(again.of.get('fraudScoreRule'), undefined, 'run by a flow, in no rule set: nothing to inherit');
+    eq(again.uncategorised.map(a => a.id), ['fraudScoreRule']);
+    // Without any category the tree is empty and nothing is "uncategorised"
+    for (const a of plain.artifacts) delete a.category;
+    const none = buildIndex(plain).categories;
+    eq(none.has, false);
+    eq(none.roots.length, 0);
+    eq(none.uncategorised.length, 0);
+});
+
+test('search filters by tag and category', () => {
+    eq(parseQuery('tag:vip total in:pricing'), {text: 'total', tags: ['vip'], category: 'pricing'});
+    eq(parseQuery('tag:'), {text: '', tags: [], category: null});
+    const vip = search.query('', {tags: ['vip']});
+    eq(vip.flatMap(g => g.hits.map(h => h.artifact.id)), ['LoyaltyPointsRule', 'tierUpgradeRule', 'VipDiscountRule'], 'filter only: every match, by name');
+    eq(search.query('', {tags: ['vip'], category: 'loyal'}).flatMap(g => g.hits.map(h => h.artifact.id)), ['LoyaltyPointsRule', 'tierUpgradeRule'], 'a level prefix selects the category');
+    eq(search.query('', {category: 'pricing'}).flatMap(g => g.hits).length, index.categories.byPath.get('Pricing').totals.total, 'a category includes the ones below it');
+    const vipTotal = search.query('total', {tags: ['vip']}).flatMap(g => g.hits.map(h => h.artifact.id));
+    ok(vipTotal.includes('LoyaltyPointsRule') && vipTotal.every(id => ['LoyaltyPointsRule', 'tierUpgradeRule', 'VipDiscountRule'].includes(id)), 'text and filter together: ' + vipTotal);
+    ok(search.query('vip').flatMap(g => g.hits).some(h => h.artifact && h.artifact.id === 'tierUpgradeRule'), 'a tag is searchable as plain text');
+    eq(search.query('', {tags: ['nope']}).length, 0);
+});
+
 test('index back-links, bindings and problems', () => {
     const used = index.usedBy.get('MinTotalRule');
     eq(used.length, 1);
@@ -103,7 +147,7 @@ test('index back-links, bindings and problems', () => {
     eq(index.uses.get('orderProcessingFlow').map(r => r.to), ['orderValidationRules', 'fraudScoreRule', 'pricingRules', 'approvalRules']);
     ok(index.bindingPaths.get('order').reads.has('order.total'), 'order.total read');
     ok(index.bindingPaths.get('order').writes.has('order.discount'), 'order.discount written');
-    eq(index.problemCounts, {error: 1, warning: 1, info: 3, total: 5});
+    eq(index.problemCounts, {error: 1, warning: 1, info: 4, total: 6});
     eq(index.worstByArtifact.get('nightlyRepriceFlow'), 'error');
     eq(index.worstByArtifact.get('rangeCheckRule'), 'info');
     eq(index.undescribed.size, 0);
@@ -146,7 +190,7 @@ test('summaries say what the data supports', () => {
     eq(artifactSummary(a('orderValidationRules'), index), 'Checks 8 rules in order and stops when number of rule violations is at least 3. Runs only if order is present.');
     has(artifactSummary(a('orderProcessingFlow'), index), 'running 3 rule sets and 1 rule, and returns approved.');
     eq(bindingSummary(index.bindings.get('order')), 'Read by 20 artifacts and written by 2. Compiled code in 2 more may also change it.');
-    eq(problemsHeadline(index.problemCounts), 'Two steps are likely to fail. Three things are suggestions.');
+    eq(problemsHeadline(index.problemCounts), 'Two steps are likely to fail. Four things are suggestions.');
     eq(kindCaption('rule', index.kindCounts), '14 XML · 4 Java builders · 2 @Rule classes · 2 validators');
 });
 
@@ -282,7 +326,9 @@ test('dependency graph model: nodes, missing targets, focus and filters', () => 
     const filtered = filterGraph(focus, {types: new Set(['ruleset', 'ruleflow']), packageId: ''});
     eq(filtered.nodes.size, 2);
     const elk = toElk(full, index, true);
-    eq(elk.children.map(c => c.id), ['group:com.acme.order.config', 'group:com.acme.order.rules', 'group:rules/order', 'group:rules/pricing', 'group:missing']);
+    eq(elk.children.map(c => c.id), ['group:c:Fulfilment', 'group:c:Orders', 'group:c:Orders/Approval', 'group:c:Orders/Validation', 'group:c:Pricing', 'group:c:Pricing/Catalogue', 'group:c:Pricing/Loyalty', 'group:c:Risk', 'group:missing'], 'grouped by category when the application uses them');
+    const plainIndex = buildIndex(JSON.parse(JSON.stringify(descriptor), (k, v) => k === 'category' ? undefined : v));
+    eq(toElk(fullGraph(plainIndex), plainIndex, true).children.map(c => c.id), ['group:com.acme.order.config', 'group:com.acme.order.rules', 'group:rules/order', 'group:rules/pricing', 'group:missing'], 'by package otherwise');
     ok(full.nodes.get('orderValidationRules').width > 120 && full.nodes.get('orderValidationRules').caption === '8 rules · validating', 'measured node with caption');
 });
 

@@ -83,9 +83,10 @@ class RxHovercard extends RxElement {
         const below = this.anchor.bottom + 8;
         const style = below + 160 < innerHeight ? `left: ${left}px; top: ${below}px` : `left: ${left}px; bottom: ${innerHeight - this.anchor.top + 8}px`;
         return html`<div class="rx-hovercard" role="tooltip" style=${style}>
-            <div class="rx-meta-row">${typeBadge(a.type, {undescribed: index.undescribed.has(a.id)})}<span class="rx-small">${[a.packageId, kindLabel(a)].filter(Boolean).join(' · ')}</span></div>
+            <div class="rx-meta-row">${typeBadge(a.type, {undescribed: index.undescribed.has(a.id)})}<span class="rx-small">${[(index.categories.of.get(a.id) || {}).path || a.packageId, kindLabel(a)].filter(Boolean).join(' · ')}</span></div>
             <span class="rx-hc-name">${a.name}</span>
             <span class="rx-hc-sum">${a.description || artifactSummary(a, index)}</span>
+            ${a.tags && a.tags.length ? html`<span class="rx-small rx-hc-tags">${a.tags.map(t => html`<span class="rx-tag rx-tag-static">${t}</span>`)}</span>` : nothing}
             <a class="rx-link rx-link-arrow" href=${routes.artifact(a)}>Open ${typeLabel(a.type).toLowerCase()}${icon('arrowRight', {size: 13, width: 2.2})}</a>
         </div>`;
     }

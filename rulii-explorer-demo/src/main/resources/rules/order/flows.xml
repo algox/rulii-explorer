@@ -9,6 +9,7 @@
            https://www.rulii.org/spring/rulii-spring.xsd">
 
     <r:scripting defaultLanguage="el"/>
+    <r:defaults category="Orders" tags="orders"/>
 
     <!-- The main flow: validate, score the fraud risk in the background, price, then approve. -->
     <r:ruleflow name="orderProcessingFlow" description="Validates, scores, prices and approves an incoming order.">

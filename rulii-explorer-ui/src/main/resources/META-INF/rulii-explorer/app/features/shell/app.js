@@ -1,6 +1,7 @@
 import {html} from 'lit';
 import {RxElement, keyIsFree} from '../../components/base.js';
 import {externalSourcesAllowed} from '../../descriptor/source.js';
+import {categoryParents} from '../../descriptor/indexes.js';
 import {openFile} from '../../boot.js';
 
 /**
@@ -59,15 +60,25 @@ class RxApp extends RxElement {
         else if (route.name === 'artifact' && index) { const a = index.byId.get(route.id); page = a ? a.name : route.id; }
         else if (route.name === 'binding') page = route.id;
         else if (route.name === 'package') page = route.id;
+        else if (route.name === 'category') page = route.id;
         document.title = [page, app, 'rulii explorer'].filter(Boolean).join(' · ');
     }
 
-    /** Keeps the sidebar package of the current rule open. */
+    /** Keeps the sidebar folder of the current artifact open: its category and the ones above it, or the rule set it is in. */
     syncSidebar() {
         const {route, index} = this.state;
         if (route.name !== 'artifact' || !index) return;
         const a = index.byId.get(route.id);
-        if (a && a.type === 'rule' && a.packageId) this.store.expand(a.packageId);
+        if (!a) return;
+        const cat = index.categories.of.get(a.id);
+        if (index.categories.has) {
+            if (cat) { for (const parent of categoryParents(cat.path)) this.store.expand('cat:' + parent); this.store.expand('cat:' + cat.path); }
+            else if (a.registered !== false) this.store.expand('cat:');
+        } else if (a.type === 'rule') {
+            const sets = (index.usedBy.get(a.id) || []).filter(r => r.type === 'contains').map(r => r.from);
+            if (sets.length) this.store.expand('set:' + sets[0]);
+            else this.store.expand('loose-rules');
+        }
     }
 
     render() {
@@ -95,6 +106,7 @@ class RxApp extends RxElement {
             case 'artifact': return html`<rx-artifact></rx-artifact>`;
             case 'binding': return html`<rx-binding></rx-binding>`;
             case 'package': return html`<rx-package></rx-package>`;
+            case 'category': return html`<rx-category></rx-category>`;
             default: return html`<rx-states kind="missing"></rx-states>`;
         }
     }

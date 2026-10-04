@@ -164,7 +164,7 @@ final class Describer {
             else if (runnable instanceof RuleFlow<?> ruleFlow) artifacts.put(id, ruleFlow(id, ruleFlow, registered));
         } catch (RuntimeException e) {
             artifacts.put(id, new Artifact(id, safeName(runnable, id), typeOf(runnable), ArtifactKind.UNKNOWN, registered,
-                    null, null, null, null, List.of(), null, null, null, null));
+                    null, null, null, null, null, null, List.of(), null, null, null, null));
             undescribable(id, e);
         }
     }
@@ -197,7 +197,7 @@ final class Describer {
 
         return new Artifact(id, rule.getName(), ArtifactType.RULE, kind, registered,
                 Sources.packageOf(sourceDefinition, kind == ArtifactKind.RULE_CLASS ? ruleClass : null),
-                Expressions.blankToNull(def.getDescription()), source(sourceDefinition),
+                Expressions.blankToNull(def.getDescription()), def.getCategory(), def.getTags(), source(sourceDefinition),
                 includeSources && kind == ArtifactKind.RULE_CLASS ? ruleClass.getName() : null,
                 Expressions.parameters(methods.toArray(new MethodDefinition[0])), details,
                 target instanceof ValidationRule validationRule ? validation(validationRule, kind) : null, null, null);
@@ -301,6 +301,7 @@ final class Describer {
 
         return new Artifact(id, ruleSet.getName(), ArtifactType.RULESET, kind, registered,
                 Sources.packageOf(sourceDefinition, null), Expressions.blankToNull(ruleSet.getDescription()),
+                def.getCategory(), def.getTags(),
                 source(sourceDefinition), null, inputParameters(def.getInputParameters(), def.isValidating()),
                 null, null, details, null);
     }
@@ -319,6 +320,7 @@ final class Describer {
 
         return new Artifact(id, ruleFlow.getName(), ArtifactType.RULEFLOW, kind, registered,
                 Sources.packageOf(sourceDefinition, null), Expressions.blankToNull(def.getDescription()),
+                def.getCategory(), def.getTags(),
                 source(sourceDefinition), null, inputParameters(def.getInputParameters(), false), null, null, null, details);
     }
 

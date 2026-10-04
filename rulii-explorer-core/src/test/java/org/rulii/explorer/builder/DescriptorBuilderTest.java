@@ -74,7 +74,7 @@ class DescriptorBuilderTest {
 
     @Test
     void headerAndOrdering() {
-        assertEquals("1.0", descriptor.descriptorVersion());
+        assertEquals("1.1", descriptor.descriptorVersion());
         assertEquals("order-service", descriptor.application().name());
         assertNotNull(descriptor.application().ruliiVersion());
         assertNotNull(descriptor.application().explorerVersion());

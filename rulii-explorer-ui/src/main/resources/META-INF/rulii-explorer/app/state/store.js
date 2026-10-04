@@ -14,6 +14,7 @@
  * @property {'plain'|'raw'} exprView   the global Plain / Raw choice (FR-17)
  * @property {Set<string>} expanded     expanded sidebar packages
  * @property {boolean} paletteOpen
+ * @property {string|null} paletteQuery  a query to open the palette with, e.g. "tag:vip"; consumed on open
  * @property {boolean} helpOpen       the help sheet (?)
  * @property {boolean} sourceOpen     the "Open a descriptor" dialog
  */
@@ -50,6 +51,7 @@ class Store extends EventTarget {
         exprView: remembered(EXPR_KEY, ['plain', 'raw'], 'plain'),
         expanded: new Set(),
         paletteOpen: false,
+        paletteQuery: null,
         helpOpen: false,
         sourceOpen: false
     };

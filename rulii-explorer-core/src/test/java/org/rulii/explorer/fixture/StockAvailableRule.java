@@ -17,14 +17,19 @@
  */
 package org.rulii.explorer.fixture;
 
+import org.rulii.annotation.Category;
 import org.rulii.annotation.Given;
 import org.rulii.annotation.Rule;
+import org.rulii.annotation.Tags;
 import org.rulii.annotation.Then;
 
 /**
- * A class-based rule with compiled logic and no description: the honest-opacity case.
+ * A class-based rule with compiled logic and no description: the honest-opacity case. It does
+ * carry a category and tags, which need no readable logic.
  */
 @Rule("StockAvailableRule")
+@Category("Fulfilment")
+@Tags({"stock", "warehouse"})
 public class StockAvailableRule {
 
     public StockAvailableRule() {

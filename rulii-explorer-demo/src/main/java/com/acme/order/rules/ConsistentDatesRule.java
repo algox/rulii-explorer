@@ -18,17 +18,22 @@
 package com.acme.order.rules;
 
 import com.acme.order.model.Order;
+import org.rulii.annotation.Category;
 import org.rulii.annotation.Given;
 import org.rulii.annotation.Rule;
+import org.rulii.annotation.Tags;
 
 import java.time.Clock;
 import java.time.LocalDate;
 
 /**
  * The requested delivery date must not be before the order date, and the order date must not
- * be in the future. Deliberately has no {@code @Description}, so the explorer reports it.
+ * be in the future. Deliberately has no {@code @Description}, so the explorer reports it; it
+ * does say where it belongs, with {@code @Category} and {@code @Tags}.
  */
 @Rule("ConsistentDatesRule")
+@Category("Orders/Validation")
+@Tags({"orders", "dates"})
 public class ConsistentDatesRule {
 
     public ConsistentDatesRule() {

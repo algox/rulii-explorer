@@ -196,6 +196,13 @@ export function problemExplanation(problem, index) {
                 why: 'Readers see only its name.',
                 fix: a && a.kind === 'rule-class' ? 'Add @Description to the class to say what it checks.' : a && a.source && a.source.type === 'xml' ? 'Add a description attribute in the XML.' : 'Add a description in the builder.'
             };
+        case 'UNCATEGORISED':
+            return {
+                why: 'This application files its rules by category, and ' + name + ' has none, so it sits under Uncategorised.',
+                fix: a && a.kind === 'rule-class' ? 'Add @Category to the class, for example @Category("Pricing").'
+                    : a && a.source && a.source.type === 'xml' ? 'Add a category attribute in the XML, or <r:defaults category="…"/> for the whole file.'
+                    : 'Add .category("…") in the builder.'
+            };
         case 'UNDESCRIBABLE':
             return {
                 why: 'Reading this artifact’s definition failed, so only its name is shown. The rest of the application is unaffected.',

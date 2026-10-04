@@ -8,11 +8,12 @@
  *   #/rule/{id}  #/ruleset/{id}  #/ruleflow/{id}?view=flowchart|outline&step=commands[1].body[0]
  *   #/binding/{name}
  *   #/package/{id}
+ *   #/category/{path}        a category by its full path, e.g. #/category/Pricing/Loyalty
  *
  * Ids are URI-encoded, so XML package ids with slashes work.
  *
  * @typedef {object} Route
- * @property {string} name   'overview' | 'problems' | 'artifact' | 'binding' | 'package' | 'missing'
+ * @property {string} name   'overview' | 'problems' | 'graph' | 'artifact' | 'binding' | 'package' | 'category' | 'missing'
  * @property {string} [type] 'rule' | 'ruleset' | 'ruleflow' (artifact routes)
  * @property {string} [id]
  * @property {Record<string, string>} query
@@ -41,6 +42,7 @@ export function parseRoute(hash) {
     if (ARTIFACT_SEGMENTS[head] && id) return {name: 'artifact', type: head, id, query};
     if (head === 'binding' && id) return {name: 'binding', id, query};
     if (head === 'package' && id) return {name: 'package', id, query};
+    if (head === 'category' && id) return {name: 'category', id, query};
     return {name: 'missing', id: path, query};
 }
 
@@ -68,7 +70,9 @@ export const routes = {
     binding: (name) => '#/binding/' + encode(name),
     /** The dependency graph: `{focus, depth, selected}` are all optional. */
     graph: (query) => withQuery('#/graph', query),
-    package: (id) => '#/package/' + encode(id)
+    package: (id) => '#/package/' + encode(id),
+    /** A category by its full path: `#/category/Pricing/Loyalty`. */
+    category: (path) => '#/category/' + encode(path)
 };
 
 /** Starts listening to the hash and keeps the store's route current. */

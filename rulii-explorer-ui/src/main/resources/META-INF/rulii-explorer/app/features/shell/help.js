@@ -34,7 +34,7 @@ class RxHelp extends RxElement {
                     <span class="rx-small">Press <kbd class="rx-kbd">?</kbd> on any screen</span>
                     <button type="button" class="rx-icon-btn-bare rx-icon-btn" aria-label="Close help" @click=${() => this.close()}>${icon('close', {size: 14})}</button>
                 </div>
-                <div class="rx-help-grid">
+                <div class="rx-help-grid" tabindex="0">
                     ${this.keyboard()}
                     ${this.addresses()}
                     ${this.legend()}
@@ -56,6 +56,7 @@ class RxHelp extends RxElement {
             <dl class="rx-help-rows">
                 ${row(html`${k(IS_MAC ? '⌘ K' : 'Ctrl K')}<span class="rx-help-or">or</span>${k('/')}`, 'Search rules, flows, bindings and error codes')}
                 ${row(html`${k('Tab')}${k('⇧ Tab')}`, 'In the search: cycle the type filter')}
+                ${row(html`<span class="rx-help-word">tag:vip</span><span class="rx-help-word">in:Pricing</span>`, 'In the search: only artifacts with that tag, or in that category')}
                 ${row(html`${k('↑')}${k('↓')}${k('↵')}`, 'Move through the results and open one')}
                 ${row(html`${k('Esc')}`, 'Close the search, a panel or this sheet')}
                 ${row(html`${k('?')}`, 'This sheet')}
@@ -84,6 +85,7 @@ class RxHelp extends RxElement {
                 ${row('?descriptor={url}#/', 'Another application’s descriptor, or a saved JSON, by address; before the #')}
                 ${row('#/binding/{name}', 'Who writes and reads a binding')}
                 ${row('#/package/{id}', 'A package and what it defines')}
+                ${row('#/category/{path}', 'A category, such as Pricing/Loyalty, and what is in it')}
             </dl>
         </section>`;
     }

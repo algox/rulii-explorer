@@ -44,6 +44,8 @@
         "registered": { "type": "boolean" },
         "packageId": { "type": "string" },
         "description": { "type": "string" },
+        "category": { "type": "string", "description": "Business category, '/' between the levels; absent when none (since 1.1)." },
+        "tags": { "type": "array", "items": { "type": "string" }, "minItems": 1, "description": "In declaration order, each once; absent when none (since 1.1)." },
         "source": { "$ref": "#/$defs/source" },
         "className": { "type": "string" },
         "parameters": { "type": "array", "items": { "$ref": "#/$defs/parameter" } },

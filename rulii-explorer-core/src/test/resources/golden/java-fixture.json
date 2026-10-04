@@ -1,5 +1,5 @@
 {
-  "descriptorVersion": "1.0",
+  "descriptorVersion": "1.1",
   "application": {
     "name": "order-service",
     "ruliiVersion": "2.1.0",
@@ -133,6 +133,11 @@
       "registered": true,
       "packageId": "org.rulii.explorer.fixture",
       "description": "Order total must meet the minimum.",
+      "category": "Orders/Validation",
+      "tags": [
+        "total",
+        "vip"
+      ],
       "parameters": [
         {
           "name": "total",
@@ -245,6 +250,11 @@
       "kind": "rule-class",
       "registered": true,
       "packageId": "org.rulii.explorer.fixture",
+      "category": "Fulfilment",
+      "tags": [
+        "stock",
+        "warehouse"
+      ],
       "parameters": [
         {
           "name": "quantity",
@@ -287,6 +297,10 @@
       "registered": true,
       "packageId": "org.rulii.explorer.fixture",
       "description": "Checks that an order is valid.",
+      "category": "Orders/Validation",
+      "tags": [
+        "validation"
+      ],
       "parameters": [
         {
           "name": "order",
@@ -360,6 +374,7 @@
       "registered": true,
       "packageId": "org.rulii.explorer.fixture",
       "description": "Validates, scores, prices and approves an order.",
+      "category": "Orders",
       "parameters": [
         {
           "name": "order",
@@ -813,9 +828,27 @@
     },
     {
       "severity": "info",
+      "code": "UNCATEGORISED",
+      "artifact": "anotherMinTotalRule",
+      "message": "No category, while 4 other artifacts have one."
+    },
+    {
+      "severity": "info",
       "code": "UNUSED_RULE",
       "artifact": "anotherMinTotalRule",
       "message": "No rule set or flow references this rule."
+    },
+    {
+      "severity": "info",
+      "code": "UNCATEGORISED",
+      "artifact": "contextFlow",
+      "message": "No category, while 4 other artifacts have one."
+    },
+    {
+      "severity": "info",
+      "code": "UNCATEGORISED",
+      "artifact": "customValidation",
+      "message": "No category, while 4 other artifacts have one."
     },
     {
       "severity": "info",
@@ -825,9 +858,27 @@
     },
     {
       "severity": "info",
+      "code": "UNCATEGORISED",
+      "artifact": "emailRequired",
+      "message": "No category, while 4 other artifacts have one."
+    },
+    {
+      "severity": "info",
+      "code": "UNCATEGORISED",
+      "artifact": "minAge",
+      "message": "No category, while 4 other artifacts have one."
+    },
+    {
+      "severity": "info",
       "code": "UNUSED_RULE",
       "artifact": "minAge",
       "message": "No rule set or flow references this rule."
+    },
+    {
+      "severity": "info",
+      "code": "UNCATEGORISED",
+      "artifact": "scriptRule",
+      "message": "No category, while 4 other artifacts have one."
     },
     {
       "severity": "info",

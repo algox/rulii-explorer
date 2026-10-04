@@ -9,6 +9,7 @@
            https://www.rulii.org/spring/rulii-spring.xsd">
 
     <r:scripting defaultLanguage="el"/>
+    <r:defaults category="Orders/Approval" tags="orders, risk"/>
 
     <!-- Approval depends on the fraud score the risk rule produced. -->
     <r:ruleset name="approvalRules" description="Approves an order or sends it for manual review, based on its fraud score.">

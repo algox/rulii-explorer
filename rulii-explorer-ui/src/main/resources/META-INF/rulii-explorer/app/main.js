@@ -15,6 +15,7 @@ import './features/graph/graph.js';
 import './features/flow/flowchart.js';
 import './features/artifact/artifact.js';
 import './features/artifact/package.js';
+import './features/artifact/category.js';
 import './features/binding/binding.js';
 import './features/states/states.js';
 

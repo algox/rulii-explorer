@@ -69,6 +69,32 @@ does anything the application's own Actuator `SanitizingFunction` beans would ma
 patterns with `rulii.explorer.placeholders.additional-exclude`. The explorer shows what rulii knows
 for certain and does not guess.
 
+## Categories and tags
+
+Business readers find rules by what they are for, not by the package they were coded in. rulii
+2.1 lets every rule, rule set and flow declare a **category** (one, hierarchical with `/`) and
+**tags** (any number), and the explorer organises itself around them: the sidebar becomes the
+category tree, the overview and the graph group by category, each category has a page, and tags
+are chips that search (`tag:vip`, `in:Pricing`). Nothing is inferred; without categories the
+sidebar groups rules by the rule set that runs them.
+
+```xml
+<r:defaults category="Pricing" tags="pricing"/>                       <!-- the whole file -->
+<r:rule name="VipDiscountRule" tags="vip" description="…">…</r:rule>  <!-- adds a tag -->
+<r:ruleflow name="nightlyRepriceFlow" category="Pricing/Catalogue">…  <!-- replaces the category -->
+```
+
+```java
+@Rule("ConsistentDatesRule") @Category("Orders/Validation") @Tags({"orders", "dates"})
+public class ConsistentDatesRule { … }
+
+Rule.builder().name("FraudScoreRule", "…").category("Risk").tags("risk", "fraud")…
+```
+
+Once an application uses categories, artifacts without one are listed as `UNCATEGORISED`
+(info) on the Problems page. The descriptor carries them as `category` and `tags` on each
+artifact (descriptor 1.1).
+
 ## Configuration
 
 | Property | Default | Purpose |

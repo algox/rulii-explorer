@@ -40,7 +40,7 @@ class RxOverview extends RxElement {
                 ${this.mapCard(index)}
                 <div class="rx-col">
                     ${this.problemsCard(index)}
-                    ${this.packagesCard(index)}
+                    ${index.categories.has ? this.categoriesCard(index) : this.packagesCard(index)}
                 </div>
             </div>
         </div>`;
@@ -73,7 +73,25 @@ class RxOverview extends RxElement {
             <div class="rx-pkg-name"><a href=${routes.package(p.pkg.id)}>${p.pkg.id}</a><span>${packageCaption(p)}</span></div>
             <div class="rx-pkg-bar" aria-hidden="true">${['rule', 'ruleset', 'ruleflow'].filter(t => p.counts[t]).map(t => html`<span class=${'rx-seg-' + t} style=${'width: ' + Math.max(6, Math.round(120 * p.counts[t] / max) - 2) + 'px'}></span>`)}</div>
             <span class="rx-pkg-count">${p.counts.total}</span>`)}</div>`;
-        return card('Packages', body, {class: 'rx-card-xl rx-card-tight', titleClass: 'rx-h2-lg'});
+        return card('Where they’re defined', body, {class: 'rx-card-xl rx-card-tight', titleClass: 'rx-h2-lg'});
+    }
+
+    /** The category tree as an indented list with a bar per category; the uncategorised rest closes it. */
+    categoriesCard(index) {
+        const c = index.categories;
+        const rows = [];
+        const walk = (n, depth) => { rows.push({n, depth}); n.children.forEach(ch => walk(ch, depth + 1)); };
+        c.roots.forEach(r => walk(r, 0));
+        const none = countsOf(c.uncategorised);
+        const max = Math.max(1, none.total, ...rows.map(r => r.n.totals.total));
+        const bar = (counts) => html`<div class="rx-pkg-bar" aria-hidden="true">${['rule', 'ruleset', 'ruleflow'].filter(t => counts[t]).map(t => html`<span class=${'rx-seg-' + t} style=${'width: ' + Math.max(6, Math.round(120 * counts[t] / max) - 2) + 'px'}></span>`)}</div>`;
+        const body = html`<div class="rx-pkg-grid rx-cat-grid">${rows.map(({n, depth}) => html`
+            <div class="rx-pkg-name" style=${depth ? 'padding-left: ' + depth * 14 + 'px' : nothing}><a href=${routes.category(n.path)}>${n.name}</a><span>${categoryCaption(n.totals)}</span></div>
+            ${bar(n.totals)}
+            <span class="rx-pkg-count">${n.totals.total}</span>`)}
+            ${c.uncategorised.length ? html`<div class="rx-pkg-name"><span class="rx-cat-none">Uncategorised</span><span>${categoryCaption(none)}</span></div>${bar(none)}<span class="rx-pkg-count">${none.total}</span>` : nothing}
+        </div>`;
+        return card('Categories', body, {class: 'rx-card-xl rx-card-tight', titleClass: 'rx-h2-lg', action: html`<span class="rx-h2-count">${c.byPath.size}</span>`});
     }
 
     mapCard(index) {
@@ -99,6 +117,17 @@ class RxOverview extends RxElement {
 
 function lowerFirst(text) {
     return text ? text.charAt(0).toLowerCase() + text.slice(1) : text;
+}
+
+function countsOf(list) {
+    const counts = {rule: 0, ruleset: 0, ruleflow: 0, total: 0};
+    for (const a of list) { counts[a.type]++; counts.total++; }
+    return counts;
+}
+
+/** "3 rules · 1 rule set" */
+function categoryCaption(counts) {
+    return ['ruleflow', 'ruleset', 'rule'].filter(t => counts[t]).map(t => counts[t] + ' ' + typeLabel(t, counts[t] !== 1).toLowerCase()).join(' · ');
 }
 
 function packageCaption(entry) {

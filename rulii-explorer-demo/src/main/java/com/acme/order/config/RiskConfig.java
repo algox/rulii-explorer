@@ -48,6 +48,7 @@ public class RiskConfig {
     public Rule fraudScoreRule(FraudService fraudService) {
         return Rule.builder()
                 .name("FraudScoreRule", "Scores the fraud risk of an order from 0 (safe) to 1.")
+                .category("Risk").tags("risk", "fraud")
                 .given(condition((Order order, Customer customer) -> order != null && customer != null))
                 .then(action((Order order, Customer customer, Bindings bindings) ->
                         bindings.setValueOrBind("fraudScore", fraudService.score(order, customer))))

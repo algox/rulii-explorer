@@ -118,6 +118,17 @@ public final class ScaleGenerator {
         return pick(WORDS) + pick(WORDS) + suffix + i;
     }
 
+    /**
+     * A two-level category per pseudo package ({@code Area A/Package 3}), so the category tree
+     * has the shape of a real application; every 13th artifact has none, to keep an
+     * "Uncategorised" group on screen.
+     */
+    private String category(int i) {
+        if (i % 13 == 12) return null;
+        int pkg = i % PACKAGES;
+        return "Area " + (char) ('A' + pkg / 4) + "/Package " + pkg;
+    }
+
     private <T> T pick(T[] list) {
         return list[random.nextInt(list.length)];
     }
@@ -133,6 +144,7 @@ public final class ScaleGenerator {
     private Rule rule(int i) {
         String noun = pick(NOUNS), property = pick(PROPERTIES);
         var builder = Rule.builder().name(name("Rule", i), "Checks the " + noun + " " + property + " (generated rule " + i + ").")
+                .category(category(i)).tags(noun)
                 .source(source("rules", i));
         int kind = random.nextInt(10);
         if (kind == 0) {
@@ -156,6 +168,7 @@ public final class ScaleGenerator {
 
     private RuleSet<?> ruleSet(int i, int ruleCount) {
         var builder = RuleSet.builder().with(name("Rules", i), "Generated rule set " + i + ".")
+                .category(category(i))
                 .source(source("rulesets", i))
                 .param(pick(NOUNS), Object.class, true, "The " + i + "th input");
         // A contiguous slice, so every rule is in at least one set, plus a few shared rules
@@ -177,6 +190,7 @@ public final class ScaleGenerator {
 
     private RuleFlow<?> flow(int i, int setCount, int flowCount) {
         var builder = RuleFlow.builder().name(name("Flow", i)).description("Generated flow " + i + ".")
+                .category(category(i))
                 .source(source("flows", i))
                 .param("order", Object.class, true, "The order")
                 .param("customer", Object.class, false, "The customer")

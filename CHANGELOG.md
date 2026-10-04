@@ -42,6 +42,17 @@ The first release. Requires rulii 2.1.0, rulii-spring 2.1.0 and Spring Boot 4.1 
 - **Graphs**: the dependency graph focused on one artifact or for the whole application grouped by
   package, and a flowchart per rule flow with decisions, loops, scopes, an async lane and exception
   handlers; selection is shared with the outline.
+- **Categories and tags**: rulii 2.1's `@Category` / `@Tags`, the builders' `category()` /
+  `tags()` and the XML `category` / `tags` attributes (with a file-level `<r:defaults>`) reach
+  the descriptor as `category` and `tags` on every artifact (descriptor version 1.1, additive).
+  When an application uses them the sidebar is the category tree, the overview and the
+  whole-application graph group by category, every category has a page (`#/category/{path}`),
+  breadcrumbs show the category instead of the package, tags are chips that search, and the
+  search takes `tag:` and `in:` filters. A rule in exactly one categorised rule set inherits
+  its category, marked *via* the set. Artifacts left without one are reported as
+  `UNCATEGORISED` (info), only once categories are in use. Without categories the sidebar
+  groups rules by the rule set that runs them; packages leave the sidebar either way and stay
+  on the Source card, the package page and the overview.
 - **Other descriptors**: the UI is not tied to the application serving it. The chip next to the
   application name opens another application's `/actuator/rulii` or a descriptor saved as JSON by
   address (`/rulii?descriptor=…#/`, so the link can be shared), or a file from the user's machine,

@@ -81,7 +81,7 @@ class DescriptorServiceTest {
         RuliiDescriptors.write(context, file);
 
         String json = Files.readString(file, StandardCharsets.UTF_8);
-        assertTrue(json.startsWith("{\n  \"descriptorVersion\": \"1.0\""), json.substring(0, 60));
+        assertTrue(json.startsWith("{\n  \"descriptorVersion\": \"1.1\""), json.substring(0, 60));
         assertEquals(service.snapshot().descriptor(), DescriptorJson.fromJson(json));
     }
 }

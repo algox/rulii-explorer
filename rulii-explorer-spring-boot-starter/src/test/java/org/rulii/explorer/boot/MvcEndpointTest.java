@@ -48,7 +48,7 @@ class MvcEndpointTest {
         assertTrue(response.header().startsWith("application/vnd.spring-boot.actuator") || response.header().startsWith("application/json"), response.header());
 
         Descriptor served = DescriptorJson.fromJson(response.body());
-        assertEquals("1.0", served.descriptorVersion());
+        assertEquals("1.1", served.descriptorVersion());
         assertEquals("order-service", served.application().name(), "defaults to spring.application.name");
         assertEquals(service.snapshot().descriptor(), served, "the endpoint serves exactly what the service built");
 

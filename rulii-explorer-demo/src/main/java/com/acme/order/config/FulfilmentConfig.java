@@ -40,6 +40,7 @@ public class FulfilmentConfig {
     public Rule backorderRule() {
         return Rule.builder()
                 .name("BackorderRule", "Items with nothing in stock are marked as back-ordered.")
+                .category("Fulfilment").tags("stock")
                 .given(Condition.builder().build(Script.builder().build("java",
                         "ctx.item.getQuantity() <= 0")))
                 .then(Action.builder().build(Script.builder().build("java",

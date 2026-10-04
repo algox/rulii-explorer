@@ -31,6 +31,8 @@ import java.util.List;
  * @param registered  false for an inline member or target that is not in the registry.
  * @param packageId   the package it belongs to; null when unknown (FR-30).
  * @param description the description; null when none.
+ * @param category    the business category it belongs to, {@code /} between the levels ({@code Pricing/Discounts}); null when none.
+ * @param tags        what it is about, in the order declared, each once; null when none (since 1.1).
  * @param source      where it was declared; null when unknown or hidden (NFR-4).
  * @param className   the rule class of a class-based rule; null otherwise or when hidden.
  * @param parameters  declared parameters, in order.
@@ -43,11 +45,13 @@ import java.util.List;
  * @since 1.0
  */
 public record Artifact(String id, String name, ArtifactType type, ArtifactKind kind, boolean registered,
-                       String packageId, String description, Source source, String className,
+                       String packageId, String description, String category, List<String> tags, Source source, String className,
                        List<Parameter> parameters, RuleDetails rule, ValidationDetails validation,
                        RuleSetDetails ruleSet, RuleFlowDetails ruleFlow) {
 
     public Artifact {
         parameters = Lists.copy(parameters);
+        // Empty tags are left out of the JSON like every other absent value, so null, not [].
+        tags = tags == null || tags.isEmpty() ? null : List.copyOf(tags);
     }
 }

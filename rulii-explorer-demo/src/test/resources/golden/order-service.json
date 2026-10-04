@@ -1,5 +1,5 @@
 {
-  "descriptorVersion": "1.0",
+  "descriptorVersion": "1.1",
   "application": {
     "name": "order-service",
     "ruliiVersion": "unknown",
@@ -33,10 +33,14 @@
       "registered": true,
       "packageId": "rules/order",
       "description": "Customers must be adults.",
+      "category": "Orders/Validation",
+      "tags": [
+        "orders"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/order/validation.xml",
-        "line": 34
+        "line": 36
       },
       "parameters": [ ],
       "rule": {
@@ -81,10 +85,15 @@
       "registered": true,
       "packageId": "rules/order",
       "description": "Low-risk orders are approved automatically.",
+      "category": "Orders/Approval",
+      "tags": [
+        "orders",
+        "risk"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/order/approval.xml",
-        "line": 23
+        "line": 24
       },
       "parameters": [ ],
       "rule": {
@@ -195,10 +204,14 @@
       "registered": true,
       "packageId": "rules/pricing",
       "description": "Large orders earn a bonus on top of their points.",
+      "category": "Pricing/Loyalty",
+      "tags": [
+        "loyalty"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/pricing/loyalty.xml",
-        "line": 32
+        "line": 33
       },
       "parameters": [ ],
       "rule": {
@@ -300,6 +313,11 @@
       "kind": "rule-class",
       "registered": true,
       "packageId": "com.acme.order.rules",
+      "category": "Orders/Validation",
+      "tags": [
+        "orders",
+        "dates"
+      ],
       "source": {
         "type": "java",
         "className": "com.acme.order.rules.ConsistentDatesRule"
@@ -338,10 +356,14 @@
       "registered": true,
       "packageId": "rules/order",
       "description": "The order must fit within the customer's remaining credit.",
+      "category": "Orders/Validation",
+      "tags": [
+        "orders"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/order/validation.xml",
-        "line": 51
+        "line": 53
       },
       "parameters": [ ],
       "rule": {
@@ -404,10 +426,14 @@
       "registered": true,
       "packageId": "rules/order",
       "description": "Works out how many days the customer has allowed for delivery.",
+      "category": "Fulfilment",
+      "tags": [
+        "shipping"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/order/fulfilment.xml",
-        "line": 37
+        "line": 38
       },
       "parameters": [ ],
       "rule": {
@@ -558,10 +584,14 @@
       "registered": true,
       "packageId": "rules/order",
       "description": "Customer email must be a valid address.",
+      "category": "Orders/Validation",
+      "tags": [
+        "orders"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/order/validation.xml",
-        "line": 37
+        "line": 39
       },
       "parameters": [ ],
       "rule": {
@@ -613,10 +643,14 @@
       "registered": true,
       "packageId": "rules/order",
       "description": "Orders over the express threshold ship express, the rest standard.",
+      "category": "Fulfilment",
+      "tags": [
+        "shipping"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/order/fulfilment.xml",
-        "line": 25
+        "line": 26
       },
       "parameters": [ ],
       "rule": {
@@ -737,10 +771,15 @@
       "registered": true,
       "packageId": "rules/pricing",
       "description": "Orders over the threshold ship for free.",
+      "category": "Pricing",
+      "tags": [
+        "pricing",
+        "shipping"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/pricing/pricing.xml",
-        "line": 27
+        "line": 28
       },
       "parameters": [ ],
       "rule": {
@@ -829,10 +868,15 @@
       "registered": true,
       "packageId": "rules/pricing",
       "description": "Orders above the minimum earn a point per currency unit, twice that for VIP customers.",
+      "category": "Pricing/Loyalty",
+      "tags": [
+        "loyalty",
+        "vip"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/pricing/loyalty.xml",
-        "line": 26
+        "line": 27
       },
       "parameters": [ ],
       "rule": {
@@ -1004,10 +1048,15 @@
       "registered": true,
       "packageId": "rules/order",
       "description": "Orders with a notable fraud score are queued for a human to review.",
+      "category": "Orders/Approval",
+      "tags": [
+        "orders",
+        "risk"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/order/approval.xml",
-        "line": 29
+        "line": 30
       },
       "parameters": [ ],
       "rule": {
@@ -1085,10 +1134,14 @@
       "registered": true,
       "packageId": "rules/order",
       "description": "Order total must meet the configured minimum.",
+      "category": "Orders/Validation",
+      "tags": [
+        "orders"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/order/validation.xml",
-        "line": 45
+        "line": 47
       },
       "parameters": [ ],
       "rule": {
@@ -1142,10 +1195,14 @@
       "registered": true,
       "packageId": "rules/order",
       "description": "Customer phone must look like a phone number.",
+      "category": "Orders/Validation",
+      "tags": [
+        "orders"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/order/validation.xml",
-        "line": 41
+        "line": 43
       },
       "parameters": [ ],
       "rule": {
@@ -1198,10 +1255,14 @@
       "registered": true,
       "packageId": "rules/pricing",
       "description": "Customers at or above the senior age get a small extra discount.",
+      "category": "Pricing/Loyalty",
+      "tags": [
+        "loyalty"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/pricing/loyalty.xml",
-        "line": 37
+        "line": 38
       },
       "parameters": [ ],
       "rule": {
@@ -1298,10 +1359,14 @@
       "registered": true,
       "packageId": "rules/order",
       "description": "Orders must have a shipping address.",
+      "category": "Orders/Validation",
+      "tags": [
+        "orders"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/order/validation.xml",
-        "line": 48
+        "line": 50
       },
       "parameters": [ ],
       "rule": {
@@ -1342,10 +1407,14 @@
       "registered": true,
       "packageId": "rules/order",
       "description": "Large orders go out in several parcels.",
+      "category": "Fulfilment",
+      "tags": [
+        "shipping"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/order/fulfilment.xml",
-        "line": 31
+        "line": 32
       },
       "parameters": [ ],
       "rule": {
@@ -1530,10 +1599,15 @@
       "registered": true,
       "packageId": "rules/pricing",
       "description": "VIP customers get the configured discount.",
+      "category": "Pricing",
+      "tags": [
+        "pricing",
+        "vip"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/pricing/pricing.xml",
-        "line": 22
+        "line": 23
       },
       "parameters": [ ],
       "rule": {
@@ -1622,10 +1696,14 @@
       "registered": true,
       "packageId": "com.acme.order.config",
       "description": "Items with nothing in stock are marked as back-ordered.",
+      "category": "Fulfilment",
+      "tags": [
+        "stock"
+      ],
       "source": {
         "type": "java",
         "resource": "FulfilmentConfig.java",
-        "line": 47,
+        "line": 48,
         "className": "com.acme.order.config.FulfilmentConfig",
         "methodName": "backorderRule"
       },
@@ -1706,10 +1784,15 @@
       "registered": true,
       "packageId": "com.acme.order.config",
       "description": "Scores the fraud risk of an order from 0 (safe) to 1.",
+      "category": "Risk",
+      "tags": [
+        "risk",
+        "fraud"
+      ],
       "source": {
         "type": "java",
         "resource": "RiskConfig.java",
-        "line": 54,
+        "line": 55,
         "className": "com.acme.order.config.RiskConfig",
         "methodName": "fraudScoreRule"
       },
@@ -1756,10 +1839,15 @@
       "registered": true,
       "packageId": "com.acme.order.config",
       "description": "Catalog item prices must be positive and below the configured maximum.",
+      "category": "Pricing/Catalogue",
+      "tags": [
+        "pricing",
+        "nightly"
+      ],
       "source": {
         "type": "java",
         "resource": "PricingConfig.java",
-        "line": 49,
+        "line": 50,
         "className": "com.acme.order.config.PricingConfig",
         "methodName": "rangeCheckRule"
       },
@@ -1835,10 +1923,15 @@
       "registered": true,
       "packageId": "com.acme.order.config",
       "description": "Customers who have earned enough points move up to the GOLD tier.",
+      "category": "Pricing/Loyalty",
+      "tags": [
+        "loyalty",
+        "vip"
+      ],
       "source": {
         "type": "java",
         "resource": "LoyaltyConfig.java",
-        "line": 50,
+        "line": 51,
         "className": "com.acme.order.config.LoyaltyConfig",
         "methodName": "tierUpgradeRule"
       },
@@ -1973,10 +2066,15 @@
       "registered": true,
       "packageId": "rules/order",
       "description": "Approves an order or sends it for manual review, based on its fraud score.",
+      "category": "Orders/Approval",
+      "tags": [
+        "orders",
+        "risk"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/order/approval.xml",
-        "line": 14
+        "line": 15
       },
       "parameters": [
         {
@@ -2008,10 +2106,14 @@
       "registered": true,
       "packageId": "rules/order",
       "description": "Decides how an approved order ships.",
+      "category": "Fulfilment",
+      "tags": [
+        "shipping"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/order/fulfilment.xml",
-        "line": 16
+        "line": 17
       },
       "parameters": [
         {
@@ -2038,10 +2140,14 @@
       "registered": true,
       "packageId": "rules/pricing",
       "description": "Awards loyalty points and the perks that come with them.",
+      "category": "Pricing/Loyalty",
+      "tags": [
+        "loyalty"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/pricing/loyalty.xml",
-        "line": 16
+        "line": 17
       },
       "parameters": [
         {
@@ -2074,10 +2180,14 @@
       "registered": true,
       "packageId": "rules/order",
       "description": "Checks that an order is complete and valid before it is processed.",
+      "category": "Orders/Validation",
+      "tags": [
+        "orders"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/order/validation.xml",
-        "line": 15
+        "line": 17
       },
       "parameters": [
         {
@@ -2173,10 +2283,14 @@
       "registered": true,
       "packageId": "rules/pricing",
       "description": "Applies discounts and shipping costs to an order.",
+      "category": "Pricing",
+      "tags": [
+        "pricing"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/pricing/pricing.xml",
-        "line": 13
+        "line": 14
       },
       "parameters": [
         {
@@ -2208,10 +2322,14 @@
       "registered": true,
       "packageId": "rules/pricing",
       "description": "Awards points for an approved order and upgrades the customer's tier when they qualify.",
+      "category": "Pricing/Loyalty",
+      "tags": [
+        "loyalty"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/pricing/loyalty.xml",
-        "line": 44
+        "line": 45
       },
       "parameters": [
         {
@@ -2314,10 +2432,15 @@
       "registered": true,
       "packageId": "rules/pricing",
       "description": "Re-checks every catalog item overnight.",
+      "category": "Pricing/Catalogue",
+      "tags": [
+        "pricing",
+        "nightly"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/pricing/pricing.xml",
-        "line": 35
+        "line": 36
       },
       "parameters": [
         {
@@ -2409,10 +2532,14 @@
       "registered": true,
       "packageId": "rules/order",
       "description": "Validates, scores, prices and approves an incoming order.",
+      "category": "Orders",
+      "tags": [
+        "orders"
+      ],
       "source": {
         "type": "xml",
         "resource": "classpath:rules/order/flows.xml",
-        "line": 14
+        "line": 15
       },
       "parameters": [
         {
@@ -3158,6 +3285,12 @@
       "code": "MISSING_DESCRIPTION",
       "artifact": "StockAvailableRule",
       "message": "No description."
+    },
+    {
+      "severity": "info",
+      "code": "UNCATEGORISED",
+      "artifact": "StockAvailableRule",
+      "message": "No category, while 29 other artifacts have one."
     },
     {
       "severity": "info",

@@ -31,9 +31,9 @@ public final class ProblemChecks {
         super();
     }
 
-    /** Unresolved targets, duplicate names, unused rules and missing descriptions. */
+    /** Unresolved targets, duplicate names, unused rules, missing descriptions and missing categories. */
     public static List<ProblemCheck> defaults() {
         return List.of(new UnresolvedTargetCheck(), new DuplicateNameCheck(), new UnusedRuleCheck(),
-                new MissingDescriptionCheck());
+                new MissingDescriptionCheck(), new UncategorisedCheck());
     }
 }

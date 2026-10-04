@@ -44,6 +44,7 @@ public class PricingConfig {
     public Rule rangeCheckRule() {
         return Rule.builder()
                 .name("RangeCheckRule", "Catalog item prices must be positive and below the configured maximum.")
+                .category("Pricing/Catalogue").tags("pricing", "nightly")
                 .given(Condition.builder().build(Script.builder().build("el",
                         "#ctx.item.price > 0 && #ctx.item.price < ${pricing.maxPrice:10000}")))
                 .build();
