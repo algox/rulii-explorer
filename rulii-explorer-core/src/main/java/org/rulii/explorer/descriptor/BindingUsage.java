@@ -27,7 +27,7 @@ import java.util.List;
  * @param writtenBy      artifact ids that write it: flow binds and results, and script writes.
  * @param unknownWriters artifact ids that read it and run compiled code, which may write it.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record BindingUsage(String name, List<String> readBy, List<String> writtenBy, List<String> unknownWriters) {

@@ -24,7 +24,7 @@ import java.util.List;
  * statements, and {@link Opaque} for constructs it parses past but does not interpret. Every
  * node keeps its offsets in the script so an untranslatable part can be shown as written.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 sealed interface ScriptNode {

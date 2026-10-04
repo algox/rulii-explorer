@@ -29,7 +29,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  * <p>Run it and open {@code /actuator/rulii} (JSON) or {@code /rulii/} (UI).
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 @SpringBootApplication

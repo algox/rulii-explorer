@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  * analysed, compiled code gets a signature (FR-15), composites keep their parts. Hooks rulii
  * adds itself (default rule set handlers, the validating check) are dropped.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  *
  */

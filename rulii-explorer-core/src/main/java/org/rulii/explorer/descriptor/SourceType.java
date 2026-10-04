@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 /**
  * Where an artifact was declared: an XML file or Java code.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public enum SourceType {

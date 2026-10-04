@@ -52,7 +52,7 @@ import java.util.List;
  * {@code age} and {@code #ctx.age} are the same binding read. Anything the phrase book cannot
  * express becomes a {@code raw} token holding its source text (FR-17).
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 final class SpelTranslator {

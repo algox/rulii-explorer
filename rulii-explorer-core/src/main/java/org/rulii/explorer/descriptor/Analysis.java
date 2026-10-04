@@ -25,7 +25,7 @@ import java.util.List;
  * @param complete false when any token is {@code raw}: part of the expression could not be translated.
  * @param tokens   the rendering, in order; empty when the expression could not be parsed at all.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record Analysis(boolean complete, List<Token> tokens) {

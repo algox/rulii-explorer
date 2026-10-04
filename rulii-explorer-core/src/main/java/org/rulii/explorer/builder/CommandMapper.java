@@ -40,7 +40,7 @@ import java.util.stream.Stream;
  * Maps a flow's {@link CommandInfo} tree to descriptor {@link Command}s, resolving run targets
  * through the {@link Describer} and recording the references (FR-13, FR-21).
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 final class CommandMapper {

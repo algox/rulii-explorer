@@ -34,7 +34,7 @@ import java.util.List;
  * @param operator  how the operands combine ({@code and}, {@code or}, {@code !}, {@code andThen} ...); composite only.
  * @param operands  the parts, in evaluation order; composite only.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  *
  */

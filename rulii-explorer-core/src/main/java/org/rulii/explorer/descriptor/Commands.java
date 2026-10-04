@@ -25,7 +25,7 @@ import java.util.function.BiConsumer;
  * {@code commands[2].then[0]}, {@code commands[4].handler[0]}, {@code commands[3].thenRun[1]},
  * {@code commands[1].body[0]}, {@code globalHandler[0]}. Problems and references use these paths.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class Commands {

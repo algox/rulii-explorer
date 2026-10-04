@@ -33,7 +33,7 @@ import java.util.List;
  * that matches an artifact own name but not its registry name (warning): the bean
  * {@code rangeCheckRule} holds a rule named {@code RangeCheckRule}, and lookups use bean names.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class UnresolvedTargetCheck implements ProblemCheck {

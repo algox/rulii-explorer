@@ -40,7 +40,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
  * The WebFlux twin of {@link UiMvcConfiguration}: the same page and assets on a reactive stack
  * (NFR-11), when Actuator shares the application's port.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 @Configuration(proxyBeanMethods = false)

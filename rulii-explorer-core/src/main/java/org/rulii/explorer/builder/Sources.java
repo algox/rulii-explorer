@@ -27,7 +27,7 @@ import org.rulii.model.SourceDefinition;
  * Turns a rulii {@link SourceDefinition} into the descriptor's {@link Source}, and works out
  * the package an artifact belongs to (FR-30).
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 final class Sources {

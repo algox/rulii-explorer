@@ -29,7 +29,7 @@ import java.util.List;
  * @param returning     the result extractor; null when the flow returns its rule context.
  * @param resultType    the result type name; null when the flow returns its rule context.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record RuleFlowDetails(String context, List<Command> commands, Handler globalHandler, Expression finalizer,

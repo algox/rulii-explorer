@@ -58,7 +58,7 @@ import java.util.List;
  * @param body       the commands of a for-each, scope or custom container step.
  * @param className  the class of a custom command.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record Command(CommandType type, Target target, String as, String scope, BindInfo params, BindInfo bind,

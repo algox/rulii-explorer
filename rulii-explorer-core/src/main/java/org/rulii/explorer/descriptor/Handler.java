@@ -25,7 +25,7 @@ import java.util.List;
  * @param exceptionType the exception class name.
  * @param body          the commands run, in order.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record Handler(String exceptionType, List<Command> body) {

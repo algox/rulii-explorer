@@ -39,7 +39,7 @@ import java.util.Set;
  * Anything the phrase book cannot express becomes a {@code raw} token holding its source text
  * (FR-17); a call it cannot phrase keeps its arguments translated.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 final class ScriptTranslator {

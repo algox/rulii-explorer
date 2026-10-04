@@ -27,7 +27,7 @@ import java.util.List;
  * @param names the names bound, where known.
  * @param label the bean name or class of the source, for bean and loader binds; null otherwise.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record BindInfo(String scope, String kind, List<BoundName> names, String label) {

@@ -27,7 +27,7 @@ package org.rulii.explorer.descriptor;
  * @param matchStrategy the binding matching strategy class simple name when one is declared; null otherwise.
  * @param description   what the parameter is for; null when not given.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record Parameter(String name, String type, boolean required, String defaultValue, String matchStrategy,

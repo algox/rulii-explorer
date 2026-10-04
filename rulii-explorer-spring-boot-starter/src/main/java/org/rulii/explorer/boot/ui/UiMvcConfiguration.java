@@ -44,7 +44,7 @@ import java.time.Duration;
  * year (SOLUTION §8.1). With a separate management port, {@link UiServletManagementContextConfiguration}
  * serves it there instead.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 @Configuration(proxyBeanMethods = false)

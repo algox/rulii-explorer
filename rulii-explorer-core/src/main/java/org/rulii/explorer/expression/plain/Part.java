@@ -28,7 +28,7 @@ import java.util.TreeSet;
  * what the translator needs to know about it to phrase its parent (a literal, a logical
  * operator, a binding path). Shared by every translator.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class Part {

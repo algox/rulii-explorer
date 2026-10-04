@@ -22,7 +22,7 @@ package org.rulii.explorer.expression.script;
  * translator; the dialect decides the few places they differ: Java has typed local variables,
  * casts, {@code ->} lambdas and number suffixes and no regular expression literals.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 enum Dialect {

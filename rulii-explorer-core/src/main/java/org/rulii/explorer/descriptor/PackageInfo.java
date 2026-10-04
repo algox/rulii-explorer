@@ -24,7 +24,7 @@ package org.rulii.explorer.descriptor;
  * @param id   the package id, as used in {@link Artifact#packageId()}.
  * @param kind java or xml.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record PackageInfo(String id, PackageKind kind) {

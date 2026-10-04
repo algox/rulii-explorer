@@ -26,7 +26,7 @@ package org.rulii.explorer.descriptor;
  * @param className  the declaring class (java only); null when unknown.
  * @param methodName the declaring method, such as a {@code @Bean} method (java only); null when unknown.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record Source(SourceType type, String resource, Integer line, String className, String methodName) {

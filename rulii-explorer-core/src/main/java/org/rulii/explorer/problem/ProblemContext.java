@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * What a {@link ProblemCheck} can look at: the described artifacts and the resolved references.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class ProblemContext {

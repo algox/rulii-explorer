@@ -38,7 +38,7 @@ import java.util.List;
  * rulii.explorer.placeholders.additional-exclude=    # key globs hidden on top of the list above
  * </pre>
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  *
  */

@@ -44,7 +44,7 @@ import java.util.List;
  * A build failure is logged and kept as an error payload rather than thrown, so the application
  * is never affected (NFR-22). The cache clears when the context refreshes (devtools restarts).
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  *
  */

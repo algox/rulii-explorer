@@ -35,7 +35,7 @@ import java.nio.file.Path;
  * order, nulls omitted, map keys sorted. The same bytes on every platform, so golden files and
  * release diffs are clean (FR-43).
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class DescriptorJson {

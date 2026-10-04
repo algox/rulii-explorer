@@ -25,7 +25,7 @@ import java.util.Properties;
  * Versions the explorer reports about itself: the descriptor contract it produces and the
  * module version it was built from.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class Explorer {

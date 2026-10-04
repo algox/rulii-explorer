@@ -33,7 +33,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
  * The WebFlux twin of {@link UiServletManagementContextConfiguration}: the UI on a separate
  * management port of a reactive application.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 @ManagementContextConfiguration(value = ManagementContextType.CHILD, proxyBeanMethods = false)

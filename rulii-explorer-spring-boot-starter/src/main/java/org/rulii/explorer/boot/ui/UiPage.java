@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
  *   another address or a file ({@code any}), or only this application's ({@code application}).</li>
  * </ul>
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class UiPage {

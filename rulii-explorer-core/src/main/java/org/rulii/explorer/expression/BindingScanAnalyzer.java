@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  * <p>The result has no tokens, so the UI shows the script as written (FR-17). String literals
  * and comments are skipped first, so {@code "ctx.x"} inside a string is not a binding.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class BindingScanAnalyzer implements ExpressionAnalyzer {

@@ -30,7 +30,7 @@ import java.util.List;
  * categories is what makes the gaps visible. Inline members and targets are skipped: they are
  * shown under the artifact that declares them.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class UncategorisedCheck implements ProblemCheck {

@@ -30,7 +30,7 @@ import java.util.TreeMap;
  * Two artifacts with the same own name (warning): confusing in listings, and a by-name lookup
  * can only mean one of them.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class DuplicateNameCheck implements ProblemCheck {

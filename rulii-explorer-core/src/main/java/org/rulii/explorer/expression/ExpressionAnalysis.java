@@ -33,7 +33,7 @@ import java.util.List;
  * @param reads    binding paths read, such as {@code order.total}; sorted, no duplicates.
  * @param writes   binding paths written; sorted, no duplicates.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record ExpressionAnalysis(boolean complete, List<Token> tokens, List<String> reads, List<String> writes) {

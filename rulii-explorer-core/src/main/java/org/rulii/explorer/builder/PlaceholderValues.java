@@ -34,7 +34,7 @@ import java.util.List;
  * repeats the text around it, an escaped {@code \${}}, or a resolved text identical to the source
  * because nothing was resolved) yields the placeholders without values rather than a guess.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  *
  */

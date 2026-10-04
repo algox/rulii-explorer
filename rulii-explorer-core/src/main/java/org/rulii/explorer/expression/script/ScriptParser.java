@@ -34,7 +34,7 @@ import java.util.Set;
  * {@code switch}, {@code try}, classes and destructuring are not parsed at all, and the script
  * is shown as written. Java casts become {@link Cast} nodes.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 final class ScriptParser {

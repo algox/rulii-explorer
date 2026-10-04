@@ -28,7 +28,7 @@ package org.rulii.explorer.descriptor;
  * @param path       where in the referring artifact: {@code members[2]} or {@code commands[1].then[0]}.
  * @param resolution direct, by-name or by-class.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record Reference(String from, String to, ReferenceType type, boolean async, String path, Resolution resolution) {

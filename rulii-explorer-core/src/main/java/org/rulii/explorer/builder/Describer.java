@@ -81,7 +81,7 @@ import java.util.TreeSet;
  * path ids and {@code registered = false}. Anything that throws while being described is kept
  * with what could be read and reported as {@code UNDESCRIBABLE} (NFR-22).
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  *
  */

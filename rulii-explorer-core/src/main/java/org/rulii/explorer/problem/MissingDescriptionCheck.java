@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * An artifact with no description (info). Descriptions are what non-developers read first.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class MissingDescriptionCheck implements ProblemCheck {

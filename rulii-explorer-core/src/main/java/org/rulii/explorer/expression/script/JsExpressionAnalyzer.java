@@ -28,7 +28,7 @@ import org.rulii.explorer.expression.ExpressionAnalyzer;
  * translator cannot phrase is shown as written and marks the analysis incomplete; what the
  * parser cannot read at all leaves the script untranslated.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class JsExpressionAnalyzer implements ExpressionAnalyzer {

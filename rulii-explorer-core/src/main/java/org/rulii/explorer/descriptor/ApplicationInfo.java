@@ -26,7 +26,7 @@ package org.rulii.explorer.descriptor;
  * @param placeholderValues true when the descriptor carries the values the scripts compiled with, for the
  *                        placeholders the application chose to show (see {@code Expression.placeholders}).
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  *
  */

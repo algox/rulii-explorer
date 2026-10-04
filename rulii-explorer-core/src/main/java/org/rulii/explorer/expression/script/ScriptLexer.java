@@ -26,7 +26,7 @@ import java.util.Set;
  * literals, regular expressions and punctuators, with comments and whitespace dropped. Each
  * token knows whether a line break preceded it, which is what statement separation needs.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 final class ScriptLexer {

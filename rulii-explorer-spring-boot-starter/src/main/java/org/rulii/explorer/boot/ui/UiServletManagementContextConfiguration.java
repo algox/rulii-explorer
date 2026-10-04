@@ -35,7 +35,7 @@ import org.springframework.web.servlet.function.ServerResponse;
  * {@code META-INF/spring/...ManagementContextConfiguration.imports}; the child context has
  * {@code @EnableWebMvc}, so its {@link WebMvcConfigurer}s and router functions apply there.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 @ManagementContextConfiguration(value = ManagementContextType.CHILD, proxyBeanMethods = false)

@@ -33,7 +33,7 @@ import java.util.TreeMap;
  * @param failOnNull     whether a null value fails the rule; predefined validators only.
  * @param settings       validator-specific settings ({@code min}, {@code pattern}, {@code values} ...), sorted by name.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record ValidationDetails(String validator, String errorCode, String severity, String errorMessage,

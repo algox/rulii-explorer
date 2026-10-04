@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * The checks the explorer runs by default.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class ProblemChecks {

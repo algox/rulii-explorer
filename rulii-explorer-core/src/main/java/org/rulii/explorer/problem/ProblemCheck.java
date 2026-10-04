@@ -25,7 +25,7 @@ import java.util.List;
  * One check over the described application. Checks are independent, so adding one is adding a
  * class.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public interface ProblemCheck {

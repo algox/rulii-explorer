@@ -24,7 +24,7 @@ package org.rulii.explorer.descriptor;
  * @param type       value type name when known; null otherwise.
  * @param expression the expression that produces the value, when there is one; null otherwise.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record BoundName(String name, String type, Expression expression) {

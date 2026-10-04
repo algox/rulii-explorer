@@ -27,7 +27,7 @@ import java.util.List;
  * @param then         actions run when the condition holds, in order.
  * @param otherwise    action run when it does not; null when none.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record RuleDetails(Expression preCondition, Expression given, List<Expression> then, Expression otherwise) {

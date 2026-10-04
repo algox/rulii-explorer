@@ -40,7 +40,7 @@ import java.nio.file.Path;
  * }
  * }</pre>
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class RuliiDescriptors {

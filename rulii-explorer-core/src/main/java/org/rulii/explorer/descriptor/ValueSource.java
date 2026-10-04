@@ -24,7 +24,7 @@ package org.rulii.explorer.descriptor;
  * @param name       the binding name; binding only.
  * @param expression the function that produces the value; expression only.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record ValueSource(String kind, String name, Expression expression) {

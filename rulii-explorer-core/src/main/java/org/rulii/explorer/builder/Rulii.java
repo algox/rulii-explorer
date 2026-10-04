@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  * Small facts about rulii itself that the builder needs: which classes are rulii's own, and
  * how to sort ids and paths that contain indexes.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 final class Rulii {

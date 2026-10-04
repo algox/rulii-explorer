@@ -38,7 +38,7 @@ import java.util.List;
  * "order total is at least order.minTotal (default 100)", reading {@code order.total}. A script
  * that does not parse yields {@link ExpressionAnalysis#unparsed()}.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class SpelExpressionAnalyzer implements ExpressionAnalyzer {

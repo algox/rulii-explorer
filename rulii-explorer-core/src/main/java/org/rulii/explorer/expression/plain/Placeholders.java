@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  * {@code __ph0} for JavaScript; the translator turns that variable back into a placeholder token,
  * and {@link #restore(String)} puts the original text back into raw slices.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  *
  */

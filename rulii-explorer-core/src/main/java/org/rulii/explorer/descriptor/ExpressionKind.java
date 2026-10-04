@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * What an expression is made of. {@code compiled} is the honest-opacity case: Java code whose
  * logic the explorer cannot show (FR-15).
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public enum ExpressionKind {

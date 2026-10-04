@@ -20,7 +20,7 @@ package org.rulii.explorer.problem;
 /**
  * The problem codes the explorer reports. Stable: tools may key on them.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class ProblemCodes {

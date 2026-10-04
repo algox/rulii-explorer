@@ -46,7 +46,7 @@ import static org.rulii.model.condition.Conditions.condition;
  * flows bind, branch, loop, run work in the background and await it, and a few look artifacts up
  * by name, including names that do not exist, so the problems page has something to say.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class ScaleGenerator {

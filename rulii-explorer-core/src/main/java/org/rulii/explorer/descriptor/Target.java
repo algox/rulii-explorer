@@ -26,7 +26,7 @@ package org.rulii.explorer.descriptor;
  * @param className  the rule class looked up; by-class only.
  * @param resolution direct, by-name, by-class or unresolved.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record Target(TargetKind kind, String id, String name, String className, Resolution resolution) {

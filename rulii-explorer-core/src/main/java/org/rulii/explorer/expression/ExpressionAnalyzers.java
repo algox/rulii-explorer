@@ -29,7 +29,7 @@ import java.util.Optional;
 /**
  * The analyzers available to a descriptor build, tried in order.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class ExpressionAnalyzers {

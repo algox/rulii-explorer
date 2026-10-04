@@ -41,7 +41,7 @@ import java.util.List;
  * @param ruleSet     rule set details; rule sets only.
  * @param ruleFlow    rule flow details; rule flows only.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record Artifact(String id, String name, ArtifactType type, ArtifactKind kind, boolean registered,

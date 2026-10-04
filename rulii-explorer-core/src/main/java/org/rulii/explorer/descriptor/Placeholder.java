@@ -28,7 +28,7 @@ package org.rulii.explorer.descriptor;
  * @param value        the resolved value the compiler saw; null when not shown.
  * @param hidden       true when a value exists but the application's filter hides it; null otherwise.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  *
  */

@@ -25,7 +25,7 @@ import java.util.List;
  * @param as   binding name of the result.
  * @param body the commands run, in order.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record Continuation(String as, List<Command> body) {

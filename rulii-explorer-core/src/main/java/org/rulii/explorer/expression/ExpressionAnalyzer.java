@@ -22,7 +22,7 @@ package org.rulii.explorer.expression;
  * and write (FR-17, FR-22). Implementations must be deterministic and never guess: a part they
  * cannot translate becomes a {@code raw} token.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public interface ExpressionAnalyzer {

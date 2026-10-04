@@ -38,7 +38,7 @@ import java.util.Map;
  * mvn -pl rulii-explorer-demo spring-boot:run -Dspring-boot.run.profiles=scale
  * </pre>
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 @Configuration

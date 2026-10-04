@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * A registered rule that no rule set or flow references (info). It may be run directly by
  * application code, so this is informational.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class UnusedRuleCheck implements ProblemCheck {

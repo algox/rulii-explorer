@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * The phrase book: how operators, well-known methods and identifiers read in English. Small on
  * purpose; anything not here is shown raw rather than guessed (FR-17).
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class Phrases {

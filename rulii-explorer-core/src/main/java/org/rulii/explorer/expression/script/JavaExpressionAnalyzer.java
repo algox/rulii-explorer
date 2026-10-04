@@ -27,7 +27,7 @@ import org.rulii.explorer.expression.ExpressionAnalyzer;
  * such as {@code ChronoUnit.DAYS.between(a, b)} is shown as written with its arguments
  * translated. A script the parser cannot read, such as a loop, is left untranslated.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public final class JavaExpressionAnalyzer implements ExpressionAnalyzer {

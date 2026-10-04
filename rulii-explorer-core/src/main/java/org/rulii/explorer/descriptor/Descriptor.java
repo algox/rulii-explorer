@@ -35,7 +35,7 @@ import java.util.List;
  * @param bindings          binding usage, sorted by name.
  * @param problems          problems found, most severe first.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record Descriptor(String descriptorVersion, ApplicationInfo application, List<PackageInfo> packages,

@@ -42,7 +42,7 @@ import java.util.Objects;
  * <p>Nothing runs: only definitions are read. Describing the registry does instantiate lazy
  * artifacts, which is why the Spring Boot starter builds on first request, not at startup.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  *
  */

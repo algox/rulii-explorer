@@ -31,7 +31,7 @@ import tools.jackson.databind.JsonNode;
  * writes (only the whitespace differs), so a {@code curl} of this endpoint compares cleanly with a
  * build-time descriptor (FR-42). When the build failed, the body is an error payload with status 500.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 @Endpoint(id = RuliiDescriptorEndpoint.ID)

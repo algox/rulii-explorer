@@ -32,7 +32,7 @@ import java.util.List;
  * @param errorHandler    function handling errors; null when rulii defaults apply.
  * @param members         the member rule ids, in order.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record RuleSetDetails(boolean validating, Expression preCondition, Expression initializer,

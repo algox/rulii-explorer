@@ -26,7 +26,7 @@ package org.rulii.explorer.descriptor;
  * @param path     where in the artifact ({@code commands[2]}); null when not applicable.
  * @param message  what is wrong, in plain words.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record Problem(ProblemSeverity severity, String code, String artifact, String path, String message) {

@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  * to {@link DescriptorBuilder#placeholderValues(PlaceholderFilter)} turns values on; a key the
  * filter refuses is reported as hidden, with its key and default still visible.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  *
  */

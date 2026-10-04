@@ -33,7 +33,7 @@ import java.util.List;
  * @param key          for a placeholder: the property key; null otherwise.
  * @param defaultValue for a placeholder: the default as written; null when none.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 public record Token(String t, String text, List<String> path, String key, String defaultValue) {

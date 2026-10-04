@@ -64,7 +64,7 @@ import java.util.Objects;
  * <p>Applications add analyzers for other script languages or extra problem checks by declaring
  * {@link ExpressionAnalyzer} and {@link ProblemCheck} beans; they run before the defaults.
  *
- * @author Max Arulananthan
+ * @author Algorithmx Development Team
  * @since 1.0
  */
 
