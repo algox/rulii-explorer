@@ -50,7 +50,7 @@ class UiServingTest {
         assertTrue(m.find(), "the page links its entry point");
         HttpResponse<String> asset = client.send(HttpRequest.newBuilder(URI.create("http://localhost:" + port + m.group(1))).build(), HttpResponse.BodyHandlers.ofString());
         assertEquals(200, asset.statusCode());
-        assertTrue(asset.body().contains("loadDescriptor"), "the app's entry point");
+        assertTrue(asset.body().contains("from './boot.js'"), "the app's entry point");
 
         HttpResponse<String> descriptor = client.send(HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/actuator/rulii")).build(), HttpResponse.BodyHandlers.ofString());
         assertEquals(200, descriptor.statusCode());

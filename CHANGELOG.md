@@ -40,6 +40,13 @@ The first release. Requires rulii 2.1.0, rulii-spring 2.1.0 and Spring Boot 4.1 
 - **Graphs**: the dependency graph focused on one artifact or for the whole application grouped by
   package, and a flowchart per rule flow with decisions, loops, scopes, an async lane and exception
   handlers; selection is shared with the outline.
+- **Other descriptors**: the UI is not tied to the application serving it. The chip next to the
+  application name opens another application's `/actuator/rulii` or a descriptor saved as JSON by
+  address (`/rulii?descriptor=…#/`, so the link can be shared), or a file from the user's machine,
+  chosen or dropped onto the page. The browser does the reading, with no credentials across
+  origins, so the other application allows it with `management.endpoints.web.cors.allowed-origins`;
+  the failure screens explain CORS, mixed content and protected endpoints.
+  `rulii.explorer.ui.external-sources=false` turns the feature off.
 - **Spring Boot**: auto-configuration for Spring MVC and WebFlux, context and base paths, a separate
   management port (the UI follows the endpoint), `rulii.explorer.*` properties, and
   `RuliiDescriptors.write` for a build-time descriptor in CI. Off by default:

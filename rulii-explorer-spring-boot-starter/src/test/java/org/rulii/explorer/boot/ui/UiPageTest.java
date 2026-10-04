@@ -31,6 +31,8 @@ class UiPageTest {
         UiPage page = new UiPage("/rulii", "1.2.3");
         String html = page.render("/app", "/app/manage/rulii");
         assertTrue(html.contains("<meta name=\"rulii-descriptor\" content=\"/app/manage/rulii\">"), html);
+        assertTrue(html.contains("<meta name=\"rulii-sources\" content=\"any\">"), "external sources are allowed by default");
+        assertTrue(new UiPage("/rulii", "1.2.3", false).render("", "/actuator/rulii").contains("<meta name=\"rulii-sources\" content=\"application\">"), "and can be turned off");
         assertTrue(html.contains("href=\"/app/rulii/1.2.3/app/design/tokens.css\""), html);
         assertTrue(html.contains("src=\"/app/rulii/1.2.3/app/main.js\""), html);
         assertTrue(html.contains("\"lit\": \"/app/rulii/1.2.3/vendor/lit/lit-core.min.js\""), html);

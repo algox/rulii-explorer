@@ -36,6 +36,15 @@ export class RxElement extends LitElement {
         this.#unsubscribe = null;
     }
 
+    /**
+     * A store change reaches every element at once; the shell may swap the page out before an
+     * element on the way out gets its turn, so a detached element never renders (a descriptor
+     * switch empties the store while the old page's elements are still queued).
+     */
+    shouldUpdate() {
+        return this.isConnected;
+    }
+
     /** @returns {import('../state/store.js').State} */
     get state() {
         return store.state;

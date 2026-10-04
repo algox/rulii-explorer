@@ -32,6 +32,7 @@ import java.util.List;
  * rulii.explorer.application-name=       # shown in the top bar; defaults to spring.application.name
  * rulii.explorer.ui.enabled=true         # serve the UI
  * rulii.explorer.ui.path=/rulii          # where
+ * rulii.explorer.ui.external-sources=true # the UI may also open another application's descriptor, or a file
  * rulii.explorer.placeholders.show-values=never      # never | always: the values ${key:default} placeholders compiled with
  * rulii.explorer.placeholders.exclude=*password*,... # key globs whose values stay hidden (replaces the default list)
  * rulii.explorer.placeholders.additional-exclude=    # key globs hidden on top of the list above
@@ -102,8 +103,23 @@ public class RuliiExplorerProperties {
         /** Where the UI is served. */
         private String path = "/rulii";
 
+        /**
+         * Let the UI show a descriptor from elsewhere: another application's endpoint or a saved
+         * JSON by address ({@code ?descriptor=}), or a file from the user's machine. The browser
+         * does the reading; nothing goes through this application. Off: the UI shows only its own.
+         */
+        private boolean externalSources = true;
+
         public Ui() {
             super();
+        }
+
+        public boolean isExternalSources() {
+            return externalSources;
+        }
+
+        public void setExternalSources(boolean externalSources) {
+            this.externalSources = externalSources;
         }
 
         public boolean isEnabled() {

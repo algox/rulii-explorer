@@ -76,6 +76,7 @@ for certain and does not guess.
 | `rulii.explorer.enabled` | `false` | Master switch, off by default. The endpoint still needs Actuator exposure. |
 | `rulii.explorer.ui.enabled` | `true` | Serve the UI. Turn it off to keep the JSON endpoint only. |
 | `rulii.explorer.ui.path` | `/rulii` | Where the UI is served. |
+| `rulii.explorer.ui.external-sources` | `true` | Let the UI also open another application's descriptor or a saved JSON by address (`?descriptor=`), or a file from the user's machine. The browser does the reading; nothing goes through this application. |
 | `rulii.explorer.include-sources` | `true` | Include file names, line numbers and class names in the descriptor. |
 | `rulii.explorer.application-name` | `spring.application.name` | The name shown in the top bar. |
 | `rulii.explorer.placeholders.show-values` | `never` | `always` shows the value each `${key:default}` placeholder compiled with, next to the key and default. |
@@ -125,6 +126,30 @@ class DescriptorSnapshotTest {
 ```
 
 The document follows `rulii-descriptor-1.schema.json`, shipped in `rulii-explorer-core`.
+
+## Opening another application's descriptor
+
+The UI is not tied to the application serving it. The chip next to the application name opens a
+dialog that takes another descriptor:
+
+- **Another application's endpoint**, such as `https://staging:8080/actuator/rulii`. The browser
+  fetches it directly, so that application has to allow the explorer's origin:
+
+  ```properties
+  management.endpoints.web.cors.allowed-origins=https://where-this-explorer-runs
+  ```
+
+  The request carries no credentials, so a protected endpoint cannot be read this way; save its
+  descriptor as a file instead (`curl -u … > rules.json`) and open the file.
+- **A descriptor saved as JSON** at any address that allows cross-origin reads, for example the
+  file the CI snippet above writes, published with the build.
+- **A file from the user's machine**, chosen or dropped onto the page. It stays in the browser tab.
+
+The choice is in the page address (`/rulii?descriptor=…#/`), so a link to a rule in another
+application's descriptor can be shared. `rulii.explorer.ui.external-sources=false` turns the
+feature off: the chip disappears and the parameter is ignored. The UI files themselves can also be
+unpacked from `rulii-explorer-ui` onto any static server and opened with `?descriptor=`, with no
+Spring Boot involved.
 
 ## Modules
 

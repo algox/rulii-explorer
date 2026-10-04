@@ -63,4 +63,20 @@ class UiDisabledTest {
             assertEquals(404, Http.get(port, "/rulii").status());
         }
     }
+
+    /** {@code rulii.explorer.ui.external-sources=false}: the page tells the UI to show only this application's descriptor. */
+    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+            properties = {"management.endpoints.web.exposure.include=rulii", "rulii.explorer.ui.external-sources=false"})
+    static class ExternalSourcesOffTest {
+
+        @LocalServerPort
+        private int port;
+
+        @Test
+        void pageLocksTheSource() {
+            Http.Response response = Http.get(port, "/rulii");
+            assertEquals(200, response.status());
+            assertTrue(response.body().contains("<meta name=\"rulii-sources\" content=\"application\">"), response.body());
+        }
+    }
 }

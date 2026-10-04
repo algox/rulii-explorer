@@ -4,7 +4,8 @@
  * everything else here is small UI state.
  *
  * @typedef {object} State
- * @property {'loading'|'ready'|'empty'|'not-exposed'|'unauthorized'|'forbidden'|'failed'|'unreachable'|'unsupported'} status
+ * @property {'loading'|'ready'|'empty'|'not-exposed'|'unauthorized'|'forbidden'|'failed'|'unreachable'|'unsupported'|'pick-source'} status
+ * @property {import('../descriptor/source.js').Source} source  where the descriptor comes from
  * @property {object|null} descriptor   the parsed descriptor (see descriptor/types.js)
  * @property {object|null} index        indexes built from it (descriptor/indexes.js)
  * @property {object|null} error        details for the failure states: {status, message, detail}
@@ -14,6 +15,7 @@
  * @property {Set<string>} expanded     expanded sidebar packages
  * @property {boolean} paletteOpen
  * @property {boolean} helpOpen       the help sheet (?)
+ * @property {boolean} sourceOpen     the "Open a descriptor" dialog
  */
 
 const THEME_KEY = 'rx.theme';
@@ -39,6 +41,7 @@ class Store extends EventTarget {
     /** @type {State} */
     #state = {
         status: 'loading',
+        source: {kind: 'application'},
         descriptor: null,
         index: null,
         error: null,
@@ -47,7 +50,8 @@ class Store extends EventTarget {
         exprView: remembered(EXPR_KEY, ['plain', 'raw'], 'plain'),
         expanded: new Set(),
         paletteOpen: false,
-        helpOpen: false
+        helpOpen: false,
+        sourceOpen: false
     };
 
     get state() {

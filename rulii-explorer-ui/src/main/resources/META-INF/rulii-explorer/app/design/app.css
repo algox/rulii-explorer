@@ -22,7 +22,7 @@ body {
   overflow: hidden;
 }
 
-rx-app, rx-topbar, rx-sidebar, rx-overview, rx-artifact, rx-problems, rx-binding, rx-package, rx-states, rx-palette, rx-help, rx-hovercard { display: contents; }
+rx-app, rx-topbar, rx-sidebar, rx-overview, rx-artifact, rx-problems, rx-binding, rx-package, rx-states, rx-palette, rx-help, rx-source, rx-hovercard { display: contents; }
 
 h1, h2, h3, p, ol, ul, figure { margin: 0; }
 ol, ul { padding: 0; list-style: none; }
@@ -753,6 +753,66 @@ a.rx-stat:hover { border-color: var(--rx-line-strong); }
 .rx-palette-help { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 6px; margin-left: -6px; border: 0; border-radius: var(--rx-radius-sm); background: none; font-size: 12px; color: var(--rx-ink-3); white-space: nowrap; }
 .rx-palette-help:hover { background: var(--rx-hover); color: var(--rx-ink); }
 .rx-palette-help .rx-kbd { font-size: 10.5px; color: var(--rx-ink-2); background: var(--rx-card); padding: 0 4px; }
+
+/* ── Descriptor source: the top bar chip and the "Open a descriptor" dialog ── */
+
+.rx-source-chip {
+  display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 9px 0 8px; flex-shrink: 0;
+  border: 1px solid var(--rx-line-strong); border-radius: var(--rx-radius-pill); background: transparent;
+  font-size: 12px; font-weight: 600; color: var(--rx-ink-2); white-space: nowrap; max-width: 260px;
+  transition: background var(--rx-duration-fast) var(--rx-ease), border-color var(--rx-duration-fast) var(--rx-ease);
+}
+.rx-source-chip:hover { background: var(--rx-hover); color: var(--rx-ink); }
+.rx-source-chip:focus-visible { border-radius: var(--rx-radius-pill); }
+.rx-source-chip .rx-source-chip-text { overflow: hidden; text-overflow: ellipsis; }
+.rx-source-chip-file .rx-source-chip-text { font-family: var(--rx-font-code); font-weight: 500; }
+.rx-source-chip-url, .rx-source-chip-file { color: var(--rx-accent); background: var(--rx-accent-soft); border-color: transparent; }
+.rx-source-chip-url:hover, .rx-source-chip-file:hover { background: var(--rx-accent-soft); color: var(--rx-accent); border-color: var(--rx-accent); }
+.rx-source-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--rx-success); box-shadow: 0 0 0 3px var(--rx-success-soft); flex-shrink: 0; }
+
+.rx-input {
+  height: var(--rx-control-md); padding: 0 12px; min-width: 0; flex-grow: 1;
+  background: var(--rx-card); border: 1px solid var(--rx-line-strong); border-radius: var(--rx-radius-md);
+  font: 400 13.5px var(--rx-font-ui); color: var(--rx-ink); caret-color: var(--rx-accent);
+}
+.rx-input::placeholder { color: var(--rx-ink-3); }
+.rx-input:hover { border-color: var(--rx-edge); }
+.rx-input:focus-visible { border-radius: var(--rx-radius-md); border-color: var(--rx-accent); }
+
+.rx-source { padding: 0; border: 0; background: transparent; max-width: none; max-height: none; width: 100vw; height: 100vh; height: 100dvh; margin: 0; inset: 0; display: none; }
+.rx-source[open] { display: flex; justify-content: center; align-items: flex-start; padding-top: 96px; }
+.rx-source::backdrop { background: rgba(48, 21, 73, 0.32); }
+:root[data-theme="dark"] .rx-source::backdrop { background: rgba(0, 0, 0, 0.5); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .rx-source::backdrop { background: rgba(0, 0, 0, 0.5); } }
+.rx-source-box {
+  width: 600px; max-width: calc(100vw - 48px); max-height: calc(100vh - 140px); background: var(--rx-card); border: 1px solid var(--rx-line);
+  border-radius: var(--rx-radius-xl); box-shadow: var(--rx-shadow-3); overflow: hidden; display: flex; flex-direction: column;
+}
+.rx-source-head { display: flex; align-items: center; gap: 14px; padding: 18px 24px 16px; border-bottom: 1px solid var(--rx-line); flex-shrink: 0; }
+.rx-source-head h2 { flex-grow: 1; }
+.rx-source-body { display: flex; flex-direction: column; gap: 22px; padding: 20px 24px 24px; overflow-y: auto; min-height: 0; }
+.rx-source-intro { font-size: 13.5px; line-height: 1.5; color: var(--rx-ink-2); }
+.rx-source-section { display: flex; flex-direction: column; gap: 10px; }
+.rx-source-row { display: flex; gap: 10px; }
+.rx-source-section .rx-small { font-size: 12px; }
+.rx-source-section .rx-small .rx-mono { font-size: 11.5px; font-weight: 500; color: var(--rx-ink-2); overflow-wrap: anywhere; }
+.rx-dropzone {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;
+  padding: 22px 20px 20px; border: 1.5px dashed var(--rx-line-strong); border-radius: var(--rx-radius-lg); background: var(--rx-sunken);
+  color: var(--rx-ink-3); cursor: pointer; transition: border-color var(--rx-duration-fast) var(--rx-ease), background var(--rx-duration-fast) var(--rx-ease);
+}
+.rx-dropzone:hover, .rx-dropzone-over { border-color: var(--rx-accent); background: var(--rx-accent-soft); color: var(--rx-accent); }
+.rx-dropzone:focus-within { box-shadow: var(--rx-focus-ring); border-color: var(--rx-accent); }
+.rx-dropzone-text { font-size: 13.5px; color: var(--rx-ink-2); }
+.rx-dropzone-text strong { font-weight: 600; color: var(--rx-ink); }
+.rx-dropzone .rx-small { max-width: 420px; }
+.rx-source-problem { width: 100%; }
+.rx-source-foot { display: flex; align-items: center; gap: 12px; padding: 12px 24px; background: var(--rx-sunken); border-top: 1px solid var(--rx-line); font-size: 12.5px; color: var(--rx-ink-3); flex-shrink: 0; min-width: 0; }
+.rx-source-foot > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rx-source-foot strong { font-weight: 600; color: var(--rx-ink-2); }
+.rx-source-foot-url { font-size: 11.5px; color: var(--rx-ink-3); }
+.rx-state-actions .rx-btn-ghost { margin-left: -10px; }
+
 /* ── Hover card, tooltip, toast ─────────────────────────────────────────── */
 
 .rx-hovercard {

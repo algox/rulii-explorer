@@ -3,11 +3,16 @@ import {RxElement} from '../../components/base.js';
 import {arcs, icon} from '../../components/icons.js';
 import {copyText} from '../../components/common.js';
 import {routes} from '../../routing/router.js';
-import {descriptorUrl} from '../../descriptor/loader.js';
+import {externalSourcesAllowed, sourceLabel} from '../../descriptor/source.js';
+import {openApplication} from '../../boot.js';
 
 const EXPOSURE = '# application.properties\nmanagement.endpoints.web.exposure.include=rulii';
 
-/** Loading, empty and failure states (S-Loading, S-States). The shell stays; the content area explains and offers one next step. */
+/**
+ * Loading, empty and failure states (S-Loading, S-States). The shell stays; the content area
+ * explains and offers one next step. The copy follows the source: the application's own endpoint,
+ * an address elsewhere, or a file.
+ */
 class RxStates extends RxElement {
 
     static properties = {kind: {type: String}};
@@ -22,8 +27,27 @@ class RxStates extends RxElement {
             case 'failed': return this.failed();
             case 'unreachable': return this.unreachable();
             case 'unsupported': return this.unsupported();
+            case 'pick-source': return this.pickSource();
             default: return this.missing();
         }
+    }
+
+    get source() {
+        return this.state.source || {kind: 'application'};
+    }
+
+    /** The address being read: the path for the application's own endpoint, the whole URL elsewhere. */
+    address() {
+        const s = this.source;
+        if (s.kind === 'url') return s.url;
+        return pathOf(s.url || '/actuator/rulii');
+    }
+
+    /** "Open another descriptor" and, away from the application, "Back to this application". */
+    sourceActions() {
+        if (!externalSourcesAllowed()) return nothing;
+        return html`<button type="button" class="rx-btn rx-btn-ghost" @click=${() => this.store.set({sourceOpen: true})}>Open another descriptor</button>
+            ${this.source.kind !== 'application' ? html`<button type="button" class="rx-btn rx-btn-ghost" @click=${() => openApplication()}>Back to this application</button>` : nothing}`;
     }
 
     loading() {
@@ -73,13 +97,28 @@ class RxStates extends RxElement {
                 <div class="rx-state-actions">
                     <a class="rx-link rx-link-arrow" href="https://www.rulii.org" target="_blank" rel="noopener">Read the getting-started guide${icon('arrowRight', {size: 14})}</a>
                     <button type="button" class="rx-btn rx-btn-secondary" @click=${() => location.reload()}>Reload</button>
+                    ${this.sourceActions()}
                 </div>
             </div>
         </div>`;
     }
 
     notExposed() {
-        const url = pathOf(descriptorUrl());
+        const url = this.address();
+        if (this.source.kind === 'url') {
+            return html`<div class="rx-state rx-state-center" style="align-items: flex-start">
+                <span class="rx-state-icon rx-state-icon-warning">${icon('warning', {size: 19})}</span>
+                <div class="rx-state-body">
+                    <h2 class="rx-h-sm">Nothing at this address</h2>
+                    <p><span class="rx-mono">${url}</span> answered 404. Check the address; a descriptor is usually at <span class="rx-mono">/actuator/rulii</span> of an application.</p>
+                    <p class="rx-small">If that is the right application, it doesn’t expose the endpoint yet: add <span class="rx-mono">rulii</span> to its <span class="rx-mono">management.endpoints.web.exposure.include</span>.</p>
+                    <div class="rx-state-actions">
+                        <button type="button" class="rx-btn rx-btn-secondary" @click=${() => location.reload()}>Reload</button>
+                        ${this.sourceActions()}
+                    </div>
+                </div>
+            </div>`;
+        }
         return html`<div class="rx-state rx-state-center" style="align-items: flex-start">
             <span class="rx-state-icon rx-state-icon-warning">${icon('warning', {size: 19})}</span>
             <div class="rx-state-body">
@@ -91,13 +130,28 @@ class RxStates extends RxElement {
                 <div class="rx-state-actions">
                     <button type="button" class="rx-btn rx-btn-secondary" @click=${() => location.reload()}>Reload</button>
                     <a class="rx-link" href="https://docs.spring.io/spring-boot/reference/actuator/endpoints.html#actuator.endpoints.exposing" target="_blank" rel="noopener">How endpoint exposure works</a>
+                    ${this.sourceActions()}
                 </div>
             </div>
         </div>`;
     }
 
     signIn(forbidden) {
-        const url = pathOf(descriptorUrl());
+        const url = this.address();
+        if (this.source.kind === 'url') {
+            return html`<div class="rx-state rx-state-center" style="align-items: flex-start">
+                <span class="rx-state-icon rx-state-icon-lock">${icon('lock', {size: 18})}</span>
+                <div class="rx-state-body">
+                    <h2 class="rx-h-sm">This address needs a sign-in</h2>
+                    <p><span class="rx-mono">${url}</span> answered HTTP ${forbidden ? 403 : 401}. The explorer sends no credentials to another origin, so a protected endpoint can’t be read from here.</p>
+                    <p class="rx-small">Open that application’s own explorer instead, or save its descriptor as a file (<span class="rx-mono">curl -u … ${url} &gt; rules.json</span>) and open the file here.</p>
+                    <div class="rx-state-actions">
+                        <button type="button" class="rx-btn rx-btn-secondary" @click=${() => location.reload()}>Reload</button>
+                        ${this.sourceActions()}
+                    </div>
+                </div>
+            </div>`;
+        }
         return html`<div class="rx-state rx-state-center" style="align-items: flex-start">
             <span class="rx-state-icon rx-state-icon-lock">${icon('lock', {size: 18})}</span>
             <div class="rx-state-body">
@@ -107,6 +161,7 @@ class RxStates extends RxElement {
                 <div class="rx-state-actions">
                     <button type="button" class="rx-btn rx-btn-primary" @click=${() => location.reload()}>Reload</button>
                     <a class="rx-link" href="https://docs.spring.io/spring-boot/reference/actuator/endpoints.html#actuator.endpoints.security" target="_blank" rel="noopener">Securing the explorer</a>
+                    ${this.sourceActions()}
                 </div>
             </div>
         </div>`;
@@ -114,26 +169,66 @@ class RxStates extends RxElement {
 
     failed() {
         const e = this.state.error || {};
+        const s = this.source;
+        let heading = 'The rule descriptor couldn’t be built';
+        let text = html`The application answered${e.httpStatus ? ' with HTTP ' + e.httpStatus : ''}, but describing its rules failed. The application itself is unaffected; the message below comes from it.`;
+        if (s.kind === 'file') {
+            heading = 'This file isn’t a rule descriptor';
+            text = html`<span class="rx-mono">${s.name}</span> could not be read as a descriptor. It should be the JSON an application serves at <span class="rx-mono">/actuator/rulii</span>, or the file <span class="rx-mono">RuliiDescriptors.write</span> produces.`;
+        } else if (s.kind === 'url' && e.httpStatus && e.httpStatus < 400) {
+            heading = 'This address isn’t a rule descriptor';
+            text = html`<span class="rx-mono">${s.url}</span> answered, but not with a rule descriptor. The beginning of the response is below.`;
+        } else if (s.kind === 'url') {
+            text = html`<span class="rx-mono">${s.url}</span> answered${e.httpStatus ? ' with HTTP ' + e.httpStatus : ''}, but describing its rules failed. The message below comes from that application.`;
+        }
         return html`<div class="rx-state rx-state-center" style="align-items: flex-start">
             <span class="rx-state-icon rx-state-icon-error">${icon('error', {size: 19})}</span>
             <div class="rx-state-body">
-                <h2 class="rx-h-sm">The rule descriptor couldn’t be built</h2>
-                <p>The application answered${e.httpStatus ? ' with HTTP ' + e.httpStatus : ''}, but describing its rules failed. The application itself is unaffected; the message below comes from it.</p>
+                <h2 class="rx-h-sm">${heading}</h2>
+                <p>${text}</p>
                 ${e.detail ? html`<div class="rx-code-block"><code class="rx-code">${e.detail}</code></div>` : nothing}
-                <div class="rx-state-actions"><button type="button" class="rx-btn rx-btn-secondary" @click=${() => location.reload()}>Reload</button></div>
+                <div class="rx-state-actions">
+                    ${s.kind === 'file' ? nothing : html`<button type="button" class="rx-btn rx-btn-secondary" @click=${() => location.reload()}>Reload</button>`}
+                    ${this.sourceActions()}
+                </div>
             </div>
         </div>`;
     }
 
     unreachable() {
         const e = this.state.error || {};
+        const url = this.address();
+        if (e.crossOrigin) {
+            const origin = location.origin;
+            const cors = '# application.properties of the application at ' + hostOf(url) + '\nmanagement.endpoints.web.cors.allowed-origins=' + origin;
+            return html`<div class="rx-state rx-state-center" style="align-items: flex-start">
+                <span class="rx-state-icon rx-state-icon-error">${icon('error', {size: 19})}</span>
+                <div class="rx-state-body">
+                    <h2 class="rx-h-sm">The address didn’t answer</h2>
+                    <p>The browser could not read <span class="rx-mono">${url}</span> from this page. ${e.mixedContent
+                        ? html`This page is secure (https) and the address is not, which browsers refuse. Use an https address, or save the descriptor as a file and open it here.`
+                        : html`Either nothing is listening there, or the application at the other end does not allow this origin to read it. An Actuator endpoint allows it with:`}</p>
+                    ${e.mixedContent ? nothing : html`<div class="rx-code-block"><code class="rx-code"><span class="rx-c-cm"># application.properties of the application at ${hostOf(url)}</span>\n<span class="rx-c-fn">management.endpoints.web.cors.allowed-origins</span><span class="rx-c-kw">=</span><span class="rx-c-str">${origin}</span></code>
+                        <button type="button" class="rx-copy-btn" aria-label="Copy configuration" @click=${() => copyText(cors, 'Configuration copied')}>${icon('copy', {size: 12})}Copy</button></div>
+                    <p class="rx-small">A descriptor saved as a JSON file needs the same from the server hosting it (an <span class="rx-mono">Access-Control-Allow-Origin</span> header), or open the file from this machine instead.</p>`}
+                    ${e.detail ? html`<p class="rx-small rx-mono">${e.detail}</p>` : nothing}
+                    <div class="rx-state-actions">
+                        <button type="button" class="rx-btn rx-btn-secondary" @click=${() => location.reload()}>Reload</button>
+                        ${this.sourceActions()}
+                    </div>
+                </div>
+            </div>`;
+        }
         return html`<div class="rx-state rx-state-center" style="align-items: flex-start">
             <span class="rx-state-icon rx-state-icon-error">${icon('error', {size: 19})}</span>
             <div class="rx-state-body">
                 <h2 class="rx-h-sm">The application didn’t answer</h2>
-                <p>The explorer could not reach <span class="rx-mono">${pathOf(descriptorUrl())}</span>. The application may be starting, stopped, or behind a proxy that blocks the request.</p>
+                <p>The explorer could not reach <span class="rx-mono">${url}</span>. The application may be starting, stopped, or behind a proxy that blocks the request.</p>
                 ${e.detail ? html`<p class="rx-small rx-mono">${e.detail}</p>` : nothing}
-                <div class="rx-state-actions"><button type="button" class="rx-btn rx-btn-secondary" @click=${() => location.reload()}>Reload</button></div>
+                <div class="rx-state-actions">
+                    <button type="button" class="rx-btn rx-btn-secondary" @click=${() => location.reload()}>Reload</button>
+                    ${this.sourceActions()}
+                </div>
             </div>
         </div>`;
     }
@@ -145,7 +240,26 @@ class RxStates extends RxElement {
             <div class="rx-state-body">
                 <h2 class="rx-h-sm">This descriptor is newer than the explorer</h2>
                 <p>${e.message || 'The descriptor version is not supported.'} Upgrade the explorer UI to match the application.</p>
-                <div class="rx-state-actions"><button type="button" class="rx-btn rx-btn-secondary" @click=${() => location.reload()}>Reload</button></div>
+                <div class="rx-state-actions">
+                    <button type="button" class="rx-btn rx-btn-secondary" @click=${() => location.reload()}>Reload</button>
+                    ${this.sourceActions()}
+                </div>
+            </div>
+        </div>`;
+    }
+
+    /** After a reload with a file as the source: the file is gone with the page, its name is known. */
+    pickSource() {
+        const name = sourceLabel(this.source);
+        return html`<div class="rx-state rx-state-center" style="align-items: flex-start">
+            <span class="rx-state-icon rx-state-icon-lock">${icon('file', {size: 18})}</span>
+            <div class="rx-state-body">
+                <h2 class="rx-h-sm">Open <span class="rx-mono" style="font-size: 18px">${name}</span> again</h2>
+                <p>You were looking at a descriptor file. A file opened from this machine stays in the browser tab only, so after a reload the explorer needs it once more.</p>
+                <div class="rx-state-actions">
+                    <button type="button" class="rx-btn rx-btn-primary" @click=${() => this.store.set({sourceOpen: true})}>${icon('upload', {size: 14, width: 2})}Choose the file</button>
+                    <button type="button" class="rx-btn rx-btn-secondary" @click=${() => openApplication()}>Back to this application</button>
+                </div>
             </div>
         </div>`;
     }
@@ -164,6 +278,10 @@ class RxStates extends RxElement {
 
 function pathOf(url) {
     try { return new URL(url).pathname; } catch (e) { return url; }
+}
+
+function hostOf(url) {
+    try { return new URL(url).host; } catch (e) { return url; }
 }
 
 customElements.define('rx-states', RxStates);

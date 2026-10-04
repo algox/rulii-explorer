@@ -132,6 +132,6 @@ public class RuliiExplorerAutoConfiguration {
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = "rulii.explorer.ui", name = "enabled", havingValue = "true", matchIfMissing = true)
     public UiPage ruliiExplorerUiPage(RuliiExplorerProperties properties) {
-        return UiPage.forVersion(properties.getUi().getPath());
+        return UiPage.forVersion(properties.getUi().getPath(), properties.getUi().isExternalSources());
     }
 }

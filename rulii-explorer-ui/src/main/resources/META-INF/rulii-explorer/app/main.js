@@ -7,6 +7,7 @@ import './features/shell/topbar.js';
 import './features/shell/sidebar.js';
 import './features/shell/palette.js';
 import './features/shell/help.js';
+import './features/shell/source.js';
 import './features/shell/hovercard.js';
 import './features/overview/overview.js';
 import './features/problems/problems.js';
@@ -19,25 +20,14 @@ import './features/states/states.js';
 
 import {store} from './state/store.js';
 import {startRouter} from './routing/router.js';
-import {loadDescriptor} from './descriptor/loader.js';
-import {buildIndex} from './descriptor/indexes.js';
-import {buildSearch} from './search/search.js';
+import {boot, openApplication, openFile, openUrl} from './boot.js';
 
 store.applyTheme(store.state.theme);
 startRouter(store);
 
-/** A hook for the browser tests and the console: the store and its indexes. */
-globalThis.__rx = {store};
+/** A hook for the browser tests and the console: the store and the source switches. */
+globalThis.__rx = {store, boot, openUrl, openFile, openApplication};
 
-export async function boot() {
-    const result = await loadDescriptor();
-    if (result.descriptor && result.status !== 'unsupported') {
-        const index = buildIndex(result.descriptor);
-        const search = buildSearch(result.descriptor, index);
-        store.set({status: result.status, descriptor: result.descriptor, index, search, error: null});
-    } else {
-        store.set({status: result.status, descriptor: result.descriptor || null, index: null, search: null, error: result.error || null});
-    }
-}
+export {boot};
 
 boot();

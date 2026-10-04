@@ -90,6 +90,31 @@ binding paths. Results are grouped by type with the match underlined; `Tab` cycl
 filter, `↑` `↓` move, `↵` opens, `Esc` closes. Camel-case prefixes work: `ordervalidation` finds
 `orderValidationRules`.
 
+## Opening another descriptor
+
+![The Open a descriptor dialog](guide/source.png)
+
+The chip next to the application name in the top bar says where the rules come from: **Live**
+is this application's own descriptor. Click it (or choose *open a descriptor* in the search
+footer) to look at something else:
+
+- **Another application's descriptor, by address.** Enter its `/actuator/rulii` address. The
+  explorer fetches it from your browser, so the other application has to allow this origin to
+  read it: `management.endpoints.web.cors.allowed-origins=https://where-this-explorer-runs`.
+  No sign-in travels with the request, so a protected endpoint has to be saved as a file instead.
+  The chip then names the host, and the address carries the choice:
+  `/rulii?descriptor=https://staging:8080/actuator/rulii#/rule/MinTotalRule`, so it reloads and
+  can be shared.
+- **A descriptor saved as a JSON file**, from any address that allows cross-origin reads, the
+  same way.
+- **A file from your machine.** Choose it in the dialog or drop it anywhere on the page. It stays
+  in this browser tab; after a reload the explorer asks for it again.
+
+**Back to this application** in the dialog returns to the live descriptor. Everything else works
+the same with any source. The application can turn the feature off with
+`rulii.explorer.ui.external-sources=false`; the chip is then absent and the address parameter is
+ignored.
+
 ## Keyboard
 
 | Keys | What happens |
@@ -119,6 +144,7 @@ Every screen has an address that survives a reload and can be pasted into a revi
 | `#/graph?selected={id}` | The whole application with one artifact selected |
 | `#/binding/{name}` | A binding |
 | `#/package/{id}` | A package |
+| `?descriptor={url}#/…` | Any screen, read from another application's descriptor or a saved JSON at that address (before the `#`) |
 
 Step addresses follow the flow's structure: `commands[1]` is the second top-level step,
 `commands[1].body[0]` the first step inside it, `commands[6].then[0]` the first step of a WHEN's
@@ -234,6 +260,20 @@ description in the builder.
 - **No rules yet**: the registry is empty. Rules appear as soon as the application defines some;
   with XML, check that `@RuleScan(xmlLocations = …)` points at the files.
 - **Nothing here**: the address names an artifact that no longer exists under that id.
+
+When the descriptor comes from another address, the messages name that address instead:
+
+- **Nothing at this address**: it answered 404. Check the address, or expose `rulii` there.
+- **This address needs a sign-in**: it answered 401 or 403. The explorer sends no credentials to
+  another origin; use that application's own explorer, or save the descriptor as a file and open
+  the file.
+- **The address didn't answer**: nothing is listening, the other application does not allow this
+  origin (the message shows the `management.endpoints.web.cors.allowed-origins` line to add), or
+  a secure page tried to read a plain-http address.
+- **This address isn't a rule descriptor**: it answered with something else, shown below the
+  message.
+- **This file isn't a rule descriptor** / **Open `file` again**: the file could not be read as a
+  descriptor, or the page was reloaded and the file has to be chosen again.
 
 ## The JSON behind it
 

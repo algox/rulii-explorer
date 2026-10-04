@@ -35,7 +35,9 @@ import java.util.regex.Pattern;
  *   <li>assets move under the versioned path {@code {contextPath}{uiPath}/{version}/}, which
  *   lets them be cached for a year, since every explorer release changes the path;</li>
  *   <li>the {@code rulii-descriptor} meta tag points at the Actuator endpoint, context path and
- *   base path included (NFR-11).</li>
+ *   base path included (NFR-11);</li>
+ *   <li>the {@code rulii-sources} meta tag says whether the UI may also show a descriptor from
+ *   another address or a file ({@code any}), or only this application's ({@code application}).</li>
  * </ul>
  *
  * @author Max Arulananthan
@@ -49,28 +51,52 @@ public final class UiPage {
     public static final String DEFAULT_PATH = "/rulii";
 
     private static final Pattern META = Pattern.compile("<meta name=\"rulii-descriptor\" content=\"[^\"]*\">");
+    private static final Pattern SOURCES_META = Pattern.compile("<meta name=\"rulii-sources\" content=\"[^\"]*\">");
     private static final Pattern VERSION_SAFE = Pattern.compile("[A-Za-z0-9._-]+");
 
     private final String path;
     private final String version;
     private final String segment;
+    private final boolean externalSources;
     private final String template;
 
     /**
+     * A page that may also show descriptors from elsewhere.
+     *
      * @param uiPath  where the UI is served, e.g. {@code /rulii}; normalised to a leading slash and no trailing slash.
      * @param version the explorer version used in the asset path; sanitised to {@code [A-Za-z0-9._-]}, {@code dev} when unknown.
      */
     public UiPage(String uiPath, String version) {
+        this(uiPath, version, true);
+    }
+
+    /**
+     * @param uiPath          where the UI is served, e.g. {@code /rulii}; normalised to a leading slash and no trailing slash.
+     * @param version         the explorer version used in the asset path; sanitised to {@code [A-Za-z0-9._-]}, {@code dev} when unknown.
+     * @param externalSources whether the UI may show a descriptor from another address or a file ({@code rulii.explorer.ui.external-sources}).
+     */
+    public UiPage(String uiPath, String version, boolean externalSources) {
         super();
         this.path = normalisePath(uiPath);
         this.version = version != null && VERSION_SAFE.matcher(version).matches() ? version : "dev";
         this.segment = this.version.endsWith("-SNAPSHOT") || this.version.equals("dev") ? this.version + "-" + fingerprint() : this.version;
+        this.externalSources = externalSources;
         this.template = load();
     }
 
     /** The UI with the explorer's own version. */
     public static UiPage forVersion(String uiPath) {
         return new UiPage(uiPath, Explorer.version());
+    }
+
+    /** The UI with the explorer's own version and the external-sources choice. */
+    public static UiPage forVersion(String uiPath, boolean externalSources) {
+        return new UiPage(uiPath, Explorer.version(), externalSources);
+    }
+
+    /** Whether the page may show a descriptor from another address or a file. */
+    public boolean externalSources() {
+        return externalSources;
     }
 
     /** The UI path: {@code /rulii}. */
@@ -111,7 +137,8 @@ public final class UiPage {
     public String render(String contextPath, String descriptorPath) {
         String base = assetsBase(contextPath) + "/";
         String html = template.replace("\"./", "\"" + base);
-        return META.matcher(html).replaceFirst("<meta name=\"rulii-descriptor\" content=\"" + descriptorPath + "\">");
+        html = META.matcher(html).replaceFirst("<meta name=\"rulii-descriptor\" content=\"" + descriptorPath + "\">");
+        return SOURCES_META.matcher(html).replaceFirst("<meta name=\"rulii-sources\" content=\"" + (externalSources ? "any" : "application") + "\">");
     }
 
     /** {@code "rulii/"} → {@code "/rulii"}; null or blank → the default. */

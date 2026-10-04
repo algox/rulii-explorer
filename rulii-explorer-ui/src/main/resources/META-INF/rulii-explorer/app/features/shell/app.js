@@ -1,14 +1,27 @@
 import {html} from 'lit';
 import {RxElement, keyIsFree} from '../../components/base.js';
+import {externalSourcesAllowed} from '../../descriptor/source.js';
+import {openFile} from '../../boot.js';
 
 /**
  * The shell: top bar, sidebar and the content area, which shows the screen for the current
  * route, or one of the designed states while the descriptor is loading or unavailable.
+ * A descriptor file dropped anywhere on the page opens it.
  */
 class RxApp extends RxElement {
 
     connectedCallback() {
         super.connectedCallback();
+        this.onDrag = (e) => {
+            if (!externalSourcesAllowed() || !e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes('Files')) return;
+            e.preventDefault();
+            if (e.type === 'drop') {
+                const file = e.dataTransfer.files && e.dataTransfer.files[0];
+                if (file && /\.json$/i.test(file.name)) openFile(file);
+            }
+        };
+        addEventListener('dragover', this.onDrag);
+        addEventListener('drop', this.onDrag);
         this.onKey = (e) => {
             const typing = !keyIsFree(e);
             if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
@@ -28,6 +41,8 @@ class RxApp extends RxElement {
     disconnectedCallback() {
         super.disconnectedCallback();
         removeEventListener('keydown', this.onKey);
+        removeEventListener('dragover', this.onDrag);
+        removeEventListener('drop', this.onDrag);
     }
 
     updated() {
@@ -64,6 +79,7 @@ class RxApp extends RxElement {
             </div>
             <rx-palette></rx-palette>
             <rx-help></rx-help>
+            <rx-source></rx-source>
             <rx-hovercard></rx-hovercard>`;
     }
 

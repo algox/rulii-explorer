@@ -4,6 +4,7 @@ import {glyph, icon} from '../../components/icons.js';
 import {routes, navigate} from '../../routing/router.js';
 import {markRanges, plainTokens, mark} from '../../components/expression.js';
 import {identifierWords, joinWords} from '../../descriptor/format.js';
+import {externalSourcesAllowed} from '../../descriptor/source.js';
 
 const TYPE_CYCLE = [null, 'rule', 'ruleset', 'ruleflow', 'binding'];
 const TYPE_NAMES = {rule: 'rules', ruleset: 'rule sets', ruleflow: 'rule flows', binding: 'bindings'};
@@ -97,6 +98,7 @@ class RxPalette extends RxElement {
                     <span><kbd class="rx-kbd">tab</kbd>filter by type</span>
                     <span><kbd class="rx-kbd">esc</kbd>close</span>
                     <button type="button" class="rx-palette-help" @click=${() => this.store.set({paletteOpen: false, helpOpen: true})}><kbd class="rx-kbd">?</kbd>help</button>
+                    ${externalSourcesAllowed() ? html`<button type="button" class="rx-palette-help" @click=${() => this.store.set({paletteOpen: false, sourceOpen: true})}>${icon('globe', {size: 12, width: 2})}open a descriptor</button>` : nothing}
                     <span class="rx-spacer"></span>
                     <span>Names, conditions, error codes and bindings</span>
                 </div>

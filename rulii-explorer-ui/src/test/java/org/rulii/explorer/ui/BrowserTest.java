@@ -34,6 +34,7 @@ import org.junit.jupiter.api.TestFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -66,18 +67,29 @@ class BrowserTest {
 
     private static HttpServer server;
     private static String base;
+    /** A second server on another port: "another application", so the cross-origin paths are real. */
+    private static HttpServer remoteServer;
+    private static String remote;
     private static Playwright playwright;
     private static Browser browser;
     private static String golden;
+    private static String staging;
 
     @BeforeAll
     static void start() throws IOException {
         golden = Files.readString(GOLDEN);
+        staging = golden.replace("\"name\": \"order-service\"", "\"name\": \"order-service (staging)\"");
+        assertNotEquals(golden, staging, "the remote descriptor is recognisable by its application name");
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/", BrowserTest::handle);
         server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
         server.start();
         base = "http://127.0.0.1:" + server.getAddress().getPort();
+        remoteServer = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        remoteServer.createContext("/", BrowserTest::handleRemote);
+        remoteServer.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
+        remoteServer.start();
+        remote = "http://127.0.0.1:" + remoteServer.getAddress().getPort();
         playwright = Playwright.create();
         browser = playwright.chromium().launch();
         Files.createDirectories(OUT);
@@ -88,6 +100,79 @@ class BrowserTest {
         if (browser != null) browser.close();
         if (playwright != null) playwright.close();
         if (server != null) server.stop(0);
+        if (remoteServer != null) remoteServer.stop(0);
+    }
+
+    private static String withDescriptor(String url, String route) {
+        return "?descriptor=" + URLEncoder.encode(url, StandardCharsets.UTF_8) + "#" + route;
+    }
+
+    @Test
+    void sourceSwitching() {
+        try (BrowserContext context = browser.newContext(new Browser.NewContextOptions().setViewportSize(1440, 900))) {
+            Page page = context.newPage();
+            List<String> errors = watch(page);
+            // The chip says the descriptor is live; the dialog opens from it and from the palette
+            page.navigate(base + "/case/ok/#/");
+            page.waitForSelector(".rx-stats");
+            assertEquals("Live", page.textContent(".rx-source-chip-text").trim());
+            page.click(".rx-source-chip");
+            page.waitForSelector(".rx-source[open]");
+            page.keyboard().press("Escape");
+            page.waitForFunction("() => !document.querySelector('.rx-source').open");
+            page.keyboard().press("Control+k");
+            page.waitForSelector(".rx-palette[open]");
+            page.click(".rx-palette-foot .rx-palette-help:has-text('open a descriptor')");
+            page.waitForSelector(".rx-source[open]");
+            // A bad address is refused in place
+            page.fill("#rx-source-url", "nope");
+            page.click(".rx-source button[type=submit]");
+            page.waitForSelector(".rx-source-problem");
+            // A remote Actuator with CORS: the address carries it, the chip names the host, the page shows its rules
+            page.fill("#rx-source-url", remote + "/cors/descriptor");
+            page.click(".rx-source button[type=submit]");
+            page.waitForFunction("() => document.querySelector('.rx-app-name span') && document.querySelector('.rx-app-name span').textContent.includes('(staging)')");
+            assertTrue(page.url().contains("?descriptor=" + URLEncoder.encode(remote + "/cors/descriptor", StandardCharsets.UTF_8)), page.url());
+            assertTrue(page.url().endsWith("#/"), "a switch starts at the overview: " + page.url());
+            assertEquals(remote.substring("http://".length()), page.textContent(".rx-source-chip-text").trim());
+            // A reload keeps it
+            page.reload();
+            page.waitForSelector(".rx-stats");
+            assertTrue(page.textContent(".rx-app-name").contains("(staging)"));
+            // Back to the application clears the address
+            page.click(".rx-source-chip");
+            page.waitForSelector(".rx-source[open]");
+            page.click(".rx-source-foot button");
+            page.waitForFunction("() => document.querySelector('.rx-app-name span') && document.querySelector('.rx-app-name span').textContent.trim() === 'order-service'");
+            assertFalse(page.url().contains("descriptor="), page.url());
+            // A file from this machine: the chip shows its name, a reload asks for it again, choosing it again restores the page
+            page.click(".rx-source-chip");
+            page.waitForSelector(".rx-source[open]");
+            page.setInputFiles(".rx-source input[type=file]", GOLDEN);
+            page.waitForSelector(".rx-source-chip-file");
+            page.waitForSelector(".rx-stats");
+            assertEquals("order-service.json", page.textContent(".rx-source-chip-text").trim());
+            page.reload();
+            page.waitForSelector(".rx-state");
+            assertTrue(page.textContent(".rx-state h2").contains("order-service.json"), page.textContent(".rx-state h2"));
+            page.click(".rx-state .rx-btn-primary");
+            page.waitForSelector(".rx-source[open]");
+            page.setInputFiles(".rx-source input[type=file]", GOLDEN);
+            page.waitForSelector(".rx-stats");
+            // A dropped file opens too
+            page.evaluate("async () => { const text = await (await fetch('/case/empty/descriptor')).text(); const dt = new DataTransfer(); dt.items.add(new File([text], 'empty.json', {type: 'application/json'})); "
+                    + "window.dispatchEvent(new DragEvent('drop', {dataTransfer: dt, bubbles: true, cancelable: true})); }");
+            page.waitForSelector(".rx-state");
+            assertEquals("empty.json", page.textContent(".rx-source-chip-text").trim());
+            page.click(".rx-state .rx-btn-ghost:has-text('Back to this application')");
+            page.waitForSelector(".rx-stats");
+            // A locked page has no chip and ignores the address
+            page.navigate(base + "/case/locked/" + withDescriptor(remote + "/cors/descriptor", "/"));
+            page.waitForSelector(".rx-stats");
+            assertEquals(0, page.locator(".rx-source-chip").count(), "no chip when the page allows only its own descriptor");
+            assertEquals("order-service", page.textContent(".rx-app-name span").trim());
+            assertEquals(List.of(), errors, "console errors");
+        }
     }
 
     @Test
@@ -213,7 +298,15 @@ class BrowserTest {
                 screen("state-failed", "failed", "", ".rx-state", false),
                 screen("state-partial", "partial", "", ".rx-note-warning", false),
                 screen("state-partial-rule", "partial", "/rule/StockAvailableRule", ".rx-undescribed-card", false),
-                screen("missing", "ok", "/rule/Nope", ".rx-state", false)
+                screen("missing", "ok", "/rule/Nope", ".rx-state", false),
+                screen("source-dialog", "ok", "", ".rx-stats", true, p -> { p.click(".rx-source-chip"); p.waitForSelector(".rx-source[open]"); }),
+                screen("source-remote", "ok", withDescriptor(remote + "/cors/descriptor", "/"), ".rx-stats", true),
+                screen("source-file", "ok", "", ".rx-stats", false, p -> { p.click(".rx-source-chip"); p.waitForSelector(".rx-source[open]"); p.setInputFiles(".rx-source input[type=file]", GOLDEN); p.waitForSelector(".rx-source-chip-file"); p.waitForSelector(".rx-stats"); }),
+                screen("state-file-again", "ok", "", ".rx-stats", false, p -> { p.click(".rx-source-chip"); p.waitForSelector(".rx-source[open]"); p.setInputFiles(".rx-source input[type=file]", GOLDEN); p.waitForSelector(".rx-source-chip-file"); p.reload(); p.waitForSelector(".rx-state"); }),
+                screen("state-remote-missing", "ok", withDescriptor(remote + "/cors/missing", "/"), ".rx-state", false),
+                screen("state-remote-sign-in", "ok", withDescriptor(remote + "/cors/unauthorized", "/"), ".rx-state", false),
+                screen("state-remote-not-descriptor", "ok", withDescriptor(remote + "/cors/page", "/"), ".rx-state", false),
+                screen("state-cors", "ok", withDescriptor(remote + "/nocors/descriptor", "/"), ".rx-state", false)
         ).flatMap(s -> s);
     }
 
@@ -237,7 +330,7 @@ class BrowserTest {
                 .setViewportSize(1440, 900).setDeviceScaleFactor(1).setColorScheme(dark ? ColorScheme.DARK : ColorScheme.LIGHT))) {
             Page page = context.newPage();
             List<String> errors = watch(page);
-            page.navigate(base + "/case/" + scenario + "/#" + route);
+            page.navigate(base + "/case/" + scenario + "/" + (route.startsWith("?") ? route : "#" + route));
             page.waitForSelector(waitFor, new Page.WaitForSelectorOptions().setTimeout(15000));
             if (action != null) action.run(page);
             page.evaluate("() => document.fonts.ready");
@@ -285,7 +378,7 @@ class BrowserTest {
     private static List<String> watch(Page page) {
         List<String> errors = new CopyOnWriteArrayList<>();
         page.onConsoleMessage((ConsoleMessage m) -> {
-            if ("error".equals(m.type()) && !m.text().contains("Failed to load resource")) errors.add(m.text());
+            if ("error".equals(m.type()) && !m.text().contains("Failed to load resource") && !m.text().contains("blocked by CORS policy")) errors.add(m.text());
         });
         page.onPageError(e -> errors.add("pageerror: " + e));
         return errors;
@@ -305,7 +398,8 @@ class BrowserTest {
                 String rest = parts.length > 1 ? parts[1] : "";
                 if (rest.equals("descriptor")) { descriptor(exchange, scenario); return; }
                 if (rest.isEmpty() || rest.equals("index.html")) {
-                    String html = Files.readString(UI.resolve("index.html")).replace("content=\"/actuator/rulii\"", "content=\"/case/" + scenario + "/descriptor\"");
+                    String html = Files.readString(UI.resolve("index.html")).replace("content=\"/actuator/rulii\"", "content=\"/case/" + (scenario.equals("locked") ? "ok" : scenario) + "/descriptor\"");
+                    if (scenario.equals("locked")) html = html.replace("<meta name=\"rulii-sources\" content=\"any\">", "<meta name=\"rulii-sources\" content=\"application\">");
                     send(exchange, 200, "text/html; charset=utf-8", html);
                     return;
                 }
@@ -315,6 +409,21 @@ class BrowserTest {
             send(exchange, 404, "text/plain", "not found");
         } catch (RuntimeException e) {
             send(exchange, 500, "text/plain", e.toString());
+        }
+    }
+
+    /**
+     * The other application. Under {@code /cors/} it allows every origin, as
+     * {@code management.endpoints.web.cors.allowed-origins=*} would; under {@code /nocors/} it does not.
+     */
+    private static void handleRemote(HttpExchange exchange) throws IOException {
+        String path = exchange.getRequestURI().getPath();
+        if (path.startsWith("/cors/")) exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+        switch (path.substring(path.lastIndexOf('/') + 1)) {
+            case "descriptor" -> send(exchange, 200, "application/json", staging);
+            case "unauthorized" -> send(exchange, 401, "text/plain", "");
+            case "page" -> send(exchange, 200, "text/html", "<!doctype html><html><body>Welcome to staging</body></html>");
+            default -> send(exchange, 404, "text/plain", "not found");
         }
     }
 

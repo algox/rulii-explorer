@@ -7,6 +7,9 @@
     <!-- Where the descriptor is. The starter rewrites this to the application's context and
          Actuator base path; served as a plain file it points at the default location. -->
     <meta name="rulii-descriptor" content="/actuator/rulii">
+    <!-- "any": the page may also show a descriptor from another address (?descriptor=) or a file;
+         "application": only its own. The starter sets it from rulii.explorer.ui.external-sources. -->
+    <meta name="rulii-sources" content="any">
     <title>rulii explorer</title>
     <link rel="icon" type="image/svg+xml" href="./app/design/rulii-mark.svg">
     <link rel="preload" as="font" type="font/woff2" crossorigin href="./vendor/fonts/HankenGrotesk-latin.woff2">

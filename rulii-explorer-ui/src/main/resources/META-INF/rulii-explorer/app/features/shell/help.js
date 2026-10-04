@@ -81,6 +81,7 @@ class RxHelp extends RxElement {
                 ${row('#/ruleflow/{id}?step=commands[1]', 'A flow with step 2 selected; add view=outline for the text view')}
                 ${row('#/graph?focus={id}&depth=2', 'The graph around an artifact: 1, 2 or all steps away')}
                 ${row('#/graph?selected={id}', 'The whole application, one artifact selected')}
+                ${row('?descriptor={url}#/', 'Another application’s descriptor, or a saved JSON, by address; before the #')}
                 ${row('#/binding/{name}', 'Who writes and reads a binding')}
                 ${row('#/package/{id}', 'A package and what it defines')}
             </dl>

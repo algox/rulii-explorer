@@ -6,7 +6,8 @@
  */
 import {render} from 'lit';
 import {parseRoute, routes} from '/rulii-explorer/app/routing/router.js';
-import {loadDescriptor} from '/rulii-explorer/app/descriptor/loader.js';
+import {loadDescriptor, fromText} from '/rulii-explorer/app/descriptor/loader.js';
+import {resolveSource, absoluteUrl, sourceLabel} from '/rulii-explorer/app/descriptor/source.js';
 import {buildIndex, problemPath} from '/rulii-explorer/app/descriptor/indexes.js';
 import {buildSearch} from '/rulii-explorer/app/search/search.js';
 import {artifactSummary, bindingSummary, commandParts, problemsHeadline, kindCaption} from '/rulii-explorer/app/descriptor/summaries.js';
@@ -40,6 +41,40 @@ test('loader maps failures to states', async () => {
     eq(failed.status, 'failed');
     has(failed.error.detail, 'Could not build the descriptor');
     eq((await loadDescriptor('/case/empty/descriptor')).status, 'empty');
+});
+
+test('loader reads a file and says when it is not a descriptor', async () => {
+    const golden = await (await fetch('/actuator/rulii')).text();
+    const file = await loadDescriptor({kind: 'file', name: 'rules.json', text: golden});
+    eq(file.status, 'ready');
+    eq(file.descriptor.artifacts.length, 30);
+    eq(fromText('not json', {file: true}).status, 'failed');
+    eq(fromText('not json', {file: true}).error.message, 'The file is not a rule descriptor.');
+    eq(fromText('{"hello": 1}', {httpStatus: 200, ok: true}).error.message, 'The response is not a rule descriptor.');
+    eq(fromText('{"descriptorVersion": "2.0", "artifacts": []}').status, 'unsupported');
+    eq(fromText('{"descriptorVersion": "1.3", "artifacts": []}').status, 'empty');
+    eq(fromText('{"descriptorVersion": "1.0", "error": {"message": "boom"}}', {httpStatus: 500, ok: false}).error.detail, 'boom');
+    const invalid = await loadDescriptor({kind: 'url', url: 'ftp://x', invalid: true});
+    eq(invalid.status, 'unreachable');
+    eq(invalid.error.crossOrigin, true);
+});
+
+test('the source comes from the address, then the session, then the page', () => {
+    const app = 'http://127.0.0.1:1/actuator/rulii';
+    const base = 'http://127.0.0.1:1/rulii';
+    eq(resolveSource({search: '', allowed: true, stored: null, applicationUrl: app}), {kind: 'application', url: app});
+    eq(resolveSource({search: '?descriptor=https%3A%2F%2Fstaging%3A8080%2Factuator%2Frulii', allowed: true, stored: null, applicationUrl: app, base}), {kind: 'url', url: 'https://staging:8080/actuator/rulii'});
+    eq(resolveSource({search: '?descriptor=/files/rules.json', allowed: true, stored: null, applicationUrl: app, base}), {kind: 'url', url: 'http://127.0.0.1:1/files/rules.json'}, 'relative addresses resolve against the page');
+    eq(resolveSource({search: '?descriptor=javascript:alert(1)', allowed: true, stored: null, applicationUrl: app, base}), {kind: 'url', url: 'javascript:alert(1)', invalid: true}, 'only http(s)');
+    eq(resolveSource({search: '?descriptor=', allowed: true, stored: null, applicationUrl: app, base}), {kind: 'application', url: app}, 'an empty parameter is ignored');
+    eq(resolveSource({search: '', allowed: true, stored: '{"name":"rules.json"}', applicationUrl: app}), {kind: 'file', name: 'rules.json'});
+    eq(resolveSource({search: '?descriptor=https://a/b', allowed: true, stored: '{"name":"rules.json"}', applicationUrl: app, base}).kind, 'url', 'the address wins over the session');
+    eq(resolveSource({search: '?descriptor=https://a/b', allowed: false, stored: '{"name":"rules.json"}', applicationUrl: app, base}), {kind: 'application', url: app}, 'locked pages ignore both');
+    eq(absoluteUrl('ftp://x/y'), null);
+    eq(absoluteUrl('https://a:8443/actuator/rulii'), 'https://a:8443/actuator/rulii');
+    eq(sourceLabel({kind: 'application'}), 'Live');
+    eq(sourceLabel({kind: 'url', url: 'https://staging:8080/actuator/rulii'}), 'staging:8080');
+    eq(sourceLabel({kind: 'file', name: 'rules.json'}), 'rules.json');
 });
 
 test('routes parse and build', () => {
