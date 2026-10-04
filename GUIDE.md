@@ -106,7 +106,9 @@ organises itself around that instead of around packages and class names:
   a page at `#/category/{path}`. A rule with no category of its own that belongs to exactly one
   rule set with a category is shown under that set's, marked *via* the set, since a member of a
   Pricing set is a pricing rule. Anything else without a category sits under **Uncategorised**,
-  and the Problems page lists it as `UNCATEGORISED`.
+  and the Problems page lists it as `UNCATEGORISED`. Opening a page reveals its branch; the two
+  small buttons in the Categories header expand or collapse every branch at once, and the Rule
+  sets header has the same pair for the members of each set.
 - **Tags** are short labels, any number per artifact, shown as chips under the description.
   Click one to search for everything that carries it. In the search, `tag:vip` keeps only
   artifacts with that tag, `in:Pricing` only those in that category and the ones below it (a

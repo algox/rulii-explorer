@@ -231,6 +231,16 @@ a.rx-chip:hover { background: var(--rx-selected); }
 }
 .rx-nav-group { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
 .rx-nav-head { display: flex; align-items: center; justify-content: space-between; padding: 0 10px 6px; }
+/* Expand all / collapse all beside a group's count; quiet until hovered, like the row toggles */
+.rx-nav-head-end { display: inline-flex; align-items: center; gap: 8px; }
+.rx-nav-all { display: inline-flex; gap: 1px; }
+.rx-nav-all-btn {
+  display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px;
+  border: 0; border-radius: var(--rx-radius-xs); background: none; color: var(--rx-ink-3); cursor: pointer;
+}
+.rx-nav-all-btn:hover { background: var(--rx-hover); color: var(--rx-ink); }
+.rx-nav-all-btn[disabled] { opacity: 0.35; cursor: default; }
+.rx-nav-all-btn[disabled]:hover { background: none; color: var(--rx-ink-3); }
 .rx-nav-link, .rx-nav-row {
   display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: var(--rx-radius-md);
   color: var(--rx-ink-2); white-space: nowrap; min-width: 0; flex-shrink: 0;

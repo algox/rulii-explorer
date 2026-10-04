@@ -110,6 +110,16 @@ class Store extends EventTarget {
         expanded.add(packageId);
         this.set({expanded});
     }
+
+    /** Opens or closes several folders at once ("Expand all" / "Collapse all" on a sidebar group). */
+    setExpanded(keys, open) {
+        const expanded = new Set(this.#state.expanded);
+        for (const key of keys) {
+            if (open) expanded.add(key);
+            else expanded.delete(key);
+        }
+        this.set({expanded});
+    }
 }
 
 export const store = new Store();

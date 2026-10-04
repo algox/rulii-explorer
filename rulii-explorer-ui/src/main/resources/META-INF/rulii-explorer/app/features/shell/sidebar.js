@@ -51,10 +51,22 @@ class RxSidebar extends RxElement {
     }
 
     /** The category tree: each category opens into its sub-categories and its artifacts; "Uncategorised" closes the list. */
+    /** "Expand all" and "Collapse all" for a group of folders, in its header. */
+    allButtons(keys, label, expanded) {
+        const allOpen = keys.every(k => expanded.has(k));
+        const noneOpen = !keys.some(k => expanded.has(k));
+        return html`<span class="rx-nav-all">
+            <button type="button" class="rx-nav-all-btn" aria-label=${'Expand all ' + label} title="Expand all" ?disabled=${allOpen} @click=${() => this.store.setExpanded(keys, true)}>${icon('expand', {size: 12, width: 2})}</button>
+            <button type="button" class="rx-nav-all-btn" aria-label=${'Collapse all ' + label} title="Collapse all" ?disabled=${noneOpen} @click=${() => this.store.setExpanded(keys, false)}>${icon('collapse', {size: 12, width: 2})}</button>
+        </span>`;
+    }
+
     categories(index, current, expanded) {
         const c = index.categories;
+        const keys = [...c.byPath.keys()].map(p => 'cat:' + p);
+        if (c.uncategorised.length) keys.push('cat:');
         return html`<div class="rx-nav-group">
-            <div class="rx-nav-head rx-overline"><span>Categories</span><span>${c.byPath.size}</span></div>
+            <div class="rx-nav-head rx-overline"><span>Categories</span><span class="rx-nav-head-end">${this.allButtons(keys, 'categories', expanded)}${c.byPath.size}</span></div>
             ${c.roots.map(n => this.categoryNode(n, index, current, expanded))}
             ${c.uncategorised.length ? this.folder('cat:', 'Uncategorised', c.uncategorised, index, current, expanded) : nothing}
         </div>`;
@@ -95,8 +107,9 @@ class RxSidebar extends RxElement {
     ruleSets(index, current, expanded) {
         const list = index.byType.ruleset;
         if (!list.length) return nothing;
+        const keys = list.filter(s => s.ruleSet && s.ruleSet.members && s.ruleSet.members.length).map(s => 'set:' + s.id);
         return html`<div class="rx-nav-group">
-            <div class="rx-nav-head rx-overline"><span>${typeLabel('ruleset', true)}</span><span>${list.length}</span></div>
+            <div class="rx-nav-head rx-overline"><span>${typeLabel('ruleset', true)}</span><span class="rx-nav-head-end">${keys.length ? this.allButtons(keys, 'rule sets', expanded) : nothing}${list.length}</span></div>
             ${list.map(s => {
                 const key = 'set:' + s.id;
                 const open = expanded.has(key);

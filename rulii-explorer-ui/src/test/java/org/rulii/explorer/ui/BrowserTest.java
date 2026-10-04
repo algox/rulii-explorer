@@ -250,6 +250,31 @@ class BrowserTest {
                 if (!"body".equals(id)) stops++;
             }
             assertTrue(stops >= 40, "keyboard reaches the page: " + stops + " stops");
+            // Opening a rule reveals its category branch; the reader can then collapse it and it stays collapsed
+            page.navigate(base + "/case/ok/#/rule/LoyaltyPointsRule");
+            page.waitForSelector(".rx-nav-row[aria-current='page']");
+            assertEquals("true", page.getAttribute(".rx-nav-row-cat[href='#/category/Pricing']", "aria-expanded"));
+            assertEquals("true", page.getAttribute(".rx-nav-row-cat[href='#/category/Pricing/Loyalty']", "aria-expanded"));
+            page.click(".rx-nav-row-cat[href='#/category/Pricing']");
+            page.waitForFunction("() => document.querySelector(\".rx-nav-row-cat[href='#/category/Pricing']\").getAttribute('aria-expanded') === 'false'");
+            // Another branch toggles freely (it may already be open from the rule the palette opened earlier)
+            String ordersBefore = page.getAttribute(".rx-nav-row-cat[href='#/category/Orders']", "aria-expanded");
+            page.click(".rx-nav-row-cat[href='#/category/Orders']");
+            page.waitForFunction("v => document.querySelector(\".rx-nav-row-cat[href='#/category/Orders']\").getAttribute('aria-expanded') === v", "true".equals(ordersBefore) ? "false" : "true");
+            assertEquals("false", page.getAttribute(".rx-nav-row-cat[href='#/category/Pricing']", "aria-expanded"), "a collapsed branch stays collapsed after other changes");
+            page.click(".rx-nav-row-cat[href='#/category/Pricing']"); // and the current rule's branch opens again on demand
+            page.waitForSelector(".rx-nav-row[aria-current='page']");
+            // Expand all opens every category (and the rule sets' members); collapse all closes them again
+            page.click("button[aria-label='Expand all categories']");
+            page.waitForFunction("() => [...document.querySelectorAll('.rx-nav-row-cat')].every(e => e.getAttribute('aria-expanded') === 'true')");
+            assertTrue(page.isDisabled("button[aria-label='Expand all categories']"), "nothing left to expand");
+            page.click("button[aria-label='Collapse all categories']");
+            page.waitForFunction("() => [...document.querySelectorAll('.rx-nav-row-cat')].every(e => e.getAttribute('aria-expanded') === 'false')");
+            assertTrue(page.isDisabled("button[aria-label='Collapse all categories']"), "nothing left to collapse");
+            page.click("button[aria-label='Expand all rule sets']");
+            page.waitForFunction("() => [...document.querySelectorAll('.rx-nav-toggle')].every(e => e.getAttribute('aria-expanded') === 'true')");
+            page.click("button[aria-label='Collapse all rule sets']");
+            page.waitForFunction("() => [...document.querySelectorAll('.rx-nav-toggle')].every(e => e.getAttribute('aria-expanded') === 'false')");
             // A graph node is reachable and selectable from the keyboard
             page.navigate(base + "/case/ok/#/graph?focus=pricingRules");
             page.waitForSelector(".rx-gnode");
@@ -300,6 +325,7 @@ class BrowserTest {
                 screen("state-partial-rule", "partial", "/rule/StockAvailableRule", ".rx-undescribed-card", false),
                 screen("missing", "ok", "/rule/Nope", ".rx-state", false),
                 screen("sidebar-categories", "ok", "/rule/LoyaltyPointsRule", ".rx-summary", true),
+                screen("sidebar-expanded", "ok", "/category/Pricing", ".rx-rows", false, p -> { p.click("button[aria-label='Expand all categories']"); p.waitForFunction("() => [...document.querySelectorAll('.rx-nav-row-cat')].every(e => e.getAttribute('aria-expanded') === 'true')"); }),
                 screen("category", "ok", "/category/Pricing", ".rx-rows", true),
                 screen("category-leaf", "ok", "/category/Pricing/Loyalty", ".rx-rows", false),
                 screen("search-tag", "ok", "", ".rx-stats", false, p -> { p.keyboard().press("Control+k"); p.waitForSelector(".rx-palette[open]"); p.keyboard().type("tag:vip"); p.waitForSelector(".rx-option"); }),

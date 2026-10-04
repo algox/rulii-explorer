@@ -64,10 +64,18 @@ class RxApp extends RxElement {
         document.title = [page, app, 'rulii explorer'].filter(Boolean).join(' · ');
     }
 
-    /** Keeps the sidebar folder of the current artifact open: its category and the ones above it, or the rule set it is in. */
+    /**
+     * Opens the sidebar folder of the artifact just navigated to: its category and the ones above
+     * it, or the rule set it is in. Once per arrival only, so the reader can collapse that branch
+     * afterwards; reacting on every render would reopen it the moment it was closed.
+     */
     syncSidebar() {
         const {route, index} = this.state;
-        if (route.name !== 'artifact' || !index) return;
+        if (route.name !== 'artifact' || !index) { this.syncedFor = null; return; }
+        const sameDescriptor = index.descriptor === this.syncedIndex;
+        if (sameDescriptor && route.id === this.syncedFor) return; // already revealed for this page
+        this.syncedFor = route.id;
+        this.syncedIndex = index.descriptor;
         const a = index.byId.get(route.id);
         if (!a) return;
         const cat = index.categories.of.get(a.id);
