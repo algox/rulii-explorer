@@ -50,7 +50,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Drives the UI in a real browser (SOLUTION §10): the in-browser unit tests in
  * {@code src/test/resources/browser}, then every screen and state in light and dark, as
  * screenshots under {@code target/screens} compared with the baselines in
- * {@code src/test/resources/screens} when present ({@code -Dscreens.update=true} rewrites them).
+ * {@code src/test/resources/screens} when present ({@code -Dscreens.update=true} rewrites them,
+ * {@code -Dscreens.compare=false} skips the comparison: the baselines are Windows renders).
  *
  * <p>The descriptor is the demo application's golden file, served by a small JDK HTTP server
  * together with the UI files, so no Spring Boot is involved and the pages are deterministic.
@@ -382,6 +383,10 @@ class BrowserTest {
             Files.copy(actual, baseline, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             return;
         }
+        // The baselines are Windows renders: another platform's Chromium antialiases text differently
+        // (3-4% of pixels on Linux), so CI passes -Dscreens.compare=false and keeps the screenshots
+        // as a build artifact instead.
+        if ("false".equalsIgnoreCase(System.getProperty("screens.compare"))) return;
         if (!Files.exists(baseline)) return;
         double differing = Screens.differingFraction(baseline, actual);
         assertTrue(differing <= 0.005, file + ": " + String.format("%.2f%%", differing * 100) + " of pixels differ from the baseline (" + actual + ")");

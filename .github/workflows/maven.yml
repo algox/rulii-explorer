@@ -27,10 +27,35 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
+    # The browser tests launch Chromium only. Install it (with its Linux libraries) once here,
+    # instead of letting Playwright.create() download all three browsers on every build and warn
+    # about WebKit's missing libraries.
+    - name: Install Chromium for Playwright
+      run: >
+        mvn -B -q -pl rulii-explorer-ui
+        org.codehaus.mojo:exec-maven-plugin:3.5.0:java
+        -Dexec.mainClass=com.microsoft.playwright.CLI
+        -Dexec.classpathScope=test
+        -Dexec.args="install --with-deps chromium"
+    # screens.compare=false: the screenshot baselines are Windows renders; Linux Chromium
+    # antialiases text differently, so the pixel comparison is a local check only. The Linux
+    # screenshots are uploaded below for eyeballing.
     - name: Build with Maven
-      run: mvn clean package -U
-    - name: Upload coverage to Codecov                                                                                                                                                                                                                        
-      uses: codecov/codecov-action@v5                                                                                                                                                                                                                         
-      with:                                                                                                                                                                                                                                                   
-          token: ${{ secrets.CODECOV_TOKEN }}                                                                                                                                                                                                                   
-          files: target/site/jacoco/jacoco.xml    
+      run: mvn -B clean package -U -Dscreens.compare=false
+      env:
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+    - name: Upload browser screenshots and test reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: browser-screens
+        path: |
+          rulii-explorer-ui/target/screens/
+          **/target/surefire-reports/
+        retention-days: 7
+        if-no-files-found: ignore
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: '**/target/site/jacoco/jacoco.xml'
