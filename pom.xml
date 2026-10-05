@@ -45,8 +45,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- rulii: the explorer needs the 2.1 introspection API -->
-        <rulii.version>2.1.0-SNAPSHOT</rulii.version>
-        <rulii-spring.version>2.1.0-SNAPSHOT</rulii-spring.version>
+        <rulii.version>2.1.0</rulii.version>
+        <rulii-spring.version>2.1.0</rulii-spring.version>
 
         <!-- Spring Boot's BOM pins Spring Framework, Jackson 3, JUnit and the rest -->
         <spring-boot.version>4.1.1</spring-boot.version>
