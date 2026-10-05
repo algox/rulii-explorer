@@ -22,6 +22,9 @@
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <maven.source.skip>true</maven.source.skip>
         <gpg.skip>true</gpg.skip>
+        <!-- central-publishing-maven-plugin ignores maven.deploy.skip and would bundle the demo without
+             sources, javadoc or signatures, failing the whole deployment at validation. -->
+        <skipPublishing>true</skipPublishing>
         <!-- GraalJS runs the JavaScript rules in rules/pricing/loyalty.xml and LoyaltyConfig; rulii declares it provided -->
         <graalvm.version>25.4.4.1.1</graalvm.version>
         <!-- Janino compiles the Java rules in rules/order/fulfilment.xml and FulfilmentConfig; rulii declares it provided too -->

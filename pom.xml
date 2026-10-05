@@ -238,7 +238,7 @@
     <profiles>
         <profile>
             <!-- mvn -P release deploy: signs and publishes the published modules to Maven Central.
-                 The demo sets maven.deploy.skip so it is never published. -->
+                 The demo sets skipPublishing (and maven.deploy.skip) so it is never published. -->
             <id>release</id>
             <build>
                 <plugins>
