@@ -1,5 +1,7 @@
 # Change log
 
+## 1.1.0 (unreleased)
+
 ## 1.0.0 (2026-10-04)
 
 The first release. Requires rulii 2.1.0, rulii-spring 2.1.0 and Spring Boot 4.1 on Java 17.
