@@ -93,7 +93,7 @@ Rule.builder().name("FraudScoreRule", "…").category("Risk").tags("risk", "frau
 
 Once an application uses categories, artifacts without one are listed as `UNCATEGORISED`
 (info) on the Problems page. The descriptor carries them as `category` and `tags` on each
-artifact (descriptor 1.1).
+artifact.
 
 ## Configuration
 

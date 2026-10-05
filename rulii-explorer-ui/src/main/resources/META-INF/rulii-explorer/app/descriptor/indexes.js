@@ -19,7 +19,7 @@ import {TYPE_ORDER, compareNatural, expressionsOf, walkCommands, sourceText} fro
  * @property {Set<string>} undescribed       artifacts with an UNDESCRIBABLE problem
  * @property {Map<string, object>} kindCounts  per type: kind → count
  * @property {Map<string, Map<string, {command: object, number: string, parent: object}>>} commandsByPath  per flow id
- * @property {Categories} categories   the category tree, tags, and which artifact sits where (descriptor 1.1)
+ * @property {Categories} categories   the category tree, tags, and which artifact sits where
  *
  * @typedef {object} Categories
  * @property {boolean} has                 whether any artifact declares a category; the sidebar and graph group by it when true

@@ -59,7 +59,7 @@ class DescriptorJsonTest {
         String first = DescriptorJson.toJson(build());
         String second = DescriptorJson.toJson(build());
         assertEquals(first, second, "two builds of the same registry give the same bytes");
-        assertTrue(first.startsWith("{\n  \"descriptorVersion\": \"1.1\",\n  \"application\": {"), first.substring(0, 80));
+        assertTrue(first.startsWith("{\n  \"descriptorVersion\": \"1.0\",\n  \"application\": {"), first.substring(0, 80));
         assertFalse(first.contains("\r"), "line ends are \\n on every platform");
         assertTrue(first.endsWith("}\n"));
         assertFalse(first.contains(": null"), "nulls are omitted");

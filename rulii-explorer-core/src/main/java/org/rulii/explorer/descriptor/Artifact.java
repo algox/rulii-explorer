@@ -32,7 +32,7 @@ import java.util.List;
  * @param packageId   the package it belongs to; null when unknown (FR-30).
  * @param description the description; null when none.
  * @param category    the business category it belongs to, {@code /} between the levels ({@code Pricing/Discounts}); null when none.
- * @param tags        what it is about, in the order declared, each once; null when none (since 1.1).
+ * @param tags        what it is about, in the order declared, each once; null when none.
  * @param source      where it was declared; null when unknown or hidden (NFR-4).
  * @param className   the rule class of a class-based rule; null otherwise or when hidden.
  * @param parameters  declared parameters, in order.

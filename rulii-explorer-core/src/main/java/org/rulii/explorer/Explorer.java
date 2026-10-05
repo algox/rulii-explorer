@@ -31,7 +31,7 @@ import java.util.Properties;
 public final class Explorer {
 
     /** The descriptor contract version. Additive changes keep the major; see the JSON Schema. */
-    public static final String DESCRIPTOR_VERSION = "1.1";
+    public static final String DESCRIPTOR_VERSION = "1.0";
 
     private static final String VERSION = load();
 

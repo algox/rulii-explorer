@@ -1,6 +1,6 @@
 # Change log
 
-## 1.0.0 (unreleased)
+## 1.0.0 (2026-10-04)
 
 The first release. Requires rulii 2.1.0, rulii-spring 2.1.0 and Spring Boot 4.1 on Java 17.
 
@@ -44,7 +44,7 @@ The first release. Requires rulii 2.1.0, rulii-spring 2.1.0 and Spring Boot 4.1 
   handlers; selection is shared with the outline.
 - **Categories and tags**: rulii 2.1's `@Category` / `@Tags`, the builders' `category()` /
   `tags()` and the XML `category` / `tags` attributes (with a file-level `<r:defaults>`) reach
-  the descriptor as `category` and `tags` on every artifact (descriptor version 1.1, additive).
+  the descriptor as `category` and `tags` on every artifact.
   When an application uses them the sidebar is the category tree, the overview and the
   whole-application graph group by category, every category has a page (`#/category/{path}`),
   breadcrumbs show the category instead of the package, tags are chips that search, and the

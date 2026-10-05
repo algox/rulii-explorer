@@ -32,7 +32,7 @@ class ExplorerTest {
 
     @Test
     void descriptorVersionIsFixed() {
-        assertEquals("1.1", Explorer.DESCRIPTOR_VERSION);
+        assertEquals("1.0", Explorer.DESCRIPTOR_VERSION);
     }
 
     @Test

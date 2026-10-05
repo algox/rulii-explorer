@@ -29,7 +29,7 @@ class RxSidebar extends RxElement {
             ${ready ? this.group('ruleflow', index.byType.ruleflow, current, index) : nothing}
             ${ready ? this.ruleSets(index, current, expanded) : nothing}
             ${ready ? this.rules(index, current, expanded) : nothing}
-            <div class="rx-sidebar-foot">${descriptor ? html`Descriptor ${descriptor.descriptorVersion}${descriptor.application && descriptor.application.ruliiVersion && descriptor.application.ruliiVersion !== 'unknown' ? html` · rulii ${descriptor.application.ruliiVersion}` : nothing}` : 'Descriptor 1.1'}</div>
+            <div class="rx-sidebar-foot">${descriptor ? html`Descriptor ${descriptor.descriptorVersion}${descriptor.application && descriptor.application.ruliiVersion && descriptor.application.ruliiVersion !== 'unknown' ? html` · rulii ${descriptor.application.ruliiVersion}` : nothing}` : 'Descriptor 1.0'}</div>
         </nav>`;
     }
 
