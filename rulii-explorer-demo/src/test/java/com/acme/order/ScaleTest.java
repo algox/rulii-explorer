@@ -65,6 +65,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class ScaleTest {
 
     private static final Path OUT = Path.of("target", "scale");
+    /**
+     * Frame-rate floor for the scripted pan and zoom. Headless Chromium rasterises in software, so
+     * the figure measures the machine as much as the app: 42 fps on the development machine, around
+     * 25 on a shared CI runner. {@code -Dscale.minFps} lowers the floor there; the measured value is
+     * always recorded in {@code results.md}.
+     */
+    private static final double MIN_FPS = Double.parseDouble(System.getProperty("scale.minFps", "25"));
+    private static final String MIN_FPS_TEXT = MIN_FPS == Math.rint(MIN_FPS) ? String.valueOf((int) MIN_FPS) : String.valueOf(MIN_FPS);
 
     @LocalServerPort
     private int port;
@@ -168,7 +176,7 @@ class ScaleTest {
                     + "return resolve({fps: Math.round(frames.length / seconds * 10) / 10, p95Ms: Math.round(q(0.95) * 10) / 10, medianMs: Math.round(q(0.5) * 10) / 10}); } "
                     + "const k = 0.3 + 0.5 * (0.5 + 0.5 * Math.sin(t * 0.9)); const x = w / 2 - ex.width * k / 2 + Math.sin(t * 1.3) * w * 0.35; const y = h / 2 - ex.height * k / 2 + Math.sin(t * 2.6) * h * 0.25; "
                     + "stage.d3.select(el).call(stage.zoom.transform, stage.d3.zoomIdentity.translate(x, y).scale(k)); requestAnimationFrame(tick); }; requestAnimationFrame(tick); })");
-            record("Pan and zoom, 4 s scripted (headless Chromium, software rendering)", fps.get("fps") + " fps, median " + fps.get("medianMs") + " ms, p95 " + fps.get("p95Ms") + " ms", "≥ 25 fps headless; 58 fps on real hardware (spike)");
+            record("Pan and zoom, 4 s scripted (headless Chromium, software rendering)", fps.get("fps") + " fps, median " + fps.get("medianMs") + " ms, p95 " + fps.get("p95Ms") + " ms", "≥ " + MIN_FPS_TEXT + " fps headless; 58 fps on real hardware (spike)");
 
             Map<?, ?> focus = canvas(page, base + "#/graph?focus=scaleRules0&depth=2", ".rx-gnode");
             page.waitForTimeout(300);
@@ -192,7 +200,7 @@ class ScaleTest {
             assertTrue(((Number) graph.get("layoutMs")).longValue() <= 10000, "whole-app layout took " + graph.get("layoutMs") + " ms");
             assertTrue(((Number) focus.get("layoutMs")).longValue() <= 2000, "focus layout took " + focus.get("layoutMs") + " ms");
             assertTrue(((Number) flow.get("layoutMs")).longValue() <= 2000, "flowchart layout took " + flow.get("layoutMs") + " ms");
-            assertTrue(((Number) fps.get("fps")).doubleValue() >= 25, "frame rate " + fps.get("fps") + " fps");
+            assertTrue(((Number) fps.get("fps")).doubleValue() >= MIN_FPS, "frame rate " + fps.get("fps") + " fps (floor " + MIN_FPS_TEXT + ")");
         }
     }
 
