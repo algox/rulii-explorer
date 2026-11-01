@@ -45,6 +45,7 @@ import org.rulii.explorer.problem.ProblemCodes;
 import org.rulii.explorer.problem.ProblemContext;
 import org.rulii.model.InputParameter;
 import org.rulii.model.MethodDefinition;
+import org.rulii.model.ResultType;
 import org.rulii.model.Runnable;
 import org.rulii.model.SourceDefinition;
 import org.rulii.model.action.Action;
@@ -71,6 +72,7 @@ import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -354,7 +356,8 @@ final class Describer {
         RuleSetDetails details = new RuleSetDetails(def.isValidating(), expressions.hook(ruleSet.getPreCondition()),
                 expressions.hook(ruleSet.getInitializer()), expressions.hook(ruleSet.getStopCondition()),
                 expressions.hook(ruleSet.getFinalizer()), expressions.hook(ruleSet.getResultExtractor()),
-                expressions.hook(ruleSet.getErrorHandler()), members);
+                expressions.hook(ruleSet.getErrorHandler()), resultTypeName(def.getResolvedResultType()),
+                resultTypeOrigin(def.getResolvedResultType()), members);
 
         return new Artifact(id, ruleSet.getName(), ArtifactType.RULESET, kind, registered,
                 Sources.packageOf(sourceDefinition, null), Expressions.blankToNull(ruleSet.getDescription()),
@@ -373,12 +376,23 @@ final class Describer {
 
         RuleFlowDetails details = new RuleFlowDetails(def.getContextLabel(), commands,
                 mapper.handler(def.getGlobalHandler(), "globalHandler"), expressions.mapAction(def.getFinalizer()),
-                expressions.mapFunction(def.getReturning()), Expressions.typeName(def.getResultType()));
+                expressions.mapFunction(def.getReturning()), resultTypeName(def.getResolvedResultType()),
+                resultTypeOrigin(def.getResolvedResultType()));
 
         return new Artifact(id, ruleFlow.getName(), ArtifactType.RULEFLOW, kind, registered,
                 Sources.packageOf(sourceDefinition, null), Expressions.blankToNull(def.getDescription()),
                 def.getCategory(), def.getTags(),
                 source(sourceDefinition), null, inputParameters(def.getInputParameters(), false), null, null, null, details);
+    }
+
+    /** The result type as a class name (generic types as written), null when not known. */
+    private static String resultTypeName(ResultType resultType) {
+        return Expressions.typeName(resultType.getType());
+    }
+
+    /** The origin of the result type as the lower-case enum name: declared, derived, default, unknown or none. */
+    private static String resultTypeOrigin(ResultType resultType) {
+        return resultType.getOrigin().name().toLowerCase(Locale.ROOT);
     }
 
     private List<Parameter> inputParameters(List<InputParameter<?>> parameters, boolean validating) {

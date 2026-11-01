@@ -332,6 +332,8 @@
           "writes": [ ],
           "signature": "boolean test(Integer violationCount)"
         },
+        "resultType": "org.rulii.ruleset.RuleSetExecutionStatus",
+        "resultTypeOrigin": "default",
         "members": [
           "minTotalRule",
           "emailRequired",
@@ -363,7 +365,8 @@
               ]
             }
           }
-        ]
+        ],
+        "resultTypeOrigin": "none"
       }
     },
     {
@@ -578,7 +581,8 @@
           "writes": [ ],
           "signature": "Boolean apply(Boolean approved)"
         },
-        "resultType": "java.lang.Boolean"
+        "resultType": "java.lang.Boolean",
+        "resultTypeOrigin": "declared"
       }
     }
   ],

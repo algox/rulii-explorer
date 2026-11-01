@@ -4,7 +4,7 @@ import {typeBadge} from '../../components/common.js';
 import {inlineExpression, plainTokens, rawCode, segmented, slotCaption} from '../../components/expression.js';
 import {routes, navigate} from '../../routing/router.js';
 import {durationText, kindLabel, kindShort, shortType, sourceText, targetName, typeLabel} from '../../descriptor/format.js';
-import {artifactSummary, commandParts} from '../../descriptor/summaries.js';
+import {artifactSummary, boundResultType, commandParts} from '../../descriptor/summaries.js';
 import {conditionsCard} from '../graph/graph-aside.js';
 
 const TAGS = {bind: 'Bind', run: 'Run', apply: 'Apply', execute: 'Execute', 'async-run': 'Async run', await: 'Await', when: 'When', 'for-each': 'For each', scope: 'Scope', exit: 'Exit', custom: 'Custom'};
@@ -79,7 +79,7 @@ function targetAside(flow, command, number, target, index, host, close, switchLi
         <div class="rx-summary rx-summary-sm">${artifactSummary(target, index)}</div>
         <div class="rx-kv rx-kv-84">
             <span class="rx-k">Step</span><span class="rx-v">${number}${command.type === 'async-run' ? ' · in the background' : ''}</span>
-            ${command.as ? html`<span class="rx-k">Runs as</span><span class="rx-v"><span class="rx-chip">${command.as}</span></span>` : nothing}
+            ${command.as ? html`<span class="rx-k">Runs as</span><span class="rx-v"><span class="rx-chip">${command.as}</span>${boundResultType(command.target, index) ? html`<span class="rx-muted">: ${boundResultType(command.target, index)}</span>` : nothing}</span>` : nothing}
             ${usedBy.length ? html`<span class="rx-k">Used by</span><span class="rx-v">${usedBy.map(f => html`<a class="rx-art-link rx-art-link-${f.type}" style="font-family: var(--rx-font-ui); font-size: 12.5px; color: var(--rx-ink)" href=${routes.artifact(f)} data-hover=${f.id}>${glyph(f.type, {size: 11})}${f.name}</a>`)}</span>` : nothing}
             ${sourceText(target.source) ? html`<span class="rx-k">Defined in</span><span class="rx-v"><span class="rx-mono rx-ellipsis" title=${sourceText(target.source)}>${sourceText(target.source)}</span></span>` : nothing}
         </div>

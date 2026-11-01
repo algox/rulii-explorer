@@ -10,8 +10,8 @@ import {loadDescriptor, fromText} from '/rulii-explorer/app/descriptor/loader.js
 import {resolveSource, absoluteUrl, sourceLabel} from '/rulii-explorer/app/descriptor/source.js';
 import {buildIndex, problemPath, categoryParents} from '/rulii-explorer/app/descriptor/indexes.js';
 import {buildSearch, parseQuery} from '/rulii-explorer/app/search/search.js';
-import {artifactSummary, bindingSummary, commandParts, problemsHeadline, kindCaption} from '/rulii-explorer/app/descriptor/summaries.js';
-import {durationText, kindLabel, kindShort, scriptLanguage, languageName, plainText, shortType, sourceText, identifierWords, compareNatural} from '/rulii-explorer/app/descriptor/format.js';
+import {artifactSummary, bindingSummary, boundResultType, commandParts, problemsHeadline, kindCaption} from '/rulii-explorer/app/descriptor/summaries.js';
+import {durationText, kindLabel, kindShort, scriptLanguage, languageName, originWords, plainText, resultCaption, resultOf, shortType, sourceText, identifierWords, compareNatural} from '/rulii-explorer/app/descriptor/format.js';
 import {plainTokens, rawCode, highlightCode, mark} from '/rulii-explorer/app/components/expression.js';
 
 const tests = [];
@@ -241,6 +241,23 @@ test('format helpers', () => {
     eq(plainText(hidden), 'order total is at least order.minTotal (default 100)', 'a hidden one reads as written');
 });
 
+test('result types: declared, by default, unknown, none, and a 1.0 descriptor', () => {
+    const a = (id) => index.byId.get(id);
+    eq(resultOf(a('orderProcessingFlow')), {type: 'Boolean', full: 'java.lang.Boolean', origin: 'declared'}, 'type on <r:returning>');
+    eq(resultOf(a('orderValidationRules')), {type: 'RuleSetExecutionStatus', full: 'org.rulii.ruleset.RuleSetExecutionStatus', origin: 'default'});
+    eq(resultOf(a('loyaltyFlow')), {type: null, full: null, origin: 'unknown'}, 'a script says nothing about its type');
+    eq(resultOf(a('nightlyRepriceFlow')), null, 'the flow returns its context');
+    eq(resultOf(a('MinTotalRule')), null, 'rules have no result type');
+    eq(resultOf({ruleFlow: {commands: [], resultType: 'java.lang.Object'}}), {type: null, full: null, origin: 'unknown'}, 'a 1.0 descriptor said Object for a script');
+    eq(resultOf({ruleFlow: {commands: [], resultType: 'java.lang.String'}}), {type: 'String', full: 'java.lang.String', origin: null}, 'a 1.0 descriptor without an origin');
+    eq(resultCaption('flow result', a('orderProcessingFlow')), 'flow result · Boolean · declared');
+    eq(resultCaption('result-extractor · el', a('orderValidationRules')), 'result-extractor · el · RuleSetExecutionStatus · by default');
+    eq(resultCaption('flow result', a('loyaltyFlow')), 'flow result · unknown type');
+    eq(resultCaption('flow result', a('nightlyRepriceFlow')), 'flow result');
+    eq(originWords('derived'), 'derived');
+    eq(originWords('unknown'), '');
+});
+
 test('plain rendering: chips for bindings and placeholders', () => {
     const el = rendered(plainTokens(index.byId.get('MinTotalRule').rule.given));
     has(el.textContent, 'order total is at least');
@@ -299,7 +316,9 @@ test('command sentences', () => {
     const text = (c) => commandParts(c, index, flow.id).parts.map(p => p.text || (p.target && p.target.id) || (p.expression && 'expr') || '').join(' ').replace(/\s+/g, ' ').trim();
     has(text(cmd(0)), 'Make clock , inventory and reviewQueue available from the bindings orderServices');
     eq(text(cmd(1)), 'Run orderValidationRules and keep the result as validation');
-    eq(commandParts(cmd(1), index, flow.id).caption, 'rule set · direct');
+    eq(commandParts(cmd(1), index, flow.id).caption, 'rule set · direct · validation: RuleSetExecutionStatus', 'a kept result shows its type');
+    eq(boundResultType(cmd(1).target, index), 'RuleSetExecutionStatus');
+    eq(boundResultType({kind: 'by-name', name: 'prefixRule'}, index), null, 'an unresolved target has no known type');
     eq(text(cmd(3)), 'Start fraudScoreRule in the background as fraudCheck');
     eq(text(cmd(5)), 'Wait for fraudCheck from step 4');
     eq(commandParts(cmd(5), index, flow.id).caption, 'joins here · timeout 5 s');

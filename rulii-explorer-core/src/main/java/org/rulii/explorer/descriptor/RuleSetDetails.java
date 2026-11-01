@@ -23,21 +23,26 @@ import java.util.List;
  * What a rule set does (FR-12). Hooks rulii adds itself (the default result extractor and
  * error handler, and the violation check of a validating rule set) are not shown.
  *
- * @param validating      whether the rule set throws on severe violations.
- * @param preCondition    guard; null when none.
- * @param initializer     action run once first; null when none.
- * @param stopCondition   checked between rules; null when none.
- * @param finalizer       action run once last; null when none.
- * @param resultExtractor function producing the result; null when rulii defaults apply.
- * @param errorHandler    function handling errors; null when rulii defaults apply.
- * @param members         the member rule ids, in order.
+ * @param validating       whether the rule set throws on severe violations.
+ * @param preCondition     guard; null when none.
+ * @param initializer      action run once first; null when none.
+ * @param stopCondition    checked between rules; null when none.
+ * @param finalizer        action run once last; null when none.
+ * @param resultExtractor  function producing the result; null when rulii defaults apply.
+ * @param errorHandler     function handling errors; null when rulii defaults apply.
+ * @param resultType       the result type name; null when it is not known (a script or a generic lambda).
+ * @param resultTypeOrigin where the result type comes from: {@code declared} on the builder or in XML,
+ *                         {@code derived} from the result extractor, {@code default} (rulii's own extractor,
+ *                         a {@code RuleSetExecutionStatus}), or {@code unknown}; null in descriptors older than 1.1.
+ * @param members          the member rule ids, in order.
  *
  * @author Algorithmx Development Team
  * @since 1.0
  */
 public record RuleSetDetails(boolean validating, Expression preCondition, Expression initializer,
                              Expression stopCondition, Expression finalizer, Expression resultExtractor,
-                             Expression errorHandler, List<String> members) {
+                             Expression errorHandler, String resultType, String resultTypeOrigin,
+                             List<String> members) {
 
     public RuleSetDetails {
         members = Lists.copy(members);

@@ -172,6 +172,34 @@ export function shortType(fqcn) {
     return simple + tail;
 }
 
+/** How a result type was decided, as the UI words it: "declared", "derived" or "by default". */
+export function originWords(origin) {
+    return {declared: 'declared', derived: 'derived', default: 'by default'}[origin] || '';
+}
+
+/**
+ * The result of a rule set or rule flow: {type: 'Boolean', full: 'java.lang.Boolean', origin: 'declared'},
+ * {type: null, full: null, origin: 'unknown'} for a script or generic lambda, or null when the flow returns its
+ * context or the descriptor says nothing (a 1.0 descriptor; its `java.lang.Object` stood for unknown).
+ */
+export function resultOf(artifact) {
+    const d = artifact && (artifact.ruleSet || artifact.ruleFlow);
+    if (!d || d.resultTypeOrigin === 'none') return null;
+    if (d.resultType && (d.resultTypeOrigin || d.resultType !== 'java.lang.Object')) return {type: shortType(d.resultType), full: d.resultType, origin: d.resultTypeOrigin || null};
+    if (d.resultTypeOrigin === 'unknown' || d.resultType) return {type: null, full: null, origin: 'unknown'};
+    return null;
+}
+
+/** "flow result" → "flow result · Boolean · declared", "flow result · unknown type", or the base alone when nothing is known. */
+export function resultCaption(base, artifact) {
+    const r = resultOf(artifact);
+    if (!r) return base;
+    const sep = base ? ' · ' : '';
+    if (!r.type) return base + sep + 'unknown type';
+    const words = originWords(r.origin);
+    return base + sep + r.type + (words ? ' · ' + words : '');
+}
+
 /** "classpath:rules/order/validation.xml" line 34 → "rules/order/validation.xml:34". */
 export function sourceText(source) {
     if (!source) return null;

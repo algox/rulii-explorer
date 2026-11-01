@@ -40,10 +40,16 @@ import org.rulii.explorer.fixture.OrderFixture;
 import org.rulii.explorer.fixture.StockAvailableRule;
 import org.rulii.explorer.problem.ProblemCodes;
 import org.rulii.model.UnrulyException;
+import org.rulii.model.function.Function;
+import org.rulii.ruleflow.RuleFlow;
+import org.rulii.ruleset.RuleSet;
+import org.rulii.script.Script;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.rulii.model.function.Functions.function;
 
 /**
  * The descriptor built from the Java fixture: every artifact kind, command type, reference,
@@ -190,6 +196,8 @@ class DescriptorBuilderTest {
         assertNull(ruleSet.ruleSet().finalizer(), "the validating check is rulii's, not the application's");
         assertNull(ruleSet.ruleSet().resultExtractor(), "the default extractor is rulii's");
         assertNull(ruleSet.ruleSet().errorHandler(), "the default handler is rulii's");
+        assertEquals("org.rulii.ruleset.RuleSetExecutionStatus", ruleSet.ruleSet().resultType(), "the default extractor returns the status");
+        assertEquals("default", ruleSet.ruleSet().resultTypeOrigin());
 
         Artifact inline = artifact("orderValidationRules/members[2]");
         assertFalse(inline.registered());
@@ -209,6 +217,7 @@ class DescriptorBuilderTest {
         assertEquals(ArtifactType.RULEFLOW, flow.type());
         assertNull(flow.ruleFlow().context());
         assertEquals("java.lang.Boolean", flow.ruleFlow().resultType());
+        assertEquals("declared", flow.ruleFlow().resultTypeOrigin(), "returning(Boolean.class, ...) declares it");
         assertEquals("Boolean apply(Boolean approved)", flow.ruleFlow().returning().signature());
         assertNotNull(flow.ruleFlow().finalizer());
         assertEquals("java.lang.Exception", flow.ruleFlow().globalHandler().exceptionType());
@@ -274,6 +283,8 @@ class DescriptorBuilderTest {
         assertEquals("InlineTarget", inlineTarget.name());
 
         assertEquals("flowContext", artifact("contextFlow").ruleFlow().context());
+        assertNull(artifact("contextFlow").ruleFlow().resultType(), "the flow returns its context");
+        assertEquals("none", artifact("contextFlow").ruleFlow().resultTypeOrigin());
     }
 
     @Test
@@ -356,5 +367,44 @@ class DescriptorBuilderTest {
         assertEquals("brokenBean", undescribable.get(0).artifact());
         assertTrue(undescribable.get(0).message().contains("bean creation failed"));
         assertEquals(descriptor.artifacts().size(), withFailure.artifacts().size(), "everything else is still described");
+    }
+
+    @Test
+    void resultTypesAndOrigins() {
+        RuleSet<?> declaredSet = RuleSet.builder().with("declaredSet")
+                .resultExtractor(BigDecimal.class, function((Integer violationCount) -> BigDecimal.valueOf(violationCount)))
+                .build();
+        RuleSet<?> derivedSet = RuleSet.builder().with("derivedSet")
+                .resultExtractor(function((Integer violationCount) -> violationCount))
+                .build();
+        RuleSet<?> scriptSet = RuleSet.builder().with("scriptSet")
+                .resultExtractor(Function.builder().build(Script.builder().build(OrderFixture.SCRIPT_LANGUAGE, "ctx.total")))
+                .build();
+        RuleFlow<?> derivedFlow = RuleFlow.builder().name("derivedFlow")
+                .bind("a", 1)
+                .returning(function((Integer a) -> "value " + a))
+                .build();
+        RuleFlow<?> scriptFlow = RuleFlow.builder().name("scriptFlow")
+                .bind("a", 1)
+                .returning(Function.builder().build(Script.builder().build(OrderFixture.SCRIPT_LANGUAGE, "ctx.a")))
+                .build();
+        Descriptor local = DescriptorBuilder.of(new MapRegistry()
+                        .register("declaredSet", declaredSet).register("derivedSet", derivedSet).register("scriptSet", scriptSet)
+                        .register("derivedFlow", derivedFlow).register("scriptFlow", scriptFlow))
+                .analyzers(List.of(OrderFixture.stubAnalyzer()))
+                .build();
+        java.util.function.Function<String, Artifact> artifact = id -> local.artifacts().stream()
+                .filter(a -> a.id().equals(id)).findFirst().orElseThrow();
+
+        assertEquals("java.math.BigDecimal", artifact.apply("declaredSet").ruleSet().resultType());
+        assertEquals("declared", artifact.apply("declaredSet").ruleSet().resultTypeOrigin());
+        assertEquals("java.lang.Integer", artifact.apply("derivedSet").ruleSet().resultType(), "read off the lambda");
+        assertEquals("derived", artifact.apply("derivedSet").ruleSet().resultTypeOrigin());
+        assertNull(artifact.apply("scriptSet").ruleSet().resultType(), "a script says nothing about its type");
+        assertEquals("unknown", artifact.apply("scriptSet").ruleSet().resultTypeOrigin());
+        assertEquals("java.lang.String", artifact.apply("derivedFlow").ruleFlow().resultType());
+        assertEquals("derived", artifact.apply("derivedFlow").ruleFlow().resultTypeOrigin());
+        assertNull(artifact.apply("scriptFlow").ruleFlow().resultType());
+        assertEquals("unknown", artifact.apply("scriptFlow").ruleFlow().resultTypeOrigin());
     }
 }

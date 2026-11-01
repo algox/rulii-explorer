@@ -3,7 +3,7 @@ import {glyph, icon} from '../../components/icons.js';
 import {breadcrumb, copyLinkButton} from '../../components/common.js';
 import {inlineExpression, segmented} from '../../components/expression.js';
 import {routes, navigate} from '../../routing/router.js';
-import {commandChildren, plural, shortType, sourceText, walkCommands} from '../../descriptor/format.js';
+import {commandChildren, originWords, plural, resultCaption, resultOf, shortType, sourceText, walkCommands} from '../../descriptor/format.js';
 import {commandParts} from '../../descriptor/summaries.js';
 import {undescribedBody} from './artifact.js';
 import {stepAside, renderParts} from '../flow/step-aside.js';
@@ -26,6 +26,7 @@ export function ruleFlowPage(a, host) {
     let steps = 0;
     walkCommands(f.commands, () => steps++);
     const source = sourceText(a.source);
+    const result = resultOf(a);
     const selected = route.query.step || '';
     const aside = selected ? stepAside(a, selected, index, host) : nothing;
     const tabHref = (v) => routes.artifact(a, {view: v, step: selected});
@@ -40,7 +41,7 @@ export function ruleFlowPage(a, host) {
                 </div>
                 <div class="rx-flow-desc">
                     <p>${a.description || html`<span class="rx-muted">No description.</span>`}</p>
-                    <span>${plural(steps, 'step')}${source ? html` · <span class="rx-mono">${source}</span>` : nothing}</span>
+                    <span>${plural(steps, 'step')}${result ? html` · returns ${result.type ? html`<span class="rx-mono" title=${result.full + (originWords(result.origin) ? ' · ' + originWords(result.origin) : '')}>${result.type}</span>` : 'a value of unknown type'}` : nothing}${source ? html` · <span class="rx-mono">${source}</span>` : nothing}</span>
                 </div>
                 <div class="rx-flow-bar">
                     <div class="rx-tabs" role="tablist" aria-label="Views">
@@ -94,7 +95,7 @@ function outlineBody(a, f, host, view, selected, index) {
                 ${startRow(a, f)}
                 ${f.commands.map((c, i) => stepRows(c, 'commands[' + i + ']', String(i + 1), null, ctx))}
                 ${f.finalizer ? row({number: '', tag: 'FINALLY', tagClass: 'rx-step-tag-flow', text: html`<span>Then always</span>${inlineExpression(f.finalizer, view)}`, caption: 'finalizer'}) : nothing}
-                ${f.returning ? row({number: '', tag: 'RETURN', tagClass: 'rx-step-tag-flow', text: html`<span>Return</span>${inlineExpression(f.returning, view)}`, caption: f.resultType && f.resultType !== 'java.lang.Object' ? 'flow result · ' + shortType(f.resultType) : 'flow result'}) : nothing}
+                ${f.returning ? row({number: '', tag: 'RETURN', tagClass: 'rx-step-tag-flow', text: html`<span>Return</span>${inlineExpression(f.returning, view)}`, caption: resultCaption('flow result', a)}) : nothing}
                 ${!f.commands.length ? html`<li class="rx-step"><span></span><span></span><span></span><span class="rx-step-text rx-muted">This flow has no steps.</span><span></span></li>` : nothing}
             </ol>
             ${f.globalHandler ? html`<div class="rx-outline-foot">

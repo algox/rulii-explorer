@@ -3,7 +3,7 @@ import {RxElement} from '../../components/base.js';
 import {icon} from '../../components/icons.js';
 import {typeBadge} from '../../components/common.js';
 import {routes} from '../../routing/router.js';
-import {beanKindLabel, kindLabel, typeLabel} from '../../descriptor/format.js';
+import {beanKindLabel, kindLabel, resultOf, typeLabel} from '../../descriptor/format.js';
 import {artifactSummary, beanSummary} from '../../descriptor/summaries.js';
 
 const DELAY = 350;
@@ -92,7 +92,7 @@ class RxHovercard extends RxElement {
             </div>`;
         }
         return html`<div class="rx-hovercard" role="tooltip" style=${style}>
-            <div class="rx-meta-row">${typeBadge(a.type, {undescribed: index.undescribed.has(a.id)})}<span class="rx-small">${[(index.categories.of.get(a.id) || {}).path || a.packageId, kindLabel(a)].filter(Boolean).join(' · ')}</span></div>
+            <div class="rx-meta-row">${typeBadge(a.type, {undescribed: index.undescribed.has(a.id)})}<span class="rx-small">${[(index.categories.of.get(a.id) || {}).path || a.packageId, kindLabel(a), resultOf(a) && resultOf(a).type ? '→ ' + resultOf(a).type : null].filter(Boolean).join(' · ')}</span></div>
             <span class="rx-hc-name">${a.name}</span>
             <span class="rx-hc-sum">${a.description || artifactSummary(a, index)}</span>
             ${a.tags && a.tags.length ? html`<span class="rx-small rx-hc-tags">${a.tags.map(t => html`<span class="rx-tag rx-tag-static">${t}</span>`)}</span>` : nothing}

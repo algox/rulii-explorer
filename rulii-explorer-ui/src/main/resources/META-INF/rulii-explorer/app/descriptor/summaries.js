@@ -1,4 +1,4 @@
-import {expressionsOf, isCompiled, isScript, joinWords, numberWord, plainText, plural, shortType, targetName, walkCommands} from './format.js';
+import {expressionsOf, isCompiled, isScript, joinWords, numberWord, plainText, plural, resultOf, shortType, targetName, walkCommands} from './format.js';
 
 /**
  * The one-sentence summaries shown in Newsreader italic on every detail page, and the problem
@@ -255,7 +255,8 @@ export function commandParts(command, index, flowId) {
             text(command.type === 'apply' ? 'Apply' : 'Run');
             link(command.target);
             if (command.as) { text('and keep the result as'); chip(command.as); }
-            return {parts, caption: targetCaption(command.target, index)};
+            const bound = command.as ? boundResultType(command.target, index) : null;
+            return {parts, caption: targetCaption(command.target, index) + (bound ? ' · ' + command.as + ': ' + bound : '')};
         }
         case 'async-run': {
             text('Start');
@@ -304,6 +305,13 @@ export function commandParts(command, index, flowId) {
             text(command.type);
             return {parts, caption: ''};
     }
+}
+
+/** The short result type of the artifact a step runs, when the target resolves and its type is known; else null. */
+export function boundResultType(target, index) {
+    const a = target && target.kind === 'instance' && target.id ? index.byId.get(target.id) : null;
+    const r = a ? resultOf(a) : null;
+    return r && r.type ? r.type : null;
 }
 
 function targetCaption(target, index) {

@@ -3,7 +3,7 @@ import {glyph, icon} from '../../components/icons.js';
 import {breadcrumb, card, copyButton, copyLinkButton, graphButton, kindCaption, typeBadge} from '../../components/common.js';
 import {plainTokens, rawCode, segmented, slotCaption} from '../../components/expression.js';
 import {routes} from '../../routing/router.js';
-import {isCompiled, kindShort, plural, shortType, sourceText, typeLabel} from '../../descriptor/format.js';
+import {isCompiled, kindShort, originWords, plural, resultCaption, resultOf, shortType, sourceText, typeLabel} from '../../descriptor/format.js';
 import {artifactSummary, validatorPhrase, validatedValue} from '../../descriptor/summaries.js';
 import {sourceCard, usedByCard, undescribedBody, isRuleCompiled} from './artifact.js';
 
@@ -13,6 +13,7 @@ export function ruleSetPage(a, host) {
     const s = a.ruleSet || {members: []};
     const undescribed = index.undescribed.has(a.id);
     const source = sourceText(a.source);
+    const result = resultOf(a);
     const hooks = [['initializer', s.initializer], ['finalizer', s.finalizer], ['result extractor', s.resultExtractor], ['error handler', s.errorHandler]];
     const present = hooks.filter(h => h[1]).map(h => h[0]);
     const absent = hooks.filter(h => !h[1]).map(h => h[0]);
@@ -32,6 +33,7 @@ export function ruleSetPage(a, host) {
                 ${a.packageId ? html`<span>Package <a class="rx-mono" href=${routes.package(a.packageId)}>${a.packageId}</a></span>` : nothing}
                 ${source ? html`<span>Defined in <span class="rx-mono">${source}</span>${copyButton(source, 'Copy source location')}</span>` : nothing}
                 <span>Validating <strong>${s.validating ? 'yes' : 'no'}</strong></span>
+                ${result ? html`<span>Returns ${result.type ? html`<strong class="rx-mono" title=${result.full}>${result.type}</strong>` : html`<strong>unknown type</strong>`}${originWords(result.origin) ? html` <span class="rx-muted">${originWords(result.origin)}</span>` : nothing}</span>` : nothing}
             </div>
         </div>
         <div class="rx-page-body">
@@ -40,7 +42,7 @@ export function ruleSetPage(a, host) {
                 <div class="rx-col">
                     ${card('Rules, in order', membersList(s, index), {class: 'rx-card-tight', titleClass: 'rx-h2-lg', action: html`<span class="rx-h2-count">${plural(s.members.length, 'rule')} · run top to bottom</span>`, ariaLabel: 'Members'})}
                     <div class="rx-grid-2 rx-grid-2-uneven">
-                        ${card('When it runs', whenItRuns(s, view), {titleClass: 'rx-h2-md', action: segmented(view, v => host.store.setExprView(v))})}
+                        ${card('When it runs', whenItRuns(a, s, view), {titleClass: 'rx-h2-md', action: segmented(view, v => host.store.setExprView(v))})}
                         ${card('Inputs', html`
                             ${a.parameters.length ? html`<div class="rx-inputs">${a.parameters.map(p => html`<div><span class="rx-mono" title=${p.description || p.type || ''}>${p.name}<span>: ${shortType(p.type)}</span></span><span class="rx-req">${p.required === false ? 'optional' : 'required'}</span></div>`)}</div>` : html`<p class="rx-small" style="font-size: 12.5px">No declared inputs. The rules read whatever the bindings hold.</p>`}
                             <p class="rx-small" style="font-size: 12px">${present.length ? 'Has ' + joinAnd(present) + (absent.length ? '; no ' + joinOr(absent) + '.' : '.') : 'No initializer, finalizer, result extractor or error handler.'}</p>`, {class: 'rx-card-tight', titleClass: 'rx-h2-md'})}
@@ -79,11 +81,12 @@ function memberWhat(m, index) {
     return html`<span class="rx-what rx-muted">${m.description || 'always passes'}</span>`;
 }
 
-function whenItRuns(s, view) {
+function whenItRuns(a, s, view) {
     const rows = [['Runs only if', 'pre-condition', s.preCondition], ['Stops when', 'stop-condition', s.stopCondition],
         ['First', 'initializer', s.initializer], ['Last', 'finalizer', s.finalizer], ['Result', 'result-extractor', s.resultExtractor], ['On error', 'error-handler', s.errorHandler]].filter(r => r[2]);
     if (!rows.length) return html`<p class="rx-small" style="font-size: 13px">Runs every rule, every time. There is no pre-condition and no stop condition.</p>`;
-    if (view === 'raw') return html`<div class="rx-raw-grid rx-raw-grid-92">${rows.map(([, slot, e]) => html`<span class="rx-k">${slotCaption(slot, e)}</span><span class="rx-v">${rawCode(e)}</span>`)}</div>`;
+    const caption = (slot, e) => slot === 'result-extractor' ? resultCaption(slotCaption(slot, e), a) : slotCaption(slot, e);
+    if (view === 'raw') return html`<div class="rx-raw-grid rx-raw-grid-92">${rows.map(([, slot, e]) => html`<span class="rx-k">${caption(slot, e)}</span><span class="rx-v">${rawCode(e)}</span>`)}</div>`;
     return html`<div class="rx-plain-grid rx-plain-grid-92">${rows.map(([label, , e]) => html`<span class="rx-k">${label}</span><span class="rx-v">${plainTokens(e)}</span>`)}</div>`;
 }
 

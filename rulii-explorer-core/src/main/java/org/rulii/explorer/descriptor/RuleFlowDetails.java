@@ -22,18 +22,22 @@ import java.util.List;
 /**
  * What a rule flow does (FR-13): the complete command tree.
  *
- * @param context       label of the context configurator (an XML bean name, or a class name); null when the flow runs in the caller context.
- * @param commands      the top-level commands, in order.
- * @param globalHandler the flow-level exception handler; null when none.
- * @param finalizer     action run last; null when none.
- * @param returning     the result extractor; null when the flow returns its rule context.
- * @param resultType    the result type name; null when the flow returns its rule context.
+ * @param context          label of the context configurator (an XML bean name, or a class name); null when the flow runs in the caller context.
+ * @param commands         the top-level commands, in order.
+ * @param globalHandler    the flow-level exception handler; null when none.
+ * @param finalizer        action run last; null when none.
+ * @param returning        the result extractor; null when the flow returns its rule context.
+ * @param resultType       the result type name; null when the flow returns its rule context or the type is not
+ *                         known (a script or a generic lambda).
+ * @param resultTypeOrigin where the result type comes from: {@code declared} on the builder or in XML,
+ *                         {@code derived} from the returning function, {@code unknown}, or {@code none} when the
+ *                         flow returns its rule context; null in descriptors older than 1.1.
  *
  * @author Algorithmx Development Team
  * @since 1.0
  */
 public record RuleFlowDetails(String context, List<Command> commands, Handler globalHandler, Expression finalizer,
-                              Expression returning, String resultType) {
+                              Expression returning, String resultType, String resultTypeOrigin) {
 
     public RuleFlowDetails {
         commands = Lists.copy(commands);

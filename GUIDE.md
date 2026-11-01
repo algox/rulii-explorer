@@ -28,7 +28,10 @@ guide covers using the screens. Press `?` on any screen for the short version.
   and writes, who uses it, and where it is defined. Validators show their error code, message and
   settings. A rule whose logic is compiled code shows its signature and says so.
 - **A rule set**: its rules in order with their conditions, the stop condition if there is one,
-  and who runs it.
+  what it returns, and who runs it. "Returns `RuleSetExecutionStatus` by default" is rulii's own
+  result; "declared" is a type the application stated on the builder or in XML, "derived" one read
+  off its result extractor, and "unknown type" means the extractor is a script or a generic lambda
+  and said nothing.
 - **A rule flow**: a flowchart, an outline (the same steps as text) and a link to the graph.
   Clicking a step opens its panel on the right; the selection is shared between the two views.
 - **The dependency graph**: focused on one artifact and everything one, two or any number of
@@ -52,7 +55,8 @@ The flowchart is laid out top to bottom, one node per step:
 
 - **Step**: a rounded box, coloured by what it runs (rule, rule set or rule flow) with the type
   glyph. The caption says how: RUN, APPLY, ASYNC, AWAIT, BIND, EXECUTE. "→ name" on the right
-  means the result is kept under that name for later steps.
+  means the result is kept under that name for later steps; the outline and the step panel add
+  the type of that result when the rule set or flow it runs has a known one.
 - **Decision**: a six-sided box. WHEN leaves along *yes* and *no*; FOR EACH runs its box once per
   item and leaves along *done*.
 - **Box**: a scope or the body of a loop, with its name as a label. Steps inside share its
@@ -62,7 +66,10 @@ The flowchart is laid out top to bottom, one node per step:
 - **Handler**: a dashed amber box hanging off its step, labelled with the exception it catches.
   A global handler, which catches whatever any step throws, sits on its own.
 - **Exit**: a pill that stops the flow here, with or without a value. Start, Return and End are
-  pills too: Start lists the flow's parameters, Return shows the expression.
+  pills too: Start lists the flow's parameters, Return shows the expression. The flow's header
+  says what it returns ("returns `Boolean`"; hover for the full name and whether the type was
+  declared or derived), and the outline's Return row carries the same in its caption. A flow
+  without a Return gives back its rule context and says nothing.
 - **Not registered**: a red dashed box. Nothing with that name exists, so the step fails when it
   runs. Problems says how to fix it.
 - **Dashed outline**: the target is looked up by name or class from the registry when the flow
@@ -363,6 +370,14 @@ categories are adopted.
   notes where compiled code might also change it.
 - **Lookup**: a flow step that finds its target by name or by class when it runs, rather than
   holding it directly. "Direct" steps are wired at build time.
+- **Result type**: what a rule set or rule flow gives back. **Declared** means the application
+  stated it (`resultExtractor(Price.class, ...)`, `returning(Price.class, ...)`, or `type` /
+  `result-type` in XML); **derived** means rulii read it off a typed lambda; **by default** is
+  rulii's own rule set result, a `RuleSetExecutionStatus`; **unknown type** means the extractor is
+  a script or a generic lambda, so nothing can be said. A flow without a returning expression
+  gives back its rule context and has no result type. The type appears on the rule set and flow
+  pages, in the hover card and the graph panel, and on a flow step that keeps a result under a
+  name.
 - **Sources**: the file and line, or the class, where an artifact is defined. They are included
   unless the application sets `rulii.explorer.include-sources=false`.
 - **Bean**: a class the application validates with rulii-bean-validation, shown in the Beans

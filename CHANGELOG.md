@@ -17,6 +17,12 @@ Requires rulii 2.2.0 and rulii-spring 2.2.0; the Beans section needs rulii-bean-
   validation map, a bean page where each constraint opens its rule, the Beans graph, search over
   beans, and the bean problems; the Rules section is unchanged by them. A rule page names the
   beans that `@Validate` it.
+- **Result types**: rulii 2.2's formal result type on rule sets and flows. `ruleSet` gains
+  `resultType` and `resultTypeOrigin`, `ruleFlow` gains `resultTypeOrigin` (`declared`,
+  `derived`, `default`, `unknown` or `none`); a flow's `resultType` is now absent when the type
+  is not known, where 1.0 wrote `java.lang.Object`. The UI shows what a rule set or flow returns
+  and where the type came from on its page, in the hover card and the graph panel, and a flow
+  step that keeps a result under a name shows the result's type.
 
 ## 1.0.0 (2026-10-04)
 

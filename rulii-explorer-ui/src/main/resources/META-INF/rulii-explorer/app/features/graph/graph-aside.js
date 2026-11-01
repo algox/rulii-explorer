@@ -3,7 +3,7 @@ import {glyph, icon, severityIcon} from '../../components/icons.js';
 import {typeBadge} from '../../components/common.js';
 import {plainTokens, rawCode, segmented, slotCaption} from '../../components/expression.js';
 import {routes} from '../../routing/router.js';
-import {kindLabel, plural, sourceText, typeLabel, isCompiled} from '../../descriptor/format.js';
+import {kindLabel, originWords, plural, resultOf, sourceText, typeLabel, isCompiled} from '../../descriptor/format.js';
 import {artifactSummary} from '../../descriptor/summaries.js';
 
 /**
@@ -27,6 +27,7 @@ export function graphAside(node, graph, index, host, actions) {
     const near = new Set([a.id, ...graph.edges.filter(e => e.from === a.id || e.to === a.id).flatMap(e => [e.from, e.to])]);
     const problems = (index.descriptor.problems || []).filter(p => near.has(p.artifact) && p.code !== 'UNUSED_RULE');
     const flowchart = flowchartLink(a, index);
+    const result = resultOf(a);
     return html`<aside class="rx-gaside" aria-label="Selected artifact">
         <div class="rx-gaside-head"><span class="rx-overline">Selected · ${typeLabel(a.type)}</span><button type="button" class="rx-icon-btn-bare rx-icon-btn" aria-label="Close details" @click=${actions.onClose}>${icon('close', {size: 14})}</button></div>
         <div class="rx-gaside-title">
@@ -41,6 +42,7 @@ export function graphAside(node, graph, index, host, actions) {
             ${a.type === 'ruleset' ? html`<span class="rx-k">Contains</span><span class="rx-v" style="color: var(--rx-ink)">${plural(a.ruleSet.members.length, 'rule')}${a.ruleSet.members.every(id => graph.nodes.has(id)) ? ', all shown' : ', ' + a.ruleSet.members.filter(id => graph.nodes.has(id)).length + ' shown'}</span>` : nothing}
             ${a.type === 'ruleflow' ? html`<span class="rx-k">Runs</span><span class="rx-v" style="color: var(--rx-ink)">${plural(runs.length, 'artifact')}${runs.some(e => e.resolution === 'unresolved') ? ', one missing' : ''}</span>` : nothing}
             ${a.packageId ? html`<span class="rx-k">Package</span><span class="rx-v"><a class="rx-mono" href=${routes.package(a.packageId)}>${a.packageId}</a></span>` : nothing}
+            ${result ? html`<span class="rx-k">Returns</span><span class="rx-v" style="color: var(--rx-ink)">${result.type ? html`<span class="rx-mono" title=${result.full}>${result.type}</span>` : 'unknown type'}${originWords(result.origin) ? html` <span class="rx-muted">${originWords(result.origin)}</span>` : nothing}</span>` : nothing}
             ${sourceText(a.source) ? html`<span class="rx-k">Defined in</span><span class="rx-v"><span class="rx-mono rx-ellipsis" title=${sourceText(a.source)}>${sourceText(a.source)}</span></span>` : nothing}
         </div>
         ${conditionsCard(a, view, host)}
@@ -86,6 +88,7 @@ export function conditionsCard(a, view, host, options = {}) {
     if (a.ruleSet) {
         if (a.ruleSet.preCondition) rows.push(['Runs only if', 'pre-condition', a.ruleSet.preCondition]);
         if (a.ruleSet.stopCondition) rows.push(['Stops when', 'stop-condition', a.ruleSet.stopCondition]);
+        if (a.ruleSet.resultExtractor) rows.push(['Returns', 'result-extractor', a.ruleSet.resultExtractor]);
     }
     if (a.ruleFlow && a.ruleFlow.returning) rows.push(['Returns', 'returning', a.ruleFlow.returning]);
     if (!rows.length) return nothing;

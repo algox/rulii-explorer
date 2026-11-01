@@ -168,6 +168,8 @@
         "finalizer": { "$ref": "#/$defs/expression" },
         "resultExtractor": { "$ref": "#/$defs/expression" },
         "errorHandler": { "$ref": "#/$defs/expression" },
+        "resultType": { "type": "string" },
+        "resultTypeOrigin": { "enum": ["declared", "derived", "default", "unknown", "none"] },
         "members": { "type": "array", "items": { "type": "string" } }
       }
     },
@@ -180,7 +182,8 @@
         "globalHandler": { "$ref": "#/$defs/handler" },
         "finalizer": { "$ref": "#/$defs/expression" },
         "returning": { "$ref": "#/$defs/expression" },
-        "resultType": { "type": "string" }
+        "resultType": { "type": "string" },
+        "resultTypeOrigin": { "enum": ["declared", "derived", "default", "unknown", "none"] }
       }
     },
     "command": {
