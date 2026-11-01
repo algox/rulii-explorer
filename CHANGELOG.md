@@ -2,6 +2,22 @@
 
 ## 1.1.0 (unreleased)
 
+Requires rulii 2.2.0 and rulii-spring 2.2.0; the Beans section needs rulii-bean-validation 1.0.0.
+
+- **Beans** (opt-in, `rulii.explorer.beans.enabled=true`): the classes validated with
+  rulii-bean-validation, in a section of their own. The descriptor (version 1.1, same schema)
+  gains a `beans` array: each bean's properties, methods and constructors with their constraints,
+  `@Expr` expressions, `@Validate` targets, `@Bind` names, container elements and cascades, the
+  rule the library built for each constraint, the flow it runs, and sources. Beans are found by a
+  byte-code scan of the auto-configuration packages (or `rulii.explorer.beans.packages`), from
+  `rulii.explorer.beans.classes`, and from what the validator has validated
+  (`rulii.explorer.beans.include-validated`). New checks: `BEAN_NOT_MATERIALIZED`, a `@Validate`
+  name that is not registered (`UNRESOLVED_TARGET`), and a configured class that declares nothing
+  (`UNDESCRIBABLE`, warning). The UI adds the Rules / Beans switch, a Beans overview with a
+  validation map, a bean page where each constraint opens its rule, the Beans graph, search over
+  beans, and the bean problems; the Rules section is unchanged by them. A rule page names the
+  beans that `@Validate` it.
+
 ## 1.0.0 (2026-10-04)
 
 The first release. Requires rulii 2.1.0, rulii-spring 2.1.0 and Spring Boot 4.1 on Java 17.

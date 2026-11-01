@@ -9,7 +9,7 @@ import {externalSourcesAllowed} from '../../descriptor/source.js';
 import {parseQuery} from '../../search/search.js';
 
 const TYPE_CYCLE = [null, 'rule', 'ruleset', 'ruleflow', 'binding'];
-const TYPE_NAMES = {rule: 'rules', ruleset: 'rule sets', ruleflow: 'rule flows', binding: 'bindings'};
+const TYPE_NAMES = {rule: 'rules', ruleset: 'rule sets', ruleflow: 'rule flows', binding: 'bindings', bean: 'beans'};
 
 /** The command palette (Ctrl/⌘ K): search over everything, grouped by type (S-Search). */
 class RxPalette extends RxElement {
@@ -50,12 +50,17 @@ class RxPalette extends RxElement {
         return parseQuery(this.query);
     }
 
+    /** The section the palette searches: the one on screen (FR-70); the Rules section never lists a bean. */
+    get section() {
+        return this.state.route.section === 'beans' && this.state.index && this.state.index.beans ? 'beans' : 'rules';
+    }
+
     results() {
         const search = this.state.search;
         if (!search) return [];
         const {text, tags, category} = this.parsed();
         if (!text.trim() && !tags.length && !category) return [];
-        return search.query(text, {type: this.typeFilter || undefined, tags, category});
+        return search.query(text, {type: this.typeFilter || undefined, tags, category, section: this.section});
     }
 
     flat(groups) {
@@ -67,7 +72,7 @@ class RxPalette extends RxElement {
         if (e.key === 'ArrowDown') { e.preventDefault(); this.selected = hits.length ? (this.selected + 1) % hits.length : 0; }
         else if (e.key === 'ArrowUp') { e.preventDefault(); this.selected = hits.length ? (this.selected - 1 + hits.length) % hits.length : 0; }
         else if (e.key === 'Enter') { e.preventDefault(); const hit = hits[this.selected]; if (hit) this.open(hit); }
-        else if (e.key === 'Tab') {
+        else if (e.key === 'Tab' && this.section === 'rules') {
             e.preventDefault();
             const i = TYPE_CYCLE.indexOf(this.typeFilter);
             this.typeFilter = TYPE_CYCLE[(i + (e.shiftKey ? TYPE_CYCLE.length - 1 : 1)) % TYPE_CYCLE.length];
@@ -76,7 +81,7 @@ class RxPalette extends RxElement {
     }
 
     open(hit) {
-        navigate(hit.kind === 'binding' ? routes.binding(hit.binding.name) : routes.artifact(hit.artifact));
+        navigate(hit.kind === 'binding' ? routes.binding(hit.binding.name) : hit.kind === 'bean' ? routes.bean(hit.bean) : routes.artifact(hit.artifact));
         this.close();
     }
 
@@ -92,7 +97,7 @@ class RxPalette extends RxElement {
                 <label class="rx-palette-field">
                     ${icon('search', {size: 18})}
                     <span class="rx-sr">Search rules, flows, bindings and error codes</span>
-                    <input type="search" placeholder=${this.typeFilter ? 'Search ' + TYPE_NAMES[this.typeFilter] + '…' : 'Search rules, flows, error codes…'} autocomplete="off" spellcheck="false"
+                    <input type="search" placeholder=${this.typeFilter ? 'Search ' + TYPE_NAMES[this.typeFilter] + '…' : this.section === 'beans' ? 'Search beans, properties, constraints…' : 'Search rules, flows, error codes…'} autocomplete="off" spellcheck="false"
                            @input=${(e) => { this.query = e.target.value; this.selected = 0; }} @keydown=${(e) => this.onKey(e, groups)}
                            role="combobox" aria-expanded=${hits.length > 0} aria-controls="rx-palette-results" aria-activedescendant=${hits.length ? 'rx-opt-' + this.selected : nothing}>
                     ${this.typeFilter ? html`<span class="rx-pill">${TYPE_NAMES[this.typeFilter]}</span>` : nothing}
@@ -110,12 +115,12 @@ class RxPalette extends RxElement {
                 <div class="rx-palette-foot">
                     <span><kbd class="rx-kbd">↑</kbd><kbd class="rx-kbd">↓</kbd>move</span>
                     <span><kbd class="rx-kbd">↵</kbd>open</span>
-                    <span><kbd class="rx-kbd">tab</kbd>filter by type</span>
+                    ${this.section === 'beans' ? nothing : html`<span><kbd class="rx-kbd">tab</kbd>filter by type</span>`}
                     <span><kbd class="rx-kbd">esc</kbd>close</span>
                     <button type="button" class="rx-palette-help" @click=${() => this.store.set({paletteOpen: false, helpOpen: true})}><kbd class="rx-kbd">?</kbd>help</button>
                     ${externalSourcesAllowed() ? html`<button type="button" class="rx-palette-help" @click=${() => this.store.set({paletteOpen: false, sourceOpen: true})}>${icon('globe', {size: 12, width: 2})}open a descriptor</button>` : nothing}
                     <span class="rx-spacer"></span>
-                    <span>Names, conditions, codes, bindings · <span class="rx-mono">tag:vip</span> · <span class="rx-mono">in:Pricing</span></span>
+                    ${this.section === 'beans' ? html`<span>Beans, properties, constraint names, error codes, the rules they run</span>` : html`<span>Names, conditions, codes, bindings · <span class="rx-mono">tag:vip</span> · <span class="rx-mono">in:Pricing</span></span>`}
                 </div>
             </div>
         </dialog>`;
@@ -134,6 +139,20 @@ class RxPalette extends RxElement {
                     <span class="rx-opt-snip">${readers.length ? 'Read by ' + joinWords(readers.slice(0, 4)) + (readers.length > 4 ? ' and ' + (readers.length - 4) + ' more' : '') : 'Written but never read'}</span>
                 </div>
                 <span class="rx-opt-meta">binding</span>
+                ${selected ? html`<kbd class="rx-kbd">↵</kbd>` : html`<span></span>`}
+            </div>`;
+        }
+        if (hit.kind === 'bean') {
+            const b = hit.bean;
+            const beans = index.beans;
+            const caption = (b.properties || []).length + ' ' + ((b.properties || []).length === 1 ? 'property' : 'properties') + (b.discovery === 'cascade' ? ' · reached by cascade' : '');
+            return html`<div class="rx-option" role="option" id=${'rx-opt-' + idx} aria-selected=${selected} @click=${() => this.open(hit)} @mousemove=${() => { if (this.selected !== idx) this.selected = idx; }}>
+                ${glyph('bean', {size: 12, undescribed: beans.undescribed.has(b.id)})}
+                <div>
+                    <span class="rx-opt-name">${markRanges(b.name, hit.nameMatches)}</span>
+                    ${hit.snippet ? this.snippet(hit, words) : html`<span class="rx-opt-snip">${caption}</span>`}
+                </div>
+                <span class="rx-opt-meta">${b.packageId || ''}</span>
                 ${selected ? html`<kbd class="rx-kbd">↵</kbd>` : html`<span></span>`}
             </div>`;
         }

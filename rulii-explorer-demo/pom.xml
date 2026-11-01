@@ -45,6 +45,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
+        <!-- Boot validation: the Validator bean rulii-spring pins to rulii bean validation; the explorer describes its beans. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-validation</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.graalvm.js</groupId>

@@ -55,12 +55,14 @@ class RxApp extends RxElement {
         const {descriptor, route, index} = this.state;
         const app = descriptor && descriptor.application && descriptor.application.name;
         let page = 'Overview';
-        if (route.name === 'problems') page = 'Problems';
-        else if (route.name === 'graph') page = 'Dependency graph';
+        if (route.name === 'problems') page = route.section === 'beans' ? 'Bean problems' : 'Problems';
+        else if (route.name === 'graph') page = route.section === 'beans' ? 'Beans graph' : 'Dependency graph';
         else if (route.name === 'artifact' && index) { const a = index.byId.get(route.id); page = a ? a.name : route.id; }
         else if (route.name === 'binding') page = route.id;
         else if (route.name === 'package') page = route.id;
         else if (route.name === 'category') page = route.id;
+        else if (route.name === 'beans') page = 'Beans';
+        else if (route.name === 'bean') { const b = index && index.beans ? index.beans.byId.get(route.id) : null; page = b ? b.name : route.id; }
         document.title = [page, app, 'rulii explorer'].filter(Boolean).join(' · ');
     }
 
@@ -71,6 +73,16 @@ class RxApp extends RxElement {
      */
     syncSidebar() {
         const {route, index} = this.state;
+        if (route.name === 'bean' && index && index.beans) {
+            // The Beans sidebar: open the package folder of the bean just navigated to, once per arrival.
+            const key = 'bean:' + route.id;
+            if (this.syncedFor === key && index.descriptor === this.syncedIndex) return;
+            this.syncedFor = key;
+            this.syncedIndex = index.descriptor;
+            const b = index.beans.byId.get(route.id);
+            if (b) this.store.expand('bpkg:' + (b.packageId || ''));
+            return;
+        }
         if (route.name !== 'artifact' || !index) { this.syncedFor = null; return; }
         const sameDescriptor = index.descriptor === this.syncedIndex;
         if (sameDescriptor && route.id === this.syncedFor) return; // already revealed for this page
@@ -94,6 +106,7 @@ class RxApp extends RxElement {
             <div class="rx-shell">
                 <rx-topbar></rx-topbar>
                 <rx-sidebar></rx-sidebar>
+                <rx-sidebar-resize></rx-sidebar-resize>
                 <main class="rx-main" id="rx-main" tabindex="-1">${this.content()}</main>
             </div>
             <rx-palette></rx-palette>
@@ -107,9 +120,21 @@ class RxApp extends RxElement {
         if (status === 'loading') return html`<rx-states kind="loading"></rx-states>`;
         if (status !== 'ready' && status !== 'empty') return html`<rx-states kind=${status}></rx-states>`;
         if (status === 'empty' && route.name === 'overview') return html`<rx-states kind="empty"></rx-states>`;
+        if (route.section === 'beans') {
+            const beans = this.state.index && this.state.index.beans;
+            if (!beans) return html`<rx-states kind="beans-absent"></rx-states>`;
+            if (!beans.list.length && route.name !== 'problems') return html`<rx-states kind="beans-empty"></rx-states>`;
+            switch (route.name) {
+                case 'beans': return html`<rx-beans-overview></rx-beans-overview>`;
+                case 'problems': return html`<rx-problems section="beans"></rx-problems>`;
+                case 'graph': return html`<rx-beans-graph></rx-beans-graph>`;
+                case 'bean': return html`<rx-bean></rx-bean>`;
+                default: return html`<rx-states kind="missing"></rx-states>`;
+            }
+        }
         switch (route.name) {
             case 'overview': return html`<rx-overview></rx-overview>`;
-            case 'problems': return html`<rx-problems></rx-problems>`;
+            case 'problems': return html`<rx-problems section="rules"></rx-problems>`;
             case 'graph': return html`<rx-graph></rx-graph>`;
             case 'artifact': return html`<rx-artifact></rx-artifact>`;
             case 'binding': return html`<rx-binding></rx-binding>`;

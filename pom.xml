@@ -44,9 +44,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <!-- rulii: the explorer needs the 2.1 introspection API -->
-        <rulii.version>2.1.0</rulii.version>
-        <rulii-spring.version>2.1.0</rulii-spring.version>
+        <!-- rulii: the explorer needs the 2.1 introspection API; 2.2 is the line rulii-bean-validation builds on -->
+        <rulii.version>2.2.0-SNAPSHOT</rulii.version>
+        <rulii-spring.version>2.2.0-SNAPSHOT</rulii-spring.version>
+        <!-- Bean Validation on rulii: optional in explorer-core, describes the application's beans when present -->
+        <rulii-bean-validation.version>1.0-SNAPSHOT</rulii-bean-validation.version>
 
         <!-- Spring Boot's BOM pins Spring Framework, Jackson 3, JUnit and the rest -->
         <spring-boot.version>4.1.1</spring-boot.version>
@@ -85,6 +87,11 @@
                 <groupId>org.rulii</groupId>
                 <artifactId>rulii-spring</artifactId>
                 <version>${rulii-spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.rulii</groupId>
+                <artifactId>rulii-bean-validation</artifactId>
+                <version>${rulii-bean-validation.version}</version>
             </dependency>
 
             <dependency>

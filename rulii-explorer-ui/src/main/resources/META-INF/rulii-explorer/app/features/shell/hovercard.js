@@ -3,8 +3,8 @@ import {RxElement} from '../../components/base.js';
 import {icon} from '../../components/icons.js';
 import {typeBadge} from '../../components/common.js';
 import {routes} from '../../routing/router.js';
-import {kindLabel, typeLabel} from '../../descriptor/format.js';
-import {artifactSummary} from '../../descriptor/summaries.js';
+import {beanKindLabel, kindLabel, typeLabel} from '../../descriptor/format.js';
+import {artifactSummary, beanSummary} from '../../descriptor/summaries.js';
 
 const DELAY = 350;
 
@@ -77,11 +77,20 @@ class RxHovercard extends RxElement {
     render() {
         const index = this.state.index;
         const a = this.artifactId && index ? index.byId.get(this.artifactId) : null;
-        if (!a || !this.anchor) return nothing;
+        const b = !a && this.artifactId && index && index.beans ? index.beans.byId.get(this.artifactId) : null;
+        if ((!a && !b) || !this.anchor) return nothing;
         const width = 320;
         const left = Math.max(12, Math.min(this.anchor.left, innerWidth - width - 12));
         const below = this.anchor.bottom + 8;
         const style = below + 160 < innerHeight ? `left: ${left}px; top: ${below}px` : `left: ${left}px; bottom: ${innerHeight - this.anchor.top + 8}px`;
+        if (b) {
+            return html`<div class="rx-hovercard" role="tooltip" style=${style}>
+                <div class="rx-meta-row">${typeBadge('bean', {undescribed: index.beans.undescribed.has(b.id)})}<span class="rx-small">${[b.packageId, beanKindLabel(b)].filter(Boolean).join(' · ')}</span></div>
+                <span class="rx-hc-name">${b.name}</span>
+                <span class="rx-hc-sum">${beanSummary(b, index).map(p => p.text !== undefined ? p.text : p.bean ? p.bean.name : p.artifact ? p.artifact.name : p.missing)}</span>
+                <a class="rx-link rx-link-arrow" href=${routes.bean(b)}>Open bean${icon('arrowRight', {size: 13, width: 2.2})}</a>
+            </div>`;
+        }
         return html`<div class="rx-hovercard" role="tooltip" style=${style}>
             <div class="rx-meta-row">${typeBadge(a.type, {undescribed: index.undescribed.has(a.id)})}<span class="rx-small">${[(index.categories.of.get(a.id) || {}).path || a.packageId, kindLabel(a)].filter(Boolean).join(' · ')}</span></div>
             <span class="rx-hc-name">${a.name}</span>

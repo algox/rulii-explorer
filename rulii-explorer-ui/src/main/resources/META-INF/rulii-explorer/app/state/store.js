@@ -12,6 +12,7 @@
  * @property {object} route             the parsed hash route (routing/router.js)
  * @property {'light'|'dark'|'system'} theme
  * @property {'plain'|'raw'} exprView   the global Plain / Raw choice (FR-17)
+ * @property {number} sidebarWidth      the sidebar's width in pixels, remembered per browser
  * @property {Set<string>} expanded     expanded sidebar packages
  * @property {boolean} paletteOpen
  * @property {string|null} paletteQuery  a query to open the palette with, e.g. "tag:vip"; consumed on open
@@ -21,6 +22,27 @@
 
 const THEME_KEY = 'rx.theme';
 const EXPR_KEY = 'rx.exprView';
+const SIDEBAR_KEY = 'rx.sidebarWidth';
+
+/** The sidebar's width in pixels: the token's default, and the limits a user can drag it to. */
+export const SIDEBAR_DEFAULT = 264;
+export const SIDEBAR_MIN = 220;
+export const SIDEBAR_MAX = 480;
+
+function rememberedWidth() {
+    try {
+        const value = Number(localStorage.getItem(SIDEBAR_KEY));
+        return value >= SIDEBAR_MIN && value <= SIDEBAR_MAX ? Math.round(value) : SIDEBAR_DEFAULT;
+    } catch (e) {
+        return SIDEBAR_DEFAULT;
+    }
+}
+
+function forget(key) {
+    try {
+        localStorage.removeItem(key);
+    } catch (e) { /* as above */ }
+}
 
 function remembered(key, allowed, fallback) {
     try {
@@ -46,9 +68,10 @@ class Store extends EventTarget {
         descriptor: null,
         index: null,
         error: null,
-        route: {name: 'overview', query: {}},
+        route: {name: 'overview', section: 'rules', query: {}},
         theme: remembered(THEME_KEY, ['light', 'dark'], 'system'),
         exprView: remembered(EXPR_KEY, ['plain', 'raw'], 'plain'),
+        sidebarWidth: rememberedWidth(),
         expanded: new Set(),
         paletteOpen: false,
         paletteQuery: null,
@@ -95,6 +118,27 @@ class Store extends EventTarget {
     setExprView(view) {
         remember(EXPR_KEY, view);
         this.set({exprView: view});
+    }
+
+    // ── Sidebar width (per browser) ──────────────────────────────────────────
+
+    clampSidebarWidth(width) {
+        return Math.round(Math.min(SIDEBAR_MAX, Math.max(SIDEBAR_MIN, width)));
+    }
+
+    /** Puts the width on the shell's grid through the token; the default removes the override so the token rules. */
+    applySidebarWidth(width) {
+        const root = document.documentElement;
+        if (width === SIDEBAR_DEFAULT) root.style.removeProperty('--rx-sidebar-w');
+        else root.style.setProperty('--rx-sidebar-w', width + 'px');
+    }
+
+    setSidebarWidth(width) {
+        const next = this.clampSidebarWidth(width);
+        if (next === SIDEBAR_DEFAULT) forget(SIDEBAR_KEY);
+        else remember(SIDEBAR_KEY, next);
+        this.applySidebarWidth(next);
+        this.set({sidebarWidth: next});
     }
 
     toggleExpanded(packageId) {

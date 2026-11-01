@@ -22,6 +22,7 @@ import org.rulii.explorer.descriptor.ApplicationInfo;
 import org.rulii.explorer.descriptor.Artifact;
 import org.rulii.explorer.descriptor.ArtifactKind;
 import org.rulii.explorer.descriptor.ArtifactType;
+import org.rulii.explorer.descriptor.BeanInfo;
 import org.rulii.explorer.descriptor.BindingUsage;
 import org.rulii.explorer.descriptor.Command;
 import org.rulii.explorer.descriptor.Commands;
@@ -61,10 +62,10 @@ import org.rulii.validation.ValidationRule;
 import org.rulii.validation.ValueValidationRule;
 import org.rulii.validation.ValueValidationRuleBuilder;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
@@ -97,6 +98,7 @@ final class Describer {
     private final String applicationName;
     private final String ruliiVersion;
     private final List<ProblemCheck> checks;
+    private final BeanSource beanSource;
 
     private final Map<Object, String> ids = new IdentityHashMap<>();
     private final Map<String, Artifact> artifacts = new LinkedHashMap<>();
@@ -104,7 +106,7 @@ final class Describer {
     private final List<Problem> problems = new ArrayList<>();
 
     Describer(RuleRegistry registry, ExpressionAnalyzers analyzers, PlaceholderFilter placeholderValues, boolean includeSources, String applicationName,
-              String ruliiVersion, List<ProblemCheck> checks) {
+              String ruliiVersion, List<ProblemCheck> checks, BeanSource beanSource) {
         super();
         this.registry = registry;
         this.expressions = new Expressions(analyzers, placeholderValues);
@@ -113,6 +115,7 @@ final class Describer {
         this.applicationName = applicationName;
         this.ruliiVersion = ruliiVersion;
         this.checks = checks;
+        this.beanSource = beanSource;
     }
 
     Descriptor describe() {
@@ -134,13 +137,16 @@ final class Describer {
 
         registered.forEach((name, runnable) -> describe(name, runnable, true));
 
+        // After the registry pass, so a bean's @Validate names resolve against the artifacts described.
+        List<BeanInfo> beans = beanSource == null ? null : new BeanDescriber(this, expressions, includeSources, beanSource).describe();
+
         List<Artifact> sortedArtifacts = new ArrayList<>(artifacts.values());
         sortedArtifacts.sort(Comparator.comparing(Artifact::type).thenComparing(Artifact::id, Rulii::compareNatural));
 
         List<Reference> sortedReferences = new ArrayList<>(references);
         sortedReferences.sort(Comparator.comparing(Reference::from, Rulii::compareNatural).thenComparing(Reference::path, Rulii::compareNatural).thenComparing(Reference::to, Rulii::compareNatural));
 
-        for (ProblemCheck check : checks) problems.addAll(check.check(new ProblemContext(sortedArtifacts, sortedReferences)));
+        for (ProblemCheck check : checks) problems.addAll(check.check(new ProblemContext(sortedArtifacts, sortedReferences, beans)));
         problems.sort(Comparator.comparing(Problem::severity)
                 .thenComparing(Problem::artifact, Comparator.nullsFirst(Rulii::compareNatural))
                 .thenComparing(Problem::path, Comparator.nullsFirst(Rulii::compareNatural))
@@ -148,7 +154,7 @@ final class Describer {
 
         return new Descriptor(Explorer.DESCRIPTOR_VERSION,
                 new ApplicationInfo(applicationName, ruliiVersion, Explorer.version(), placeholderValues),
-                packages(sortedArtifacts), sortedArtifacts, sortedReferences, bindings(sortedArtifacts), problems);
+                packages(sortedArtifacts), sortedArtifacts, sortedReferences, bindings(sortedArtifacts), problems, beans);
     }
 
     // -------------------------------------------------------------------------------------------
@@ -171,36 +177,73 @@ final class Describer {
 
     private Artifact rule(String id, Rule rule, boolean registered) {
         RuleDefinition def = rule.getDefinition();
-        Object target = rule.getTarget();
         SourceDefinition sourceDefinition = def.getSource();
         Class<?> ruleClass = def.getRuleClass();
-        ArtifactKind kind = ruleKind(def, target, sourceDefinition);
+        RuleBody body = ruleBody(rule);
+
+        return new Artifact(id, rule.getName(), ArtifactType.RULE, body.kind(), registered,
+                Sources.packageOf(sourceDefinition, body.kind() == ArtifactKind.RULE_CLASS ? ruleClass : null),
+                Expressions.blankToNull(def.getDescription()), def.getCategory(), def.getTags(), source(sourceDefinition),
+                includeSources && body.kind() == ArtifactKind.RULE_CLASS ? ruleClass.getName() : null,
+                body.parameters(), body.rule(), body.validation(), null, null);
+    }
+
+    /**
+     * What a {@link Rule} object is, declares and does: the part of a rule artifact that a bean's
+     * materialized rule shares with a registered one (descriptor 1.1, section 17.4).
+     *
+     * @param kind       how it was declared.
+     * @param parameters declared parameters, in order.
+     * @param rule       rule details.
+     * @param validation validation details; validation rules only.
+     */
+    record RuleBody(ArtifactKind kind, List<Parameter> parameters, RuleDetails rule, ValidationDetails validation) {
+    }
+
+    /** The body of a registered or inline rule. */
+    RuleBody ruleBody(Rule rule) {
+        return ruleBody(rule, rule.getCondition(), false);
+    }
+
+    /**
+     * The body of a rule rulii-bean-validation materialized from a declaration. Its rule methods are
+     * the library's traversal plumbing (the null-skip precondition, {@code isValid}, the violation
+     * recorder), so the rule section shows only what the declaration wrote: the script of an
+     * {@code @Expr}, or nothing.
+     *
+     * @param rule  the materialized rule.
+     * @param given the condition the declaration wrote; null when it wrote none.
+     */
+    RuleBody beanRuleBody(Rule rule, Condition given) {
+        return ruleBody(rule, given, true);
+    }
+
+    private RuleBody ruleBody(Rule rule, Condition condition, boolean bean) {
+        RuleDefinition def = rule.getDefinition();
+        Object target = rule.getTarget();
+        ArtifactKind kind = ruleKind(def, target, def.getSource());
 
         // A supplied validation rule wraps the condition the application wrote; show that, not
         // the wrapper's isValid(RuleContext). Its otherwise action is rulii's violation recorder.
         // A predefined validator's rule methods are all rulii's own: the validation section
-        // describes it, so the rule section stays empty.
+        // describes it, so the rule section stays empty. A bean rule's are the library's.
         boolean supplied = target instanceof SuppliedValidationRule;
-        boolean predefined = kind == ArtifactKind.PREDEFINED_VALIDATOR;
-        Condition given = supplied ? ((SuppliedValidationRule) target).getCondition() : predefined ? null : rule.getCondition();
-        List<Action> actions = supplied || predefined ? List.of() : rule.getActions();
-        Action otherwise = supplied || predefined ? null : rule.getOtherwiseAction();
+        boolean plumbing = kind == ArtifactKind.PREDEFINED_VALIDATOR || bean;
+        Condition given = supplied ? ((SuppliedValidationRule) target).getCondition() : plumbing && !bean ? null : condition;
+        List<Action> actions = supplied || plumbing ? List.of() : rule.getActions();
+        Action otherwise = supplied || plumbing ? null : rule.getOtherwiseAction();
 
         List<MethodDefinition> methods = new ArrayList<>();
-        if (rule.getPreCondition() != null && !predefined) methods.add(rule.getPreCondition().getDefinition());
+        if (rule.getPreCondition() != null && !plumbing) methods.add(rule.getPreCondition().getDefinition());
         if (given != null) methods.add(given.getDefinition());
         for (Action action : actions) methods.add(action.getDefinition());
         if (otherwise != null) methods.add(otherwise.getDefinition());
 
-        RuleDetails details = new RuleDetails(predefined ? null : expressions.of(rule.getPreCondition()), expressions.of(given),
+        RuleDetails details = new RuleDetails(plumbing ? null : expressions.of(rule.getPreCondition()), expressions.of(given),
                 actions.stream().map(expressions::of).toList(), expressions.of(otherwise));
 
-        return new Artifact(id, rule.getName(), ArtifactType.RULE, kind, registered,
-                Sources.packageOf(sourceDefinition, kind == ArtifactKind.RULE_CLASS ? ruleClass : null),
-                Expressions.blankToNull(def.getDescription()), def.getCategory(), def.getTags(), source(sourceDefinition),
-                includeSources && kind == ArtifactKind.RULE_CLASS ? ruleClass.getName() : null,
-                Expressions.parameters(methods.toArray(new MethodDefinition[0])), details,
-                target instanceof ValidationRule validationRule ? validation(validationRule, kind) : null, null, null);
+        return new RuleBody(kind, Expressions.parameters(methods.toArray(new MethodDefinition[0])), details,
+                target instanceof ValidationRule validationRule ? validation(validationRule, kind) : null);
     }
 
     private ArtifactKind ruleKind(RuleDefinition def, Object target, SourceDefinition source) {
@@ -250,7 +293,8 @@ final class Describer {
             String property = propertyName(method.getName());
             if (property == null || "supportedTypes".equals(property)) continue;
             try {
-                settings.put(property, plainValue(method.invoke(rule)));
+                Object value = plainValue(method.invoke(rule));
+                if (value != null) settings.put(property, value); // nulls are omitted everywhere else in the descriptor
             } catch (ReflectiveOperationException | RuntimeException e) {
                 settings.put(property, "(unavailable)");
             }
@@ -266,15 +310,28 @@ final class Describer {
         return Character.toLowerCase(rest.charAt(0)) + rest.substring(1);
     }
 
-    private static Object plainValue(Object value) {
+    /**
+     * A value as the descriptor carries it: JSON scalars (integers as longs, decimals as doubles, so
+     * a descriptor read back equals the one written), lists, names for classes and enums, text for
+     * the rest.
+     */
+    static Object plainValue(Object value) {
         if (value == null) return null;
-        if (value instanceof String || value instanceof Boolean || value instanceof Integer || value instanceof Long
-                || value instanceof Double || value instanceof Float || value instanceof Short || value instanceof Byte) return value;
+        if (value instanceof String || value instanceof Boolean || value instanceof Long || value instanceof Double) return value;
+        if (value instanceof Integer || value instanceof Short || value instanceof Byte) return ((Number) value).longValue();
+        if (value instanceof Float f) return f.doubleValue();
         if (value instanceof BigDecimal decimal) return decimal.toPlainString();
         if (value instanceof Number number) return number.toString();
         if (value instanceof Enum<?> e) return e.name();
         if (value instanceof Class<?> c) return c.getName();
-        if (value.getClass().isArray()) return Arrays.stream((Object[]) value).map(Describer::plainValue).toList();
+        if (value.getClass().isArray()) {
+            int length = Array.getLength(value);
+            List<Object> list = new ArrayList<>(length);
+            for (int i = 0; i < length; i++) {
+                list.add(plainValue(Array.get(value, i)));
+            }
+            return list;
+        }
         if (value instanceof Collection<?> collection) return collection.stream().map(Describer::plainValue).toList();
         return String.valueOf(value);
     }
@@ -382,6 +439,10 @@ final class Describer {
 
     void reference(Reference reference) {
         references.add(reference);
+    }
+
+    void problem(Problem problem) {
+        problems.add(problem);
     }
 
     // -------------------------------------------------------------------------------------------

@@ -36,6 +36,10 @@ import java.util.List;
  * rulii.explorer.placeholders.show-values=never      # never | always: the values ${key:default} placeholders compiled with
  * rulii.explorer.placeholders.exclude=*password*,... # key globs whose values stay hidden (replaces the default list)
  * rulii.explorer.placeholders.additional-exclude=    # key globs hidden on top of the list above
+ * rulii.explorer.beans.enabled=false                 # describe the beans validated with rulii-bean-validation (descriptor 1.1)
+ * rulii.explorer.beans.packages=                     # packages to scan; empty = the auto-configuration packages
+ * rulii.explorer.beans.classes=                      # classes to describe whether or not the scan finds them
+ * rulii.explorer.beans.include-validated=true        # also what the validator has already validated
  * </pre>
  *
  * @author Algorithmx Development Team
@@ -58,12 +62,18 @@ public class RuliiExplorerProperties {
 
     private final Placeholders placeholders = new Placeholders();
 
+    private final Beans beans = new Beans();
+
     public RuliiExplorerProperties() {
         super();
     }
 
     public Placeholders getPlaceholders() {
         return placeholders;
+    }
+
+    public Beans getBeans() {
+        return beans;
     }
 
     public boolean isEnabled() {
@@ -199,6 +209,62 @@ public class RuliiExplorerProperties {
             if (exclude != null) all.addAll(exclude);
             if (additionalExclude != null) all.addAll(additionalExclude);
             return all;
+        }
+    }
+
+    /**
+     * The beans section (descriptor 1.1): the classes validated with rulii-bean-validation, read
+     * through the application's rulii validator. Off by default; needs rulii-spring's validator
+     * (so Boot's validation module, and {@code rulii.validation.enabled} not false).
+     */
+    public static class Beans {
+
+        /** Describe the beans. Off by default: the Beans section of the UI appears only when someone chose to. */
+        private boolean enabled = false;
+
+        /** Packages to scan for beans, sub-packages included. Empty: the auto-configuration packages, as component scanning uses. */
+        private List<String> packages = new ArrayList<>();
+
+        /** Classes to describe whether or not the scan finds them. A class that declares nothing is described empty, with a problem. */
+        private List<Class<?>> classes = new ArrayList<>();
+
+        /** Also describe what the validator has already validated when the descriptor is built. */
+        private boolean includeValidated = true;
+
+        public Beans() {
+            super();
+        }
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public List<String> getPackages() {
+            return packages;
+        }
+
+        public void setPackages(List<String> packages) {
+            this.packages = packages;
+        }
+
+        public List<Class<?>> getClasses() {
+            return classes;
+        }
+
+        public void setClasses(List<Class<?>> classes) {
+            this.classes = classes;
+        }
+
+        public boolean isIncludeValidated() {
+            return includeValidated;
+        }
+
+        public void setIncludeValidated(boolean includeValidated) {
+            this.includeValidated = includeValidated;
         }
     }
 }

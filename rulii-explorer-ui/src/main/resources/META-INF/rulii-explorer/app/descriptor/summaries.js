@@ -165,9 +165,11 @@ export function kindCaption(type, kindCounts) {
 /** Why a problem matters and how to fix it, per code (FR-29 wording). */
 export function problemExplanation(problem, index) {
     const a = problem.artifact && index.byId.get(problem.artifact);
-    const name = a ? a.name : problem.artifact;
+    const bean = !a && problem.artifact && index.beans ? index.beans.byId.get(problem.artifact) : null;
+    const name = a ? a.name : bean ? bean.name : problem.artifact;
     const quoted = /'([^']+)'/.exec(problem.message || '');
     const looked = quoted ? quoted[1] : null;
+    if (bean) return beanProblemExplanation(problem, bean, looked);
     switch (problem.code) {
         case 'UNRESOLVED_TARGET':
             return {
@@ -330,6 +332,130 @@ function durationWords(iso) {
     if (m[2]) parts.push(Number(m[2]) + ' min');
     if (m[3]) parts.push(Number(m[3]) + ' s');
     return parts.join(' ') || iso;
+}
+
+// ── Beans (descriptor 1.1) ─────────────────────────────────────────────────
+
+/** Why a bean's problem matters and how to fix it. `looked` is the quoted name in the message, if any. */
+function beanProblemExplanation(problem, bean, looked) {
+    switch (problem.code) {
+        case 'UNRESOLVED_TARGET':
+            return {
+                why: 'Validating a ' + bean.name + ' runs ‘' + (looked || 'that') + '’ by name, and the registry has nothing under it, so the validation fails with an error instead of a result.',
+                fix: 'Register a rule under the name ‘' + (looked || '…') + '’, or change the @Validate to a rule that exists.'
+            };
+        case 'NAME_MISMATCH_LOOKUP': {
+            const registry = /registry name of that artifact is '([^']+)'/.exec(problem.message || '');
+            return {
+                why: '@Validate names are looked up by registry (bean) name. ‘' + (looked || '…') + '’ is the rule’s own name, so the lookup won’t find it.',
+                fix: registry ? 'Change the @Validate to "' + registry[1] + '".' : 'Use the registry name of the rule in the @Validate.'
+            };
+        }
+        case 'BEAN_NOT_MATERIALIZED':
+            return {
+                why: 'rulii-bean-validation reads ' + bean.name + '’s declarations but cannot build its rules, so validating one fails. The bean is shown from its declarations alone.',
+                fix: 'The message above comes from the library; fix the declaration it names.'
+            };
+        case 'UNDESCRIBABLE':
+            return {
+                why: problem.severity === 'warning'
+                    ? bean.name + ' was configured as a bean to describe, but it declares nothing rulii-bean-validation reads, so there is nothing to show.'
+                    : 'Reading this bean’s definition failed, so only its name is shown. The rest of the application is unaffected.',
+                fix: problem.severity === 'warning' ? 'Remove it from rulii.explorer.beans.classes, or add the constraints it should carry.' : 'The message above comes from the library; fix the declaration or report it to the rulii project.'
+            };
+        default:
+            return {why: problem.message, fix: null};
+    }
+}
+
+/**
+ * The italic summary of a bean: "8 properties carry 11 constraints, its items cascade into Item,
+ * and ConsistentDatesRule runs on the whole order." The names are returned as parts so the page
+ * can link them.
+ *
+ * @returns {Array<{text?: string, bean?: object, artifact?: object, missing?: string}>}
+ */
+export function beanSummary(bean, index) {
+    const beans = index.beans;
+    const props = bean.properties || [];
+    const declarations = beanDeclarationsCount(bean);
+    const parts = [];
+    const constrained = props.filter(p => (p.constraints || []).length || (p.expressions || []).length || (p.validations || []).length || (p.containerElements || []).some(hasConstraints)).length;
+    if (props.length) parts.push({text: plural(constrained || props.length, 'property', 'properties') + (declarations.members ? ' carry ' + plural(declarations.members, 'constraint') : ' carry no constraint')});
+    else parts.push({text: 'no properties'});
+    const cascades = (beans && beans.cascadesTo.get(bean.id)) || [];
+    if (cascades.length) {
+        const targets = [...new Set(cascades.map(r => r.to))].map(id => beans.byId.get(id)).filter(Boolean);
+        parts.push({text: ', ' + (cascades.length === 1 ? 'its ' + memberOf(cascades[0].path) + ' cascade into ' : 'it cascades into ')});
+        targets.forEach((t, i) => { if (i) parts.push({text: i === targets.length - 1 ? ' and ' : ', '}); parts.push({bean: t}); });
+    }
+    const whole = [];
+    for (const v of bean.validations || []) for (const t of v.targets || []) whole.push(t.artifactId ? {artifact: index.byId.get(t.artifactId)} : {missing: t.name});
+    if (whole.length) {
+        parts.push({text: ', and '});
+        whole.forEach((w, i) => { if (i) parts.push({text: i === whole.length - 1 ? ' and ' : ', '}); parts.push(w); });
+        parts.push({text: (whole.length === 1 ? ' runs' : ' run') + ' on the whole ' + bean.name.toLowerCase()});
+    } else if (bean.expressions && bean.expressions.length) {
+        parts.push({text: ', and ' + plural(bean.expressions.length, 'expression') + ' check' + (bean.expressions.length === 1 ? 's' : '') + ' the whole ' + bean.name.toLowerCase()});
+    }
+    if (bean.executables && bean.executables.length) parts.push({text: '; ' + plural(bean.executables.length, 'method or constructor', 'methods and constructors') + ' validated too'});
+    parts.push({text: '.'});
+    if (parts.length && parts[0].text) parts[0].text = parts[0].text.charAt(0).toUpperCase() + parts[0].text.slice(1);
+    return parts;
+}
+
+function memberOf(path) {
+    const m = /^properties\.([^.[]+)/.exec(path || '');
+    return m ? m[1] : 'member';
+}
+
+function hasConstraints(element) {
+    return (element.constraints || []).length > 0 || (element.children || []).some(hasConstraints);
+}
+
+/** How many declarations a bean's members carry (constraints, @Expr, @Validate), and how many sit on the bean itself. */
+function beanDeclarationsCount(bean) {
+    const countElement = (el) => (el.constraints || []).length + (el.children || []).reduce((n, c) => n + countElement(c), 0);
+    const count = (holder) => (holder.constraints || []).length + (holder.expressions || []).length + (holder.validations || []).length
+        + (holder.containerElements || []).reduce((n, el) => n + countElement(el), 0);
+    let members = 0;
+    for (const p of bean.properties || []) members += count(p);
+    for (const e of bean.executables || []) {
+        for (const p of e.parameters || []) members += count(p);
+        if (e.crossParameter) members += count(e.crossParameter);
+        if (e.returnValue) members += count(e.returnValue);
+    }
+    return {members, own: count(bean)};
+}
+
+/** The Beans overview subtitle. */
+export function beansOverviewSubtitle(beans) {
+    const c = beans.counts;
+    return plural(c.beans, 'bean') + ' carrying ' + plural(c.constraints, 'constraint') + ' in ' + plural(c.packages, 'package')
+        + ', read through the application’s own validator. Rules the beans run live in the Rules section; nothing here is a registry artifact.';
+}
+
+/** The constraints stat caption: "15 Jakarta · 1 rulii · 2 @Expr · 1 @Validate". */
+export function constraintKindsCaption(beans) {
+    const k = beans.constraintKinds;
+    const parts = [];
+    if (k.jakarta) parts.push(k.jakarta + ' Jakarta');
+    if (k.rulii) parts.push(k.rulii + ' rulii');
+    if (k.other) parts.push(k.other + ' custom');
+    if (k.expr) parts.push(k.expr + ' @Expr');
+    if (k.validate) parts.push(k.validate + ' @Validate');
+    return parts.length ? parts.join(' · ') : 'None declared';
+}
+
+/** The discovery stat caption: "2 scanned · 1 reached by cascade". */
+export function discoveryCaption(beans) {
+    const c = beans.counts;
+    const parts = [];
+    if (c.scan) parts.push(c.scan + ' scanned');
+    if (c.configured) parts.push(c.configured + ' configured');
+    if (c.validated) parts.push(c.validated + ' validated');
+    if (c.cascade) parts.push(c.cascade + ' reached by cascade');
+    return parts.join(' · ');
 }
 
 export {targetName};

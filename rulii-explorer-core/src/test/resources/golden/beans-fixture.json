@@ -1,0 +1,3518 @@
+{
+  "descriptorVersion": "1.1",
+  "application": {
+    "name": "order-service",
+    "ruliiVersion": "2.2.0",
+    "explorerVersion": "1.1.0-SNAPSHOT",
+    "placeholderValues": false
+  },
+  "packages": [
+    {
+      "id": "org.rulii.explorer.fixture",
+      "kind": "java"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "anotherMinTotalRule",
+      "name": "MinTotalRule",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "A second rule with the same name.",
+      "parameters": [
+        {
+          "name": "total",
+          "type": "java.lang.Integer",
+          "required": true
+        }
+      ],
+      "rule": {
+        "given": {
+          "kind": "compiled",
+          "reads": [
+            "total"
+          ],
+          "writes": [ ],
+          "signature": "boolean test(Integer total)"
+        },
+        "then": [ ]
+      }
+    },
+    {
+      "id": "customValidation",
+      "name": "CustomValidation",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Order total must be positive.",
+      "parameters": [
+        {
+          "name": "total",
+          "type": "java.lang.Integer",
+          "required": true
+        }
+      ],
+      "rule": {
+        "given": {
+          "kind": "compiled",
+          "reads": [
+            "total"
+          ],
+          "writes": [ ],
+          "signature": "boolean test(Integer total)"
+        },
+        "then": [ ]
+      },
+      "validation": {
+        "errorCode": "order.total.invalid",
+        "severity": "WARNING",
+        "settings": { }
+      }
+    },
+    {
+      "id": "emailRequired",
+      "name": "emailRequired",
+      "type": "rule",
+      "kind": "predefined-validator",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Customer email is required.",
+      "parameters": [ ],
+      "rule": {
+        "then": [ ]
+      },
+      "validation": {
+        "validator": "notNull",
+        "errorCode": "customer.email.missing",
+        "severity": "ERROR",
+        "defaultMessage": "Value must not be null.",
+        "valueSource": {
+          "kind": "binding",
+          "name": "email"
+        },
+        "failOnNull": true,
+        "settings": { }
+      }
+    },
+    {
+      "id": "minAge",
+      "name": "minAge",
+      "type": "rule",
+      "kind": "predefined-validator",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Customer must be an adult.",
+      "parameters": [ ],
+      "rule": {
+        "then": [ ]
+      },
+      "validation": {
+        "validator": "min",
+        "errorCode": "customer.age.min",
+        "severity": "ERROR",
+        "errorMessage": "{0} must be at least 18",
+        "defaultMessage": "Value {0} must be greater than or equal to {1}.",
+        "valueSource": {
+          "kind": "binding",
+          "name": "age"
+        },
+        "failOnNull": true,
+        "settings": {
+          "min": 18
+        }
+      }
+    },
+    {
+      "id": "minTotalRule",
+      "name": "MinTotalRule",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Order total must meet the minimum.",
+      "category": "Orders/Validation",
+      "tags": [
+        "total",
+        "vip"
+      ],
+      "parameters": [
+        {
+          "name": "total",
+          "type": "java.lang.Integer",
+          "required": true
+        }
+      ],
+      "rule": {
+        "given": {
+          "kind": "compiled",
+          "reads": [
+            "total"
+          ],
+          "writes": [ ],
+          "signature": "boolean test(Integer total)"
+        },
+        "then": [
+          {
+            "kind": "compiled",
+            "reads": [
+              "total"
+            ],
+            "writes": [ ],
+            "signature": "void run(Integer total)"
+          }
+        ]
+      }
+    },
+    {
+      "id": "orderProcessingFlow/commands[11]/target",
+      "name": "InlineTarget",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": false,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Run by the flow but never registered.",
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "compiled",
+          "reads": [ ],
+          "writes": [ ],
+          "signature": "boolean test()"
+        },
+        "then": [ ]
+      }
+    },
+    {
+      "id": "orderValidationRules/members[2]",
+      "name": "InlineRule",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": false,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Declared inside the rule set only.",
+      "parameters": [
+        {
+          "name": "total",
+          "type": "java.lang.Integer",
+          "required": true
+        }
+      ],
+      "rule": {
+        "given": {
+          "kind": "compiled",
+          "reads": [
+            "total"
+          ],
+          "writes": [ ],
+          "signature": "boolean test(Integer total)"
+        },
+        "then": [ ]
+      }
+    },
+    {
+      "id": "scriptRule",
+      "name": "ScriptRule",
+      "type": "rule",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Order total must meet the scripted minimum.",
+      "parameters": [ ],
+      "rule": {
+        "given": {
+          "kind": "script",
+          "language": "java",
+          "text": "ctx.total >= 100",
+          "plain": {
+            "complete": false,
+            "tokens": [
+              {
+                "t": "raw",
+                "text": "ctx.total >= 100"
+              }
+            ]
+          },
+          "reads": [
+            "total"
+          ],
+          "writes": [ ]
+        },
+        "then": [ ]
+      }
+    },
+    {
+      "id": "stockAvailableRule",
+      "name": "StockAvailableRule",
+      "type": "rule",
+      "kind": "rule-class",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "category": "Fulfilment",
+      "tags": [
+        "stock",
+        "warehouse"
+      ],
+      "parameters": [
+        {
+          "name": "quantity",
+          "type": "java.lang.Integer",
+          "required": true
+        },
+        {
+          "name": "stock",
+          "type": "java.lang.Integer",
+          "required": true
+        }
+      ],
+      "rule": {
+        "given": {
+          "kind": "compiled",
+          "reads": [
+            "quantity",
+            "stock"
+          ],
+          "writes": [ ],
+          "signature": "boolean when(Integer quantity, Integer stock)"
+        },
+        "then": [
+          {
+            "kind": "compiled",
+            "reads": [
+              "quantity"
+            ],
+            "writes": [ ],
+            "signature": "void then(Integer quantity)"
+          }
+        ]
+      }
+    },
+    {
+      "id": "orderValidationRules",
+      "name": "orderValidationRules",
+      "type": "ruleset",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Checks that an order is valid.",
+      "category": "Orders/Validation",
+      "tags": [
+        "validation"
+      ],
+      "parameters": [
+        {
+          "name": "order",
+          "type": "java.lang.Object",
+          "required": true,
+          "description": "The order"
+        },
+        {
+          "name": "customer",
+          "type": "java.lang.Object",
+          "required": false
+        }
+      ],
+      "ruleSet": {
+        "validating": true,
+        "preCondition": {
+          "kind": "compiled",
+          "reads": [
+            "order"
+          ],
+          "writes": [ ],
+          "signature": "boolean test(Object order)"
+        },
+        "stopCondition": {
+          "kind": "compiled",
+          "reads": [
+            "violationCount"
+          ],
+          "writes": [ ],
+          "signature": "boolean test(Integer violationCount)"
+        },
+        "members": [
+          "minTotalRule",
+          "emailRequired",
+          "orderValidationRules/members[2]"
+        ]
+      }
+    },
+    {
+      "id": "contextFlow",
+      "name": "contextFlow",
+      "type": "ruleflow",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Runs in its own context.",
+      "parameters": [ ],
+      "ruleFlow": {
+        "context": "flowContext",
+        "commands": [
+          {
+            "type": "bind",
+            "bind": {
+              "kind": "literal",
+              "names": [
+                {
+                  "name": "a",
+                  "type": "java.lang.Integer"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "orderProcessingFlow",
+      "name": "orderProcessingFlow",
+      "type": "ruleflow",
+      "kind": "java-builder",
+      "registered": true,
+      "packageId": "org.rulii.explorer.fixture",
+      "description": "Validates, scores, prices and approves an order.",
+      "category": "Orders",
+      "parameters": [
+        {
+          "name": "order",
+          "type": "java.lang.Object",
+          "required": true,
+          "description": "The order"
+        }
+      ],
+      "ruleFlow": {
+        "commands": [
+          {
+            "type": "bind",
+            "bind": {
+              "kind": "literal",
+              "names": [
+                {
+                  "name": "reviewQueue",
+                  "type": "java.lang.String"
+                }
+              ]
+            }
+          },
+          {
+            "type": "run",
+            "target": {
+              "kind": "instance",
+              "id": "orderValidationRules",
+              "resolution": "direct"
+            },
+            "as": "validation"
+          },
+          {
+            "type": "when",
+            "condition": {
+              "kind": "compiled",
+              "reads": [
+                "approved"
+              ],
+              "writes": [ ],
+              "signature": "boolean test(Boolean approved)"
+            },
+            "then": [
+              {
+                "type": "exit"
+              }
+            ],
+            "otherwise": [ ]
+          },
+          {
+            "type": "async-run",
+            "target": {
+              "kind": "instance",
+              "id": "scriptRule",
+              "resolution": "direct"
+            },
+            "as": "fraudCheck",
+            "mode": "immutable",
+            "handler": {
+              "exceptionType": "java.lang.IllegalStateException",
+              "body": [
+                {
+                  "type": "bind",
+                  "bind": {
+                    "kind": "literal",
+                    "names": [
+                      {
+                        "name": "fraudScore",
+                        "type": "java.lang.Double"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "await",
+            "awaitKind": "one",
+            "names": [
+              "fraudCheck"
+            ],
+            "timeout": "PT5S"
+          },
+          {
+            "type": "run",
+            "target": {
+              "kind": "by-name",
+              "name": "MinTotalRule",
+              "resolution": "unresolved"
+            }
+          },
+          {
+            "type": "run",
+            "target": {
+              "kind": "by-name",
+              "name": "prefixRule",
+              "resolution": "unresolved"
+            }
+          },
+          {
+            "type": "run",
+            "target": {
+              "kind": "by-class",
+              "id": "stockAvailableRule",
+              "className": "org.rulii.explorer.fixture.StockAvailableRule",
+              "resolution": "by-class"
+            }
+          },
+          {
+            "type": "for-each",
+            "source": {
+              "kind": "compiled",
+              "reads": [ ],
+              "writes": [ ],
+              "signature": "List apply()"
+            },
+            "item": "item",
+            "body": [
+              {
+                "type": "execute",
+                "expression": {
+                  "kind": "compiled",
+                  "reads": [
+                    "item"
+                  ],
+                  "writes": [ ],
+                  "signature": "void run(Integer item)"
+                }
+              }
+            ]
+          },
+          {
+            "type": "scope",
+            "name": "tmp",
+            "body": [
+              {
+                "type": "bind",
+                "bind": {
+                  "kind": "literal",
+                  "names": [
+                    {
+                      "name": "scratch",
+                      "type": "java.lang.Integer"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "apply",
+            "as": "doubled",
+            "expression": {
+              "kind": "compiled",
+              "reads": [
+                "total"
+              ],
+              "writes": [ ],
+              "signature": "Integer apply(Integer total)"
+            }
+          },
+          {
+            "type": "run",
+            "target": {
+              "kind": "instance",
+              "id": "orderProcessingFlow/commands[11]/target",
+              "resolution": "direct"
+            }
+          },
+          {
+            "type": "custom",
+            "body": [ ],
+            "className": "org.rulii.explorer.fixture.OrderFixture$AuditCommand"
+          }
+        ],
+        "globalHandler": {
+          "exceptionType": "java.lang.Exception",
+          "body": [
+            {
+              "type": "execute",
+              "expression": {
+                "kind": "compiled",
+                "reads": [ ],
+                "writes": [ ],
+                "signature": "void run()"
+              }
+            }
+          ]
+        },
+        "finalizer": {
+          "kind": "compiled",
+          "reads": [ ],
+          "writes": [ ],
+          "signature": "void run()"
+        },
+        "returning": {
+          "kind": "compiled",
+          "reads": [
+            "approved"
+          ],
+          "writes": [ ],
+          "signature": "Boolean apply(Boolean approved)"
+        },
+        "resultType": "java.lang.Boolean"
+      }
+    }
+  ],
+  "references": [
+    {
+      "from": "orderProcessingFlow",
+      "to": "orderValidationRules",
+      "type": "runs",
+      "async": false,
+      "path": "commands[1]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderProcessingFlow",
+      "to": "scriptRule",
+      "type": "runs",
+      "async": true,
+      "path": "commands[3]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderProcessingFlow",
+      "to": "stockAvailableRule",
+      "type": "runs",
+      "async": false,
+      "path": "commands[7]",
+      "resolution": "by-class"
+    },
+    {
+      "from": "orderProcessingFlow",
+      "to": "orderProcessingFlow/commands[11]/target",
+      "type": "runs",
+      "async": false,
+      "path": "commands[11]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderValidationRules",
+      "to": "minTotalRule",
+      "type": "contains",
+      "async": false,
+      "path": "members[0]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderValidationRules",
+      "to": "emailRequired",
+      "type": "contains",
+      "async": false,
+      "path": "members[1]",
+      "resolution": "direct"
+    },
+    {
+      "from": "orderValidationRules",
+      "to": "orderValidationRules/members[2]",
+      "type": "contains",
+      "async": false,
+      "path": "members[2]",
+      "resolution": "direct"
+    },
+    {
+      "from": "org.rulii.explorer.fixture.beans.Customer",
+      "to": "org.rulii.explorer.fixture.beans.Address",
+      "type": "cascades",
+      "async": false,
+      "path": "properties.address",
+      "resolution": "direct"
+    },
+    {
+      "from": "org.rulii.explorer.fixture.beans.Order",
+      "to": "org.rulii.explorer.fixture.beans.Order",
+      "type": "cascades",
+      "async": false,
+      "path": "executables.order_merge.parameters[0]",
+      "resolution": "direct"
+    },
+    {
+      "from": "org.rulii.explorer.fixture.beans.Order",
+      "to": "emailRequired",
+      "type": "runs",
+      "async": false,
+      "path": "properties.code.validations[0]",
+      "resolution": "by-name"
+    },
+    {
+      "from": "org.rulii.explorer.fixture.beans.Order",
+      "to": "org.rulii.explorer.fixture.beans.Customer",
+      "type": "cascades",
+      "async": false,
+      "path": "properties.customer",
+      "resolution": "direct"
+    },
+    {
+      "from": "org.rulii.explorer.fixture.beans.Order",
+      "to": "org.rulii.explorer.fixture.beans.Line",
+      "type": "cascades",
+      "async": false,
+      "path": "properties.lines",
+      "resolution": "direct"
+    },
+    {
+      "from": "org.rulii.explorer.fixture.beans.Order",
+      "to": "minTotalRule",
+      "type": "runs",
+      "async": false,
+      "path": "validations[0]",
+      "resolution": "by-name"
+    },
+    {
+      "from": "org.rulii.explorer.fixture.beans.Staged",
+      "to": "minAge",
+      "type": "runs",
+      "async": false,
+      "path": "validations[0]",
+      "resolution": "by-name"
+    }
+  ],
+  "bindings": [
+    {
+      "name": "a",
+      "readBy": [ ],
+      "writtenBy": [
+        "contextFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "age",
+      "readBy": [
+        "minAge"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "approved",
+      "readBy": [
+        "orderProcessingFlow"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [
+        "orderProcessingFlow"
+      ]
+    },
+    {
+      "name": "customer",
+      "readBy": [
+        "orderValidationRules"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "doubled",
+      "readBy": [ ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "email",
+      "readBy": [
+        "emailRequired"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "fraudCheck",
+      "readBy": [ ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "fraudScore",
+      "readBy": [ ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "item",
+      "readBy": [
+        "orderProcessingFlow"
+      ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [
+        "orderProcessingFlow"
+      ]
+    },
+    {
+      "name": "order",
+      "readBy": [
+        "orderProcessingFlow",
+        "orderValidationRules"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [
+        "orderProcessingFlow"
+      ]
+    },
+    {
+      "name": "quantity",
+      "readBy": [
+        "stockAvailableRule"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [
+        "stockAvailableRule"
+      ]
+    },
+    {
+      "name": "reviewQueue",
+      "readBy": [ ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "scratch",
+      "readBy": [ ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "stock",
+      "readBy": [
+        "stockAvailableRule"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [
+        "stockAvailableRule"
+      ]
+    },
+    {
+      "name": "total",
+      "readBy": [
+        "anotherMinTotalRule",
+        "customValidation",
+        "minTotalRule",
+        "orderProcessingFlow",
+        "orderValidationRules/members[2]",
+        "scriptRule"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [
+        "minTotalRule",
+        "orderProcessingFlow"
+      ]
+    },
+    {
+      "name": "validation",
+      "readBy": [ ],
+      "writtenBy": [
+        "orderProcessingFlow"
+      ],
+      "unknownWriters": [ ]
+    },
+    {
+      "name": "violationCount",
+      "readBy": [
+        "orderValidationRules"
+      ],
+      "writtenBy": [ ],
+      "unknownWriters": [ ]
+    }
+  ],
+  "problems": [
+    {
+      "severity": "error",
+      "code": "UNRESOLVED_TARGET",
+      "artifact": "orderProcessingFlow",
+      "path": "commands[6]",
+      "message": "Runs 'prefixRule', but nothing with that name is registered."
+    },
+    {
+      "severity": "error",
+      "code": "BEAN_NOT_MATERIALIZED",
+      "artifact": "org.rulii.explorer.fixture.beans.Broken",
+      "message": "The library could not build this bean's rules (BindDeclarationException: @Bind [limit] on [org.rulii.explorer.fixture.beans.Broken] declares the literal [abc], which does not convert to [java.lang.Integer]: Unable to convert value [abc] of type [interface java.lang.CharSequence] to [class java.lang.Integer]). It is shown from its declarations alone."
+    },
+    {
+      "severity": "error",
+      "code": "UNRESOLVED_TARGET",
+      "artifact": "org.rulii.explorer.fixture.beans.Order",
+      "path": "properties.code.validations[0]",
+      "message": "Runs 'prefixRule', but nothing with that name is registered."
+    },
+    {
+      "severity": "warning",
+      "code": "DUPLICATE_NAME",
+      "artifact": "anotherMinTotalRule",
+      "message": "The name 'MinTotalRule' is used by 2 artifacts: anotherMinTotalRule, minTotalRule."
+    },
+    {
+      "severity": "warning",
+      "code": "DUPLICATE_NAME",
+      "artifact": "minTotalRule",
+      "message": "The name 'MinTotalRule' is used by 2 artifacts: anotherMinTotalRule, minTotalRule."
+    },
+    {
+      "severity": "warning",
+      "code": "NAME_MISMATCH_LOOKUP",
+      "artifact": "orderProcessingFlow",
+      "path": "commands[5]",
+      "message": "Looks up 'MinTotalRule' by name, but the registry name of that artifact is 'anotherMinTotalRule'. Lookups use registry names."
+    },
+    {
+      "severity": "warning",
+      "code": "UNDESCRIBABLE",
+      "artifact": "org.rulii.explorer.fixture.beans.Plain",
+      "message": "Configured as a bean, but declares no constraint, @Valid, @Validate, @Expr or @Bind."
+    },
+    {
+      "severity": "info",
+      "code": "UNCATEGORISED",
+      "artifact": "anotherMinTotalRule",
+      "message": "No category, while 4 other artifacts have one."
+    },
+    {
+      "severity": "info",
+      "code": "UNUSED_RULE",
+      "artifact": "anotherMinTotalRule",
+      "message": "No rule set or flow references this rule."
+    },
+    {
+      "severity": "info",
+      "code": "UNCATEGORISED",
+      "artifact": "contextFlow",
+      "message": "No category, while 4 other artifacts have one."
+    },
+    {
+      "severity": "info",
+      "code": "UNCATEGORISED",
+      "artifact": "customValidation",
+      "message": "No category, while 4 other artifacts have one."
+    },
+    {
+      "severity": "info",
+      "code": "UNUSED_RULE",
+      "artifact": "customValidation",
+      "message": "No rule set or flow references this rule."
+    },
+    {
+      "severity": "info",
+      "code": "UNCATEGORISED",
+      "artifact": "emailRequired",
+      "message": "No category, while 4 other artifacts have one."
+    },
+    {
+      "severity": "info",
+      "code": "UNCATEGORISED",
+      "artifact": "minAge",
+      "message": "No category, while 4 other artifacts have one."
+    },
+    {
+      "severity": "info",
+      "code": "UNCATEGORISED",
+      "artifact": "scriptRule",
+      "message": "No category, while 4 other artifacts have one."
+    },
+    {
+      "severity": "info",
+      "code": "MISSING_DESCRIPTION",
+      "artifact": "stockAvailableRule",
+      "message": "No description."
+    }
+  ],
+  "beans": [
+    {
+      "id": "org.rulii.explorer.fixture.beans.Address",
+      "name": "Address",
+      "packageId": "org.rulii.explorer.fixture.beans",
+      "kind": "class",
+      "discovery": "scan",
+      "materialized": true,
+      "flow": {
+        "name": "addressValidationFlow"
+      },
+      "constraints": [ ],
+      "validations": [ ],
+      "expressions": [ ],
+      "binds": [ ],
+      "properties": [
+        {
+          "name": "street",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotBlank",
+              "name": "notBlank",
+              "attributes": { },
+              "plain": "is not blank",
+              "message": "{jakarta.validation.constraints.NotBlank.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Address/rules/street_notBlank"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "zip",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.Pattern",
+              "name": "pattern",
+              "attributes": {
+                "flags": [
+                  "CASE_INSENSITIVE"
+                ],
+                "regexp": "\\d{5}"
+              },
+              "plain": "matches \\d{5} (flags CASE_INSENSITIVE)",
+              "message": "{jakarta.validation.constraints.Pattern.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Address/rules/zip_pattern"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        }
+      ],
+      "executables": [ ],
+      "rules": [
+        {
+          "id": "org.rulii.explorer.fixture.beans.Address/rules/street_notBlank",
+          "name": "street_notBlank",
+          "placement": {
+            "kind": "property",
+            "name": "street"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notBlank",
+            "errorCode": "jakarta.validation.constraints.NotBlank.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be blank.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "street"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Address/rules/zip_pattern",
+          "name": "zip_pattern",
+          "placement": {
+            "kind": "property",
+            "name": "zip"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "pattern",
+            "errorCode": "jakarta.validation.constraints.Pattern.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must match the required regex pattern {1}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "zip"
+            },
+            "failOnNull": false,
+            "settings": {
+              "caseSensitive": true,
+              "flags": 2,
+              "pattern": "\\d{5}"
+            }
+          },
+          "hosted": [ ]
+        }
+      ]
+    },
+    {
+      "id": "org.rulii.explorer.fixture.beans.Broken",
+      "name": "Broken",
+      "packageId": "org.rulii.explorer.fixture.beans",
+      "kind": "class",
+      "discovery": "scan",
+      "materialized": false,
+      "flow": {
+        "name": "brokenValidationFlow"
+      },
+      "constraints": [ ],
+      "validations": [ ],
+      "expressions": [ ],
+      "binds": [
+        {
+          "name": "limit",
+          "type": "java.lang.Integer",
+          "kind": "literal",
+          "literal": "abc"
+        }
+      ],
+      "properties": [
+        {
+          "name": "value",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotNull",
+              "name": "notNull",
+              "attributes": { },
+              "plain": "is not null",
+              "message": "{jakarta.validation.constraints.NotNull.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ]
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        }
+      ],
+      "executables": [ ],
+      "rules": [ ]
+    },
+    {
+      "id": "org.rulii.explorer.fixture.beans.Customer",
+      "name": "Customer",
+      "packageId": "org.rulii.explorer.fixture.beans",
+      "kind": "class",
+      "discovery": "scan",
+      "materialized": true,
+      "flow": {
+        "name": "customerValidationFlow"
+      },
+      "constraints": [ ],
+      "validations": [ ],
+      "expressions": [ ],
+      "binds": [ ],
+      "properties": [
+        {
+          "name": "name",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotBlank",
+              "name": "notBlank",
+              "attributes": { },
+              "plain": "is not blank",
+              "message": "{jakarta.validation.constraints.NotBlank.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Customer/rules/name_notBlank"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "email",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.Email",
+              "name": "email",
+              "attributes": {
+                "flags": [ ],
+                "regexp": ".*"
+              },
+              "plain": "is an email address",
+              "message": "{jakarta.validation.constraints.Email.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Customer/rules/email_email"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "address",
+          "type": "org.rulii.explorer.fixture.beans.Address",
+          "genericType": "org.rulii.explorer.fixture.beans.Address",
+          "declaredOn": "getter",
+          "constraints": [ ],
+          "validations": [ ],
+          "expressions": [ ],
+          "cascade": {
+            "beanId": "org.rulii.explorer.fixture.beans.Address",
+            "targetType": "org.rulii.explorer.fixture.beans.Address",
+            "groupConversions": [ ]
+          },
+          "containerElements": [ ]
+        },
+        {
+          "name": "code",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "constraints": [
+            {
+              "annotation": "org.rulii.explorer.fixture.beans.Codes$StrictCode",
+              "name": "strictCode",
+              "attributes": { },
+              "plain": "@Codes.StrictCode",
+              "message": "strict",
+              "groups": [
+                "Basic"
+              ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": true,
+              "composing": [
+                {
+                  "annotation": "jakarta.validation.constraints.NotNull",
+                  "name": "notNull",
+                  "attributes": { },
+                  "plain": "is not null",
+                  "message": "{jakarta.validation.constraints.NotNull.message}",
+                  "groups": [
+                    "Basic"
+                  ],
+                  "severity": "ERROR",
+                  "payload": [ ],
+                  "reportAsSingleViolation": false,
+                  "composing": [ ],
+                  "ruleId": "org.rulii.explorer.fixture.beans.Customer/rules/code_strictCode_notNull"
+                },
+                {
+                  "annotation": "jakarta.validation.constraints.Size",
+                  "name": "size",
+                  "attributes": {
+                    "max": 2147483647,
+                    "min": 3
+                  },
+                  "plain": "size is at least 3",
+                  "message": "{jakarta.validation.constraints.Size.message}",
+                  "groups": [
+                    "Basic"
+                  ],
+                  "severity": "ERROR",
+                  "payload": [ ],
+                  "reportAsSingleViolation": false,
+                  "composing": [ ],
+                  "ruleId": "org.rulii.explorer.fixture.beans.Customer/rules/code_strictCode_size"
+                }
+              ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Customer/rules/code_strictCode"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "ref",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "constraints": [
+            {
+              "annotation": "org.rulii.explorer.fixture.beans.Codes$ValidCode",
+              "name": "validCode",
+              "attributes": { },
+              "plain": "@Codes.ValidCode",
+              "message": "{validCode}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [
+                {
+                  "annotation": "jakarta.validation.constraints.NotNull",
+                  "name": "notNull",
+                  "attributes": { },
+                  "plain": "is not null",
+                  "message": "{jakarta.validation.constraints.NotNull.message}",
+                  "groups": [ ],
+                  "severity": "ERROR",
+                  "payload": [ ],
+                  "reportAsSingleViolation": false,
+                  "composing": [ ],
+                  "ruleId": "org.rulii.explorer.fixture.beans.Customer/rules/ref_validCode_notNull"
+                },
+                {
+                  "annotation": "jakarta.validation.constraints.Size",
+                  "name": "size",
+                  "attributes": {
+                    "max": 2147483647,
+                    "min": 3
+                  },
+                  "plain": "size is at least 3",
+                  "message": "{jakarta.validation.constraints.Size.message}",
+                  "groups": [ ],
+                  "severity": "ERROR",
+                  "payload": [ ],
+                  "reportAsSingleViolation": false,
+                  "composing": [ ],
+                  "ruleId": "org.rulii.explorer.fixture.beans.Customer/rules/ref_validCode_size"
+                }
+              ]
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        }
+      ],
+      "executables": [ ],
+      "rules": [
+        {
+          "id": "org.rulii.explorer.fixture.beans.Customer/rules/name_notBlank",
+          "name": "name_notBlank",
+          "placement": {
+            "kind": "property",
+            "name": "name"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notBlank",
+            "errorCode": "jakarta.validation.constraints.NotBlank.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be blank.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "name"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Customer/rules/email_email",
+          "name": "email_email",
+          "placement": {
+            "kind": "property",
+            "name": "email"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "email",
+            "errorCode": "jakarta.validation.constraints.Email.message",
+            "severity": "ERROR",
+            "defaultMessage": "Invalid email address {0}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "email"
+            },
+            "failOnNull": false,
+            "settings": {
+              "allowLocal": false,
+              "allowTopLevelDomain": false,
+              "anyDomain": true,
+              "flags": 0
+            }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Customer/rules/code_strictCode",
+          "name": "code_strictCode",
+          "placement": {
+            "kind": "property",
+            "name": "code"
+          },
+          "kind": "java-builder",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "errorCode": "org.rulii.explorer.fixture.beans.Codes$StrictCode.message",
+            "severity": "ERROR",
+            "errorMessage": "strict",
+            "defaultMessage": "Value is not valid.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "code"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [
+            {
+              "id": "org.rulii.explorer.fixture.beans.Customer/rules/code_strictCode_notNull",
+              "name": "code_strictCode_notNull",
+              "placement": {
+                "kind": "property",
+                "name": "code"
+              },
+              "kind": "predefined-validator",
+              "parameters": [ ],
+              "rule": {
+                "then": [ ]
+              },
+              "validation": {
+                "validator": "notNull",
+                "errorCode": "jakarta.validation.constraints.NotNull.message",
+                "severity": "ERROR",
+                "defaultMessage": "Value must not be null.",
+                "valueSource": {
+                  "kind": "binding",
+                  "name": "code"
+                },
+                "failOnNull": true,
+                "settings": { }
+              },
+              "hosted": [ ]
+            },
+            {
+              "id": "org.rulii.explorer.fixture.beans.Customer/rules/code_strictCode_size",
+              "name": "code_strictCode_size",
+              "placement": {
+                "kind": "property",
+                "name": "code"
+              },
+              "kind": "predefined-validator",
+              "parameters": [ ],
+              "rule": {
+                "then": [ ]
+              },
+              "validation": {
+                "validator": "size",
+                "errorCode": "jakarta.validation.constraints.Size.message",
+                "severity": "ERROR",
+                "defaultMessage": "Value {0} must be between {1} and {2}.",
+                "valueSource": {
+                  "kind": "binding",
+                  "name": "code"
+                },
+                "failOnNull": false,
+                "settings": {
+                  "max": 2147483647,
+                  "min": 3
+                }
+              },
+              "hosted": [ ]
+            }
+          ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Customer/rules/code_strictCode_notNull",
+          "name": "code_strictCode_notNull",
+          "placement": {
+            "kind": "property",
+            "name": "code"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notNull",
+            "errorCode": "jakarta.validation.constraints.NotNull.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be null.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "code"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Customer/rules/code_strictCode_size",
+          "name": "code_strictCode_size",
+          "placement": {
+            "kind": "property",
+            "name": "code"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "size",
+            "errorCode": "jakarta.validation.constraints.Size.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be between {1} and {2}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "code"
+            },
+            "failOnNull": false,
+            "settings": {
+              "max": 2147483647,
+              "min": 3
+            }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Customer/rules/ref_validCode_notNull",
+          "name": "ref_validCode_notNull",
+          "placement": {
+            "kind": "property",
+            "name": "ref"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notNull",
+            "errorCode": "jakarta.validation.constraints.NotNull.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be null.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "ref"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Customer/rules/ref_validCode_size",
+          "name": "ref_validCode_size",
+          "placement": {
+            "kind": "property",
+            "name": "ref"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "size",
+            "errorCode": "jakarta.validation.constraints.Size.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be between {1} and {2}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "ref"
+            },
+            "failOnNull": false,
+            "settings": {
+              "max": 2147483647,
+              "min": 3
+            }
+          },
+          "hosted": [ ]
+        }
+      ]
+    },
+    {
+      "id": "org.rulii.explorer.fixture.beans.Line",
+      "name": "Line",
+      "packageId": "org.rulii.explorer.fixture.beans",
+      "kind": "record",
+      "discovery": "scan",
+      "materialized": true,
+      "flow": {
+        "name": "lineValidationFlow"
+      },
+      "constraints": [ ],
+      "validations": [ ],
+      "expressions": [ ],
+      "binds": [ ],
+      "properties": [
+        {
+          "name": "sku",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "record-component",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotNull",
+              "name": "notNull",
+              "attributes": { },
+              "plain": "is not null",
+              "message": "{jakarta.validation.constraints.NotNull.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Line/rules/sku_notNull"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "quantity",
+          "type": "int",
+          "genericType": "int",
+          "declaredOn": "record-component",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.Positive",
+              "name": "positive",
+              "attributes": { },
+              "plain": "is positive",
+              "message": "{jakarta.validation.constraints.Positive.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Line/rules/quantity_positive"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        }
+      ],
+      "executables": [
+        {
+          "name": "Line",
+          "key": "line_Line",
+          "kind": "constructor",
+          "signature": "Line(java.lang.String, int)",
+          "parameters": [
+            {
+              "index": 0,
+              "name": "sku",
+              "type": "java.lang.String",
+              "genericType": "java.lang.String",
+              "constraints": [
+                {
+                  "annotation": "jakarta.validation.constraints.NotNull",
+                  "name": "notNull",
+                  "attributes": { },
+                  "plain": "is not null",
+                  "message": "{jakarta.validation.constraints.NotNull.message}",
+                  "groups": [ ],
+                  "severity": "ERROR",
+                  "payload": [ ],
+                  "reportAsSingleViolation": false,
+                  "composing": [ ],
+                  "ruleId": "org.rulii.explorer.fixture.beans.Line/line_Line/rules/sku_notNull"
+                }
+              ],
+              "validations": [ ],
+              "expressions": [ ],
+              "containerElements": [ ]
+            },
+            {
+              "index": 1,
+              "name": "quantity",
+              "type": "int",
+              "genericType": "int",
+              "constraints": [
+                {
+                  "annotation": "jakarta.validation.constraints.Positive",
+                  "name": "positive",
+                  "attributes": { },
+                  "plain": "is positive",
+                  "message": "{jakarta.validation.constraints.Positive.message}",
+                  "groups": [ ],
+                  "severity": "ERROR",
+                  "payload": [ ],
+                  "reportAsSingleViolation": false,
+                  "composing": [ ],
+                  "ruleId": "org.rulii.explorer.fixture.beans.Line/line_Line/rules/quantity_positive"
+                }
+              ],
+              "validations": [ ],
+              "expressions": [ ],
+              "containerElements": [ ]
+            }
+          ],
+          "binds": [ ],
+          "parametersFlow": {
+            "name": "line_LineParametersFlow"
+          },
+          "rules": [
+            {
+              "id": "org.rulii.explorer.fixture.beans.Line/line_Line/rules/sku_notNull",
+              "name": "sku_notNull",
+              "placement": {
+                "kind": "parameter",
+                "name": "sku",
+                "index": 0
+              },
+              "kind": "predefined-validator",
+              "parameters": [ ],
+              "rule": {
+                "then": [ ]
+              },
+              "validation": {
+                "validator": "notNull",
+                "errorCode": "jakarta.validation.constraints.NotNull.message",
+                "severity": "ERROR",
+                "defaultMessage": "Value must not be null.",
+                "valueSource": {
+                  "kind": "binding",
+                  "name": "sku"
+                },
+                "failOnNull": true,
+                "settings": { }
+              },
+              "hosted": [ ]
+            },
+            {
+              "id": "org.rulii.explorer.fixture.beans.Line/line_Line/rules/quantity_positive",
+              "name": "quantity_positive",
+              "placement": {
+                "kind": "parameter",
+                "name": "quantity",
+                "index": 1
+              },
+              "kind": "predefined-validator",
+              "parameters": [ ],
+              "rule": {
+                "then": [ ]
+              },
+              "validation": {
+                "validator": "positive",
+                "errorCode": "jakarta.validation.constraints.Positive.message",
+                "severity": "ERROR",
+                "defaultMessage": "Value {0} must be greater than 0.",
+                "valueSource": {
+                  "kind": "binding",
+                  "name": "quantity"
+                },
+                "failOnNull": false,
+                "settings": { }
+              },
+              "hosted": [ ]
+            }
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "id": "org.rulii.explorer.fixture.beans.Line/rules/sku_notNull",
+          "name": "sku_notNull",
+          "placement": {
+            "kind": "property",
+            "name": "sku"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notNull",
+            "errorCode": "jakarta.validation.constraints.NotNull.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be null.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "sku"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Line/rules/quantity_positive",
+          "name": "quantity_positive",
+          "placement": {
+            "kind": "property",
+            "name": "quantity"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "positive",
+            "errorCode": "jakarta.validation.constraints.Positive.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be greater than 0.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "quantity"
+            },
+            "failOnNull": false,
+            "settings": { }
+          },
+          "hosted": [ ]
+        }
+      ]
+    },
+    {
+      "id": "org.rulii.explorer.fixture.beans.Order",
+      "name": "Order",
+      "packageId": "org.rulii.explorer.fixture.beans",
+      "kind": "class",
+      "discovery": "scan",
+      "materialized": true,
+      "flow": {
+        "name": "orderValidationFlow"
+      },
+      "constraints": [ ],
+      "validations": [
+        {
+          "rules": [
+            "minTotalRule"
+          ],
+          "groups": [ ],
+          "applyTo": "IMPLICIT",
+          "targets": [
+            {
+              "name": "minTotalRule",
+              "artifactId": "minTotalRule"
+            }
+          ]
+        }
+      ],
+      "expressions": [
+        {
+          "expression": {
+            "kind": "script",
+            "language": "java",
+            "text": "ctx.total != null",
+            "plain": {
+              "complete": false,
+              "tokens": [
+                {
+                  "t": "raw",
+                  "text": "ctx.total != null"
+                }
+              ]
+            },
+            "reads": [
+              "total"
+            ],
+            "writes": [ ]
+          },
+          "errorCode": "order.total.present",
+          "severity": "ERROR",
+          "groups": [ ],
+          "applyTo": "IMPLICIT",
+          "skipNull": true,
+          "ruleId": "org.rulii.explorer.fixture.beans.Order/rules/Order_expr"
+        }
+      ],
+      "binds": [
+        {
+          "name": "limit",
+          "type": "java.lang.Integer",
+          "kind": "literal",
+          "literal": "500"
+        },
+        {
+          "name": "twice",
+          "type": "java.lang.Integer",
+          "kind": "expression",
+          "expression": {
+            "kind": "script",
+            "language": "java",
+            "text": "ctx.limit * 2",
+            "plain": {
+              "complete": false,
+              "tokens": [
+                {
+                  "t": "raw",
+                  "text": "ctx.limit * 2"
+                }
+              ]
+            },
+            "reads": [
+              "limit"
+            ],
+            "writes": [ ]
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "total",
+          "type": "java.math.BigDecimal",
+          "genericType": "java.math.BigDecimal",
+          "declaredOn": "field",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotNull",
+              "name": "notNull",
+              "attributes": { },
+              "plain": "is not null",
+              "message": "{jakarta.validation.constraints.NotNull.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Order/rules/total_notNull"
+            },
+            {
+              "annotation": "jakarta.validation.constraints.DecimalMin",
+              "name": "decimalMin",
+              "attributes": {
+                "inclusive": true,
+                "value": "0.0"
+              },
+              "plain": "is at least 0.0",
+              "message": "{jakarta.validation.constraints.DecimalMin.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Order/rules/total_decimalMin"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "code",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.Size",
+              "name": "size",
+              "attributes": {
+                "max": 5,
+                "min": 2
+              },
+              "plain": "size is between 2 and 5",
+              "message": "{jakarta.validation.constraints.Size.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Order/rules/code_size"
+            }
+          ],
+          "validations": [
+            {
+              "rules": [
+                "emailRequired",
+                "prefixRule"
+              ],
+              "groups": [ ],
+              "applyTo": "IMPLICIT",
+              "targets": [
+                {
+                  "name": "emailRequired",
+                  "artifactId": "emailRequired"
+                },
+                {
+                  "name": "prefixRule"
+                }
+              ]
+            }
+          ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "customer",
+          "type": "org.rulii.explorer.fixture.beans.Customer",
+          "genericType": "org.rulii.explorer.fixture.beans.Customer",
+          "declaredOn": "field",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotNull",
+              "name": "notNull",
+              "attributes": { },
+              "plain": "is not null",
+              "message": "{jakarta.validation.constraints.NotNull.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Order/rules/customer_notNull"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "cascade": {
+            "beanId": "org.rulii.explorer.fixture.beans.Customer",
+            "targetType": "org.rulii.explorer.fixture.beans.Customer",
+            "groupConversions": [
+              {
+                "from": "Default",
+                "to": "Basic"
+              }
+            ]
+          },
+          "containerElements": [ ]
+        },
+        {
+          "name": "lines",
+          "type": "java.util.List",
+          "genericType": "java.util.List<org.rulii.explorer.fixture.beans.Line>",
+          "declaredOn": "getter",
+          "constraints": [ ],
+          "validations": [ ],
+          "expressions": [ ],
+          "cascade": {
+            "beanId": "org.rulii.explorer.fixture.beans.Line",
+            "targetType": "java.util.List<org.rulii.explorer.fixture.beans.Line>",
+            "groupConversions": [ ]
+          },
+          "containerElements": [
+            {
+              "name": "List<0>",
+              "containerType": "java.util.List",
+              "typeArgumentIndex": 0,
+              "type": "org.rulii.explorer.fixture.beans.Line",
+              "constraints": [
+                {
+                  "annotation": "jakarta.validation.constraints.NotNull",
+                  "name": "notNull",
+                  "attributes": { },
+                  "plain": "is not null",
+                  "message": "{jakarta.validation.constraints.NotNull.message}",
+                  "groups": [ ],
+                  "severity": "ERROR",
+                  "payload": [ ],
+                  "reportAsSingleViolation": false,
+                  "composing": [ ],
+                  "ruleId": "org.rulii.explorer.fixture.beans.Order/rules/lines_List0_notNull"
+                }
+              ],
+              "children": [ ]
+            }
+          ]
+        },
+        {
+          "name": "quantities",
+          "type": "java.util.Map",
+          "genericType": "java.util.Map<java.lang.String, java.lang.Integer>",
+          "declaredOn": "getter",
+          "constraints": [ ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [
+            {
+              "name": "Map<0>",
+              "containerType": "java.util.Map",
+              "typeArgumentIndex": 0,
+              "type": "java.lang.String",
+              "constraints": [
+                {
+                  "annotation": "jakarta.validation.constraints.NotBlank",
+                  "name": "notBlank",
+                  "attributes": { },
+                  "plain": "is not blank",
+                  "message": "{jakarta.validation.constraints.NotBlank.message}",
+                  "groups": [ ],
+                  "severity": "ERROR",
+                  "payload": [ ],
+                  "reportAsSingleViolation": false,
+                  "composing": [ ],
+                  "ruleId": "org.rulii.explorer.fixture.beans.Order/rules/quantities_Map0_notBlank"
+                }
+              ],
+              "children": [ ]
+            },
+            {
+              "name": "Map<1>",
+              "containerType": "java.util.Map",
+              "typeArgumentIndex": 1,
+              "type": "java.lang.Integer",
+              "constraints": [
+                {
+                  "annotation": "jakarta.validation.constraints.Positive",
+                  "name": "positive",
+                  "attributes": { },
+                  "plain": "is positive",
+                  "message": "{jakarta.validation.constraints.Positive.message}",
+                  "groups": [ ],
+                  "severity": "ERROR",
+                  "payload": [ ],
+                  "reportAsSingleViolation": false,
+                  "composing": [ ],
+                  "ruleId": "org.rulii.explorer.fixture.beans.Order/rules/quantities_Map1_positive"
+                }
+              ],
+              "children": [ ]
+            }
+          ]
+        },
+        {
+          "name": "priority",
+          "type": "java.lang.Integer",
+          "genericType": "java.lang.Integer",
+          "declaredOn": "field",
+          "constraints": [ ],
+          "validations": [ ],
+          "expressions": [
+            {
+              "expression": {
+                "kind": "script",
+                "language": "java",
+                "text": "ctx.priority < 100",
+                "plain": {
+                  "complete": false,
+                  "tokens": [
+                    {
+                      "t": "raw",
+                      "text": "ctx.priority < 100"
+                    }
+                  ]
+                },
+                "reads": [
+                  "priority"
+                ],
+                "writes": [ ]
+              },
+              "errorCode": "order.priority.range",
+              "message": "priority is out of range",
+              "severity": "WARNING",
+              "groups": [
+                "Advanced"
+              ],
+              "applyTo": "IMPLICIT",
+              "skipNull": true,
+              "ruleId": "org.rulii.explorer.fixture.beans.Order/rules/priority_expr"
+            }
+          ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "price",
+          "type": "java.math.BigDecimal",
+          "genericType": "java.math.BigDecimal",
+          "declaredOn": "getter",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.PositiveOrZero",
+              "name": "positiveOrZero",
+              "attributes": { },
+              "plain": "is zero or positive",
+              "message": "{jakarta.validation.constraints.PositiveOrZero.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Order/rules/price_positiveOrZero"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "itemCount",
+          "type": "java.lang.Integer",
+          "genericType": "java.lang.Integer",
+          "declaredOn": "getter",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.Positive",
+              "name": "positive",
+              "attributes": { },
+              "plain": "is positive",
+              "message": "{jakarta.validation.constraints.Positive.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Order/rules/itemCount_positive"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        }
+      ],
+      "executables": [
+        {
+          "name": "Order",
+          "key": "order_Order",
+          "kind": "constructor",
+          "signature": "Order(java.lang.String)",
+          "parameters": [
+            {
+              "index": 0,
+              "name": "code",
+              "type": "java.lang.String",
+              "genericType": "java.lang.String",
+              "constraints": [
+                {
+                  "annotation": "jakarta.validation.constraints.NotBlank",
+                  "name": "notBlank",
+                  "attributes": { },
+                  "plain": "is not blank",
+                  "message": "{jakarta.validation.constraints.NotBlank.message}",
+                  "groups": [ ],
+                  "severity": "ERROR",
+                  "payload": [ ],
+                  "reportAsSingleViolation": false,
+                  "composing": [ ],
+                  "ruleId": "org.rulii.explorer.fixture.beans.Order/order_Order/rules/code_notBlank"
+                }
+              ],
+              "validations": [ ],
+              "expressions": [ ],
+              "containerElements": [ ]
+            }
+          ],
+          "binds": [ ],
+          "parametersFlow": {
+            "name": "order_OrderParametersFlow"
+          },
+          "rules": [
+            {
+              "id": "org.rulii.explorer.fixture.beans.Order/order_Order/rules/code_notBlank",
+              "name": "code_notBlank",
+              "placement": {
+                "kind": "parameter",
+                "name": "code",
+                "index": 0
+              },
+              "kind": "predefined-validator",
+              "parameters": [ ],
+              "rule": {
+                "then": [ ]
+              },
+              "validation": {
+                "validator": "notBlank",
+                "errorCode": "jakarta.validation.constraints.NotBlank.message",
+                "severity": "ERROR",
+                "defaultMessage": "Value must not be blank.",
+                "valueSource": {
+                  "kind": "binding",
+                  "name": "code"
+                },
+                "failOnNull": true,
+                "settings": { }
+              },
+              "hosted": [ ]
+            }
+          ]
+        },
+        {
+          "name": "add",
+          "key": "order_add",
+          "kind": "method",
+          "signature": "add(org.rulii.explorer.fixture.beans.Line, int)",
+          "parameters": [
+            {
+              "index": 0,
+              "name": "line",
+              "type": "org.rulii.explorer.fixture.beans.Line",
+              "genericType": "org.rulii.explorer.fixture.beans.Line",
+              "constraints": [
+                {
+                  "annotation": "jakarta.validation.constraints.NotNull",
+                  "name": "notNull",
+                  "attributes": { },
+                  "plain": "is not null",
+                  "message": "{jakarta.validation.constraints.NotNull.message}",
+                  "groups": [ ],
+                  "severity": "ERROR",
+                  "payload": [ ],
+                  "reportAsSingleViolation": false,
+                  "composing": [ ],
+                  "ruleId": "org.rulii.explorer.fixture.beans.Order/order_add/rules/line_notNull"
+                }
+              ],
+              "validations": [ ],
+              "expressions": [ ],
+              "containerElements": [ ]
+            },
+            {
+              "index": 1,
+              "name": "quantity",
+              "type": "int",
+              "genericType": "int",
+              "constraints": [ ],
+              "validations": [ ],
+              "expressions": [ ],
+              "containerElements": [ ]
+            }
+          ],
+          "crossParameter": {
+            "constraints": [ ],
+            "validations": [ ],
+            "expressions": [
+              {
+                "expression": {
+                  "kind": "script",
+                  "language": "java",
+                  "text": "ctx.quantity > 0",
+                  "plain": {
+                    "complete": false,
+                    "tokens": [
+                      {
+                        "t": "raw",
+                        "text": "ctx.quantity > 0"
+                      }
+                    ]
+                  },
+                  "reads": [
+                    "quantity"
+                  ],
+                  "writes": [ ]
+                },
+                "errorCode": "order.add.quantity",
+                "severity": "ERROR",
+                "groups": [ ],
+                "applyTo": "PARAMETERS",
+                "skipNull": true,
+                "ruleId": "org.rulii.explorer.fixture.beans.Order/order_add/rules/add_expr"
+              }
+            ]
+          },
+          "binds": [
+            {
+              "name": "maxQuantity",
+              "type": "java.lang.Integer",
+              "kind": "literal",
+              "literal": "10",
+              "applyTo": "IMPLICIT"
+            }
+          ],
+          "parametersFlow": {
+            "name": "order_addParametersFlow"
+          },
+          "rules": [
+            {
+              "id": "org.rulii.explorer.fixture.beans.Order/order_add/rules/line_notNull",
+              "name": "line_notNull",
+              "placement": {
+                "kind": "parameter",
+                "name": "line",
+                "index": 0
+              },
+              "kind": "predefined-validator",
+              "parameters": [ ],
+              "rule": {
+                "then": [ ]
+              },
+              "validation": {
+                "validator": "notNull",
+                "errorCode": "jakarta.validation.constraints.NotNull.message",
+                "severity": "ERROR",
+                "defaultMessage": "Value must not be null.",
+                "valueSource": {
+                  "kind": "binding",
+                  "name": "line"
+                },
+                "failOnNull": true,
+                "settings": { }
+              },
+              "hosted": [ ]
+            },
+            {
+              "id": "org.rulii.explorer.fixture.beans.Order/order_add/rules/add_expr",
+              "name": "add_expr",
+              "placement": {
+                "kind": "cross-parameter"
+              },
+              "kind": "java-builder",
+              "parameters": [ ],
+              "rule": {
+                "given": {
+                  "kind": "script",
+                  "language": "java",
+                  "text": "ctx.quantity > 0",
+                  "plain": {
+                    "complete": false,
+                    "tokens": [
+                      {
+                        "t": "raw",
+                        "text": "ctx.quantity > 0"
+                      }
+                    ]
+                  },
+                  "reads": [
+                    "quantity"
+                  ],
+                  "writes": [ ]
+                },
+                "then": [ ]
+              },
+              "validation": {
+                "errorCode": "order.add.quantity",
+                "severity": "ERROR",
+                "defaultMessage": "Script condition is not satisfied.",
+                "valueSource": {
+                  "kind": "binding",
+                  "name": "parameters"
+                },
+                "failOnNull": true,
+                "settings": { }
+              },
+              "hosted": [ ]
+            }
+          ]
+        },
+        {
+          "name": "getItemCount",
+          "key": "order_getItemCount",
+          "kind": "getter",
+          "signature": "getItemCount()",
+          "parameters": [ ],
+          "returnValue": {
+            "type": "java.lang.Integer",
+            "genericType": "java.lang.Integer",
+            "constraints": [
+              {
+                "annotation": "jakarta.validation.constraints.Positive",
+                "name": "positive",
+                "attributes": { },
+                "plain": "is positive",
+                "message": "{jakarta.validation.constraints.Positive.message}",
+                "groups": [ ],
+                "severity": "ERROR",
+                "payload": [ ],
+                "reportAsSingleViolation": false,
+                "composing": [ ],
+                "ruleId": "org.rulii.explorer.fixture.beans.Order/order_getItemCount/rules/returnValue_positive"
+              }
+            ],
+            "validations": [ ],
+            "expressions": [ ],
+            "containerElements": [ ],
+            "binds": [ ]
+          },
+          "binds": [ ],
+          "returnValueFlow": {
+            "name": "order_getItemCountReturnValueFlow"
+          },
+          "rules": [
+            {
+              "id": "org.rulii.explorer.fixture.beans.Order/order_getItemCount/rules/returnValue_positive",
+              "name": "returnValue_positive",
+              "placement": {
+                "kind": "return-value"
+              },
+              "kind": "predefined-validator",
+              "parameters": [ ],
+              "rule": {
+                "then": [ ]
+              },
+              "validation": {
+                "validator": "positive",
+                "errorCode": "jakarta.validation.constraints.Positive.message",
+                "severity": "ERROR",
+                "defaultMessage": "Value {0} must be greater than 0.",
+                "valueSource": {
+                  "kind": "binding",
+                  "name": "returnValue"
+                },
+                "failOnNull": false,
+                "settings": { }
+              },
+              "hosted": [ ]
+            }
+          ]
+        },
+        {
+          "name": "getPrice",
+          "key": "order_getPrice",
+          "kind": "getter",
+          "signature": "getPrice()",
+          "parameters": [ ],
+          "returnValue": {
+            "type": "java.math.BigDecimal",
+            "genericType": "java.math.BigDecimal",
+            "constraints": [
+              {
+                "annotation": "jakarta.validation.constraints.PositiveOrZero",
+                "name": "positiveOrZero",
+                "attributes": { },
+                "plain": "is zero or positive",
+                "message": "{jakarta.validation.constraints.PositiveOrZero.message}",
+                "groups": [ ],
+                "severity": "ERROR",
+                "payload": [ ],
+                "reportAsSingleViolation": false,
+                "composing": [ ],
+                "ruleId": "org.rulii.explorer.fixture.beans.Order/order_getPrice/rules/returnValue_positiveOrZero"
+              }
+            ],
+            "validations": [ ],
+            "expressions": [ ],
+            "containerElements": [ ],
+            "binds": [ ]
+          },
+          "binds": [ ],
+          "returnValueFlow": {
+            "name": "order_getPriceReturnValueFlow"
+          },
+          "rules": [
+            {
+              "id": "org.rulii.explorer.fixture.beans.Order/order_getPrice/rules/returnValue_positiveOrZero",
+              "name": "returnValue_positiveOrZero",
+              "placement": {
+                "kind": "return-value"
+              },
+              "kind": "predefined-validator",
+              "parameters": [ ],
+              "rule": {
+                "then": [ ]
+              },
+              "validation": {
+                "validator": "positiveOrZero",
+                "errorCode": "jakarta.validation.constraints.PositiveOrZero.message",
+                "severity": "ERROR",
+                "defaultMessage": "Value {0} must be greater than or equal to 0.",
+                "valueSource": {
+                  "kind": "binding",
+                  "name": "returnValue"
+                },
+                "failOnNull": false,
+                "settings": { }
+              },
+              "hosted": [ ]
+            }
+          ]
+        },
+        {
+          "name": "merge",
+          "key": "order_merge",
+          "kind": "method",
+          "signature": "merge(org.rulii.explorer.fixture.beans.Order, int)",
+          "parameters": [
+            {
+              "index": 0,
+              "name": "other",
+              "type": "org.rulii.explorer.fixture.beans.Order",
+              "genericType": "org.rulii.explorer.fixture.beans.Order",
+              "constraints": [
+                {
+                  "annotation": "jakarta.validation.constraints.NotNull",
+                  "name": "notNull",
+                  "attributes": { },
+                  "plain": "is not null",
+                  "message": "{jakarta.validation.constraints.NotNull.message}",
+                  "groups": [ ],
+                  "severity": "ERROR",
+                  "payload": [ ],
+                  "reportAsSingleViolation": false,
+                  "composing": [ ],
+                  "ruleId": "org.rulii.explorer.fixture.beans.Order/order_merge/rules/other_notNull"
+                }
+              ],
+              "validations": [ ],
+              "expressions": [ ],
+              "cascade": {
+                "beanId": "org.rulii.explorer.fixture.beans.Order",
+                "targetType": "org.rulii.explorer.fixture.beans.Order",
+                "groupConversions": [ ]
+              },
+              "containerElements": [ ]
+            },
+            {
+              "index": 1,
+              "name": "priority",
+              "type": "int",
+              "genericType": "int",
+              "constraints": [
+                {
+                  "annotation": "jakarta.validation.constraints.Min",
+                  "name": "min",
+                  "attributes": {
+                    "value": 1
+                  },
+                  "plain": "is at least 1",
+                  "message": "{jakarta.validation.constraints.Min.message}",
+                  "groups": [ ],
+                  "severity": "ERROR",
+                  "payload": [ ],
+                  "reportAsSingleViolation": false,
+                  "composing": [ ],
+                  "ruleId": "org.rulii.explorer.fixture.beans.Order/order_merge/rules/priority_min"
+                }
+              ],
+              "validations": [ ],
+              "expressions": [ ],
+              "containerElements": [ ]
+            }
+          ],
+          "returnValue": {
+            "type": "org.rulii.explorer.fixture.beans.Order",
+            "genericType": "org.rulii.explorer.fixture.beans.Order",
+            "constraints": [
+              {
+                "annotation": "jakarta.validation.constraints.NotNull",
+                "name": "notNull",
+                "attributes": { },
+                "plain": "is not null",
+                "message": "{jakarta.validation.constraints.NotNull.message}",
+                "groups": [ ],
+                "severity": "ERROR",
+                "payload": [ ],
+                "reportAsSingleViolation": false,
+                "composing": [ ],
+                "ruleId": "org.rulii.explorer.fixture.beans.Order/order_merge/rules/returnValue_notNull"
+              }
+            ],
+            "validations": [ ],
+            "expressions": [ ],
+            "containerElements": [ ],
+            "binds": [ ]
+          },
+          "binds": [ ],
+          "parametersFlow": {
+            "name": "order_mergeParametersFlow"
+          },
+          "returnValueFlow": {
+            "name": "order_mergeReturnValueFlow"
+          },
+          "rules": [
+            {
+              "id": "org.rulii.explorer.fixture.beans.Order/order_merge/rules/other_notNull",
+              "name": "other_notNull",
+              "placement": {
+                "kind": "parameter",
+                "name": "other",
+                "index": 0
+              },
+              "kind": "predefined-validator",
+              "parameters": [ ],
+              "rule": {
+                "then": [ ]
+              },
+              "validation": {
+                "validator": "notNull",
+                "errorCode": "jakarta.validation.constraints.NotNull.message",
+                "severity": "ERROR",
+                "defaultMessage": "Value must not be null.",
+                "valueSource": {
+                  "kind": "binding",
+                  "name": "other"
+                },
+                "failOnNull": true,
+                "settings": { }
+              },
+              "hosted": [ ]
+            },
+            {
+              "id": "org.rulii.explorer.fixture.beans.Order/order_merge/rules/priority_min",
+              "name": "priority_min",
+              "placement": {
+                "kind": "parameter",
+                "name": "priority",
+                "index": 1
+              },
+              "kind": "predefined-validator",
+              "parameters": [ ],
+              "rule": {
+                "then": [ ]
+              },
+              "validation": {
+                "validator": "min",
+                "errorCode": "jakarta.validation.constraints.Min.message",
+                "severity": "ERROR",
+                "defaultMessage": "Value {0} must be greater than or equal to {1}.",
+                "valueSource": {
+                  "kind": "binding",
+                  "name": "priority"
+                },
+                "failOnNull": false,
+                "settings": {
+                  "min": 1
+                }
+              },
+              "hosted": [ ]
+            },
+            {
+              "id": "org.rulii.explorer.fixture.beans.Order/order_merge/rules/returnValue_notNull",
+              "name": "returnValue_notNull",
+              "placement": {
+                "kind": "return-value"
+              },
+              "kind": "predefined-validator",
+              "parameters": [ ],
+              "rule": {
+                "then": [ ]
+              },
+              "validation": {
+                "validator": "notNull",
+                "errorCode": "jakarta.validation.constraints.NotNull.message",
+                "severity": "ERROR",
+                "defaultMessage": "Value must not be null.",
+                "valueSource": {
+                  "kind": "binding",
+                  "name": "returnValue"
+                },
+                "failOnNull": true,
+                "settings": { }
+              },
+              "hosted": [ ]
+            }
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "id": "org.rulii.explorer.fixture.beans.Order/rules/total_notNull",
+          "name": "total_notNull",
+          "placement": {
+            "kind": "property",
+            "name": "total"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notNull",
+            "errorCode": "jakarta.validation.constraints.NotNull.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be null.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "total"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Order/rules/total_decimalMin",
+          "name": "total_decimalMin",
+          "placement": {
+            "kind": "property",
+            "name": "total"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "decimalMin",
+            "errorCode": "jakarta.validation.constraints.DecimalMin.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be greater than or equal to {1}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "total"
+            },
+            "failOnNull": false,
+            "settings": {
+              "inclusive": true,
+              "min": "0.0"
+            }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Order/rules/code_size",
+          "name": "code_size",
+          "placement": {
+            "kind": "property",
+            "name": "code"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "size",
+            "errorCode": "jakarta.validation.constraints.Size.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be between {1} and {2}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "code"
+            },
+            "failOnNull": false,
+            "settings": {
+              "max": 5,
+              "min": 2
+            }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Order/rules/customer_notNull",
+          "name": "customer_notNull",
+          "placement": {
+            "kind": "property",
+            "name": "customer"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notNull",
+            "errorCode": "jakarta.validation.constraints.NotNull.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be null.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "customer"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Order/rules/priority_expr",
+          "name": "priority_expr",
+          "placement": {
+            "kind": "property",
+            "name": "priority"
+          },
+          "kind": "java-builder",
+          "parameters": [ ],
+          "rule": {
+            "given": {
+              "kind": "script",
+              "language": "java",
+              "text": "ctx.priority < 100",
+              "plain": {
+                "complete": false,
+                "tokens": [
+                  {
+                    "t": "raw",
+                    "text": "ctx.priority < 100"
+                  }
+                ]
+              },
+              "reads": [
+                "priority"
+              ],
+              "writes": [ ]
+            },
+            "then": [ ]
+          },
+          "validation": {
+            "errorCode": "order.priority.range",
+            "severity": "WARNING",
+            "errorMessage": "priority is out of range",
+            "defaultMessage": "Script condition is not satisfied.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "priority"
+            },
+            "failOnNull": false,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Order/rules/price_positiveOrZero",
+          "name": "price_positiveOrZero",
+          "placement": {
+            "kind": "property",
+            "name": "price"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "positiveOrZero",
+            "errorCode": "jakarta.validation.constraints.PositiveOrZero.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be greater than or equal to 0.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "price"
+            },
+            "failOnNull": false,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Order/rules/itemCount_positive",
+          "name": "itemCount_positive",
+          "placement": {
+            "kind": "property",
+            "name": "itemCount"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "positive",
+            "errorCode": "jakarta.validation.constraints.Positive.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be greater than 0.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "itemCount"
+            },
+            "failOnNull": false,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Order/rules/lines_List0_notNull",
+          "name": "lines_List0_notNull",
+          "placement": {
+            "kind": "bean"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notNull",
+            "errorCode": "jakarta.validation.constraints.NotNull.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be null.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "lines"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Order/rules/quantities_Map0_notBlank",
+          "name": "quantities_Map0_notBlank",
+          "placement": {
+            "kind": "bean"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notBlank",
+            "errorCode": "jakarta.validation.constraints.NotBlank.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be blank.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "quantities"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Order/rules/quantities_Map1_positive",
+          "name": "quantities_Map1_positive",
+          "placement": {
+            "kind": "bean"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "positive",
+            "errorCode": "jakarta.validation.constraints.Positive.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be greater than 0.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "quantities"
+            },
+            "failOnNull": false,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Order/rules/Order_expr",
+          "name": "Order_expr",
+          "placement": {
+            "kind": "bean"
+          },
+          "kind": "java-builder",
+          "parameters": [ ],
+          "rule": {
+            "given": {
+              "kind": "script",
+              "language": "java",
+              "text": "ctx.total != null",
+              "plain": {
+                "complete": false,
+                "tokens": [
+                  {
+                    "t": "raw",
+                    "text": "ctx.total != null"
+                  }
+                ]
+              },
+              "reads": [
+                "total"
+              ],
+              "writes": [ ]
+            },
+            "then": [ ]
+          },
+          "validation": {
+            "errorCode": "order.total.present",
+            "severity": "ERROR",
+            "defaultMessage": "Script condition is not satisfied.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "$this"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        }
+      ]
+    },
+    {
+      "id": "org.rulii.explorer.fixture.beans.Plain",
+      "name": "Plain",
+      "packageId": "org.rulii.explorer.fixture.beans",
+      "kind": "class",
+      "discovery": "configured",
+      "materialized": true,
+      "flow": {
+        "name": "plainValidationFlow"
+      },
+      "constraints": [ ],
+      "validations": [ ],
+      "expressions": [ ],
+      "binds": [ ],
+      "properties": [
+        {
+          "name": "nothing",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "getter",
+          "constraints": [ ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        }
+      ],
+      "executables": [ ],
+      "rules": [ ]
+    },
+    {
+      "id": "org.rulii.explorer.fixture.beans.Priced",
+      "name": "Priced",
+      "packageId": "org.rulii.explorer.fixture.beans",
+      "kind": "interface",
+      "discovery": "scan",
+      "materialized": true,
+      "flow": {
+        "name": "pricedValidationFlow"
+      },
+      "constraints": [ ],
+      "validations": [ ],
+      "expressions": [ ],
+      "binds": [ ],
+      "properties": [
+        {
+          "name": "price",
+          "type": "java.math.BigDecimal",
+          "genericType": "java.math.BigDecimal",
+          "declaredOn": "getter",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.PositiveOrZero",
+              "name": "positiveOrZero",
+              "attributes": { },
+              "plain": "is zero or positive",
+              "message": "{jakarta.validation.constraints.PositiveOrZero.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Priced/rules/price_positiveOrZero"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        }
+      ],
+      "executables": [
+        {
+          "name": "getPrice",
+          "key": "priced_getPrice",
+          "kind": "getter",
+          "signature": "getPrice()",
+          "parameters": [ ],
+          "returnValue": {
+            "type": "java.math.BigDecimal",
+            "genericType": "java.math.BigDecimal",
+            "constraints": [
+              {
+                "annotation": "jakarta.validation.constraints.PositiveOrZero",
+                "name": "positiveOrZero",
+                "attributes": { },
+                "plain": "is zero or positive",
+                "message": "{jakarta.validation.constraints.PositiveOrZero.message}",
+                "groups": [ ],
+                "severity": "ERROR",
+                "payload": [ ],
+                "reportAsSingleViolation": false,
+                "composing": [ ],
+                "ruleId": "org.rulii.explorer.fixture.beans.Priced/priced_getPrice/rules/returnValue_positiveOrZero"
+              }
+            ],
+            "validations": [ ],
+            "expressions": [ ],
+            "containerElements": [ ],
+            "binds": [ ]
+          },
+          "binds": [ ],
+          "returnValueFlow": {
+            "name": "priced_getPriceReturnValueFlow"
+          },
+          "rules": [
+            {
+              "id": "org.rulii.explorer.fixture.beans.Priced/priced_getPrice/rules/returnValue_positiveOrZero",
+              "name": "returnValue_positiveOrZero",
+              "placement": {
+                "kind": "return-value"
+              },
+              "kind": "predefined-validator",
+              "parameters": [ ],
+              "rule": {
+                "then": [ ]
+              },
+              "validation": {
+                "validator": "positiveOrZero",
+                "errorCode": "jakarta.validation.constraints.PositiveOrZero.message",
+                "severity": "ERROR",
+                "defaultMessage": "Value {0} must be greater than or equal to 0.",
+                "valueSource": {
+                  "kind": "binding",
+                  "name": "returnValue"
+                },
+                "failOnNull": false,
+                "settings": { }
+              },
+              "hosted": [ ]
+            }
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "id": "org.rulii.explorer.fixture.beans.Priced/rules/price_positiveOrZero",
+          "name": "price_positiveOrZero",
+          "placement": {
+            "kind": "property",
+            "name": "price"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "positiveOrZero",
+            "errorCode": "jakarta.validation.constraints.PositiveOrZero.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be greater than or equal to 0.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "price"
+            },
+            "failOnNull": false,
+            "settings": { }
+          },
+          "hosted": [ ]
+        }
+      ]
+    },
+    {
+      "id": "org.rulii.explorer.fixture.beans.Shape",
+      "name": "Shape",
+      "packageId": "org.rulii.explorer.fixture.beans",
+      "kind": "abstract-class",
+      "discovery": "scan",
+      "materialized": true,
+      "flow": {
+        "name": "shapeValidationFlow"
+      },
+      "constraints": [ ],
+      "validations": [ ],
+      "expressions": [ ],
+      "binds": [ ],
+      "properties": [
+        {
+          "name": "name",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotNull",
+              "name": "notNull",
+              "attributes": { },
+              "plain": "is not null",
+              "message": "{jakarta.validation.constraints.NotNull.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Shape/rules/name_notNull"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        }
+      ],
+      "executables": [ ],
+      "rules": [
+        {
+          "id": "org.rulii.explorer.fixture.beans.Shape/rules/name_notNull",
+          "name": "name_notNull",
+          "placement": {
+            "kind": "property",
+            "name": "name"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notNull",
+            "errorCode": "jakarta.validation.constraints.NotNull.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be null.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "name"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        }
+      ]
+    },
+    {
+      "id": "org.rulii.explorer.fixture.beans.Shape$Circle",
+      "name": "Circle",
+      "packageId": "org.rulii.explorer.fixture.beans",
+      "kind": "class",
+      "discovery": "scan",
+      "materialized": true,
+      "flow": {
+        "name": "circleValidationFlow"
+      },
+      "constraints": [ ],
+      "validations": [ ],
+      "expressions": [ ],
+      "binds": [ ],
+      "properties": [
+        {
+          "name": "name",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotNull",
+              "name": "notNull",
+              "attributes": { },
+              "plain": "is not null",
+              "message": "{jakarta.validation.constraints.NotNull.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Shape$Circle/rules/name_notNull"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "radius",
+          "type": "double",
+          "genericType": "double",
+          "declaredOn": "getter",
+          "constraints": [ ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        }
+      ],
+      "executables": [ ],
+      "rules": [
+        {
+          "id": "org.rulii.explorer.fixture.beans.Shape$Circle/rules/name_notNull",
+          "name": "name_notNull",
+          "placement": {
+            "kind": "property",
+            "name": "name"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notNull",
+            "errorCode": "jakarta.validation.constraints.NotNull.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be null.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "name"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        }
+      ]
+    },
+    {
+      "id": "org.rulii.explorer.fixture.beans.Staged",
+      "name": "Staged",
+      "packageId": "org.rulii.explorer.fixture.beans",
+      "kind": "class",
+      "discovery": "scan",
+      "groupSequence": [
+        "Basic",
+        "Default"
+      ],
+      "materialized": true,
+      "flow": {
+        "name": "stagedValidationFlow"
+      },
+      "constraints": [ ],
+      "validations": [
+        {
+          "rules": [
+            "minAge"
+          ],
+          "groups": [
+            "Basic"
+          ],
+          "applyTo": "IMPLICIT",
+          "targets": [
+            {
+              "name": "minAge",
+              "artifactId": "minAge"
+            }
+          ]
+        }
+      ],
+      "expressions": [ ],
+      "binds": [ ],
+      "properties": [
+        {
+          "name": "first",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotNull",
+              "name": "notNull",
+              "attributes": { },
+              "plain": "is not null",
+              "message": "{jakarta.validation.constraints.NotNull.message}",
+              "groups": [
+                "Basic"
+              ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Staged/rules/first_notNull"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "second",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.Size",
+              "name": "size",
+              "attributes": {
+                "max": 2147483647,
+                "min": 1
+              },
+              "plain": "size is at least 1",
+              "message": "{jakarta.validation.constraints.Size.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "org.rulii.explorer.fixture.beans.Staged/rules/second_size"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        }
+      ],
+      "executables": [ ],
+      "rules": [
+        {
+          "id": "org.rulii.explorer.fixture.beans.Staged/rules/first_notNull",
+          "name": "first_notNull",
+          "placement": {
+            "kind": "property",
+            "name": "first"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notNull",
+            "errorCode": "jakarta.validation.constraints.NotNull.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be null.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "first"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "org.rulii.explorer.fixture.beans.Staged/rules/second_size",
+          "name": "second_size",
+          "placement": {
+            "kind": "property",
+            "name": "second"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "size",
+            "errorCode": "jakarta.validation.constraints.Size.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be between {1} and {2}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "second"
+            },
+            "failOnNull": false,
+            "settings": {
+              "max": 2147483647,
+              "min": 1
+            }
+          },
+          "hosted": [ ]
+        }
+      ]
+    }
+  ]
+}

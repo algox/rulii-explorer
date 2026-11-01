@@ -10,10 +10,19 @@
  *   #/package/{id}
  *   #/category/{path}        a category by its full path, e.g. #/category/Pricing/Loyalty
  *
+ * The Beans section (descriptor 1.1, FR-70) has its own addresses, so a link opens in the right
+ * section:
+ *
+ *   #/beans                  the beans overview
+ *   #/beans/problems?severity=error
+ *   #/beans/graph?focus={id}&depth=1|2|all&selected={id}
+ *   #/bean/{id}?member=properties.total   a bean, scrolled to one member
+ *
  * Ids are URI-encoded, so XML package ids with slashes work.
  *
  * @typedef {object} Route
- * @property {string} name   'overview' | 'problems' | 'graph' | 'artifact' | 'binding' | 'package' | 'category' | 'missing'
+ * @property {string} name   'overview' | 'problems' | 'graph' | 'artifact' | 'binding' | 'package' | 'category' | 'beans' | 'bean' | 'missing'
+ * @property {'rules'|'beans'} section   which section of the UI the route belongs to
  * @property {string} [type] 'rule' | 'ruleset' | 'ruleflow' (artifact routes)
  * @property {string} [id]
  * @property {Record<string, string>} query
@@ -34,16 +43,20 @@ export function parseRoute(hash) {
         }
     }
     const segments = path.split('/').filter(Boolean).map(decodeURIComponent);
-    if (segments.length === 0) return {name: 'overview', query};
+    if (segments.length === 0) return {name: 'overview', section: 'rules', query};
     const [head, ...rest] = segments;
     const id = rest.join('/');
-    if (head === 'problems') return {name: 'problems', query};
-    if (head === 'graph') return {name: 'graph', query};
-    if (ARTIFACT_SEGMENTS[head] && id) return {name: 'artifact', type: head, id, query};
-    if (head === 'binding' && id) return {name: 'binding', id, query};
-    if (head === 'package' && id) return {name: 'package', id, query};
-    if (head === 'category' && id) return {name: 'category', id, query};
-    return {name: 'missing', id: path, query};
+    if (head === 'problems') return {name: 'problems', section: 'rules', query};
+    if (head === 'graph') return {name: 'graph', section: 'rules', query};
+    if (ARTIFACT_SEGMENTS[head] && id) return {name: 'artifact', section: 'rules', type: head, id, query};
+    if (head === 'binding' && id) return {name: 'binding', section: 'rules', id, query};
+    if (head === 'package' && id) return {name: 'package', section: 'rules', id, query};
+    if (head === 'category' && id) return {name: 'category', section: 'rules', id, query};
+    if (head === 'beans' && !id) return {name: 'beans', section: 'beans', query};
+    if (head === 'beans' && id === 'problems') return {name: 'problems', section: 'beans', query};
+    if (head === 'beans' && id === 'graph') return {name: 'graph', section: 'beans', query};
+    if (head === 'bean' && id) return {name: 'bean', section: 'beans', id, query};
+    return {name: 'missing', section: head === 'beans' || head === 'bean' ? 'beans' : 'rules', id: path, query};
 }
 
 function encode(id) {
@@ -72,7 +85,13 @@ export const routes = {
     graph: (query) => withQuery('#/graph', query),
     package: (id) => '#/package/' + encode(id),
     /** A category by its full path: `#/category/Pricing/Loyalty`. */
-    category: (path) => '#/category/' + encode(path)
+    category: (path) => '#/category/' + encode(path),
+    /** The Beans section: its overview, its problems, and a bean, optionally scrolled to a member (`properties.total`). */
+    beans: () => '#/beans',
+    beansProblems: (query) => withQuery('#/beans/problems', query),
+    /** The Beans graph: `{focus, depth, selected}` are all optional. */
+    beansGraph: (query) => withQuery('#/beans/graph', query),
+    bean: (beanOrId, query) => withQuery('#/bean/' + encode(typeof beanOrId === 'string' ? beanOrId : beanOrId.id), query)
 };
 
 /** Starts listening to the hash and keeps the store's route current. */

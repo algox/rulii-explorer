@@ -1,7 +1,8 @@
 import {html, nothing} from 'lit';
 import {RxElement} from '../../components/base.js';
-import {icon, logo} from '../../components/icons.js';
+import {glyph, icon, logo} from '../../components/icons.js';
 import {externalSourcesAllowed, sourceLabel} from '../../descriptor/source.js';
+import {routes} from '../../routing/router.js';
 
 const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform || '');
 
@@ -13,6 +14,7 @@ class RxTopbar extends RxElement {
         const name = descriptor && descriptor.application ? descriptor.application.name : null;
         const dark = this.store.effectiveTheme() === 'dark';
         const searchable = status === 'ready';
+        const beans = this.state.route.section === 'beans' && this.state.index && this.state.index.beans;
         return html`<header class="rx-topbar">
             <div class="rx-brand">
                 ${logo(34)}
@@ -22,10 +24,11 @@ class RxTopbar extends RxElement {
             <div class="rx-app-name">
                 ${name ? html`<span>${name}</span>` : status === 'loading' ? html`<span class="rx-sk" style="width: 120px; height: 14px"></span>` : nothing}
                 ${this.sourceChip()}
+                ${this.sectionSwitch()}
             </div>
-            <button type="button" class="rx-search" @click=${() => this.store.set({paletteOpen: true})} ?disabled=${!searchable} aria-label="Search rules, flows, bindings and error codes" aria-keyshortcuts=${IS_MAC ? 'Meta+K' : 'Control+K'}>
+            <button type="button" class="rx-search" @click=${() => this.store.set({paletteOpen: true})} ?disabled=${!searchable} aria-label=${beans ? 'Search beans, properties and constraints' : 'Search rules, flows, bindings and error codes'} aria-keyshortcuts=${IS_MAC ? 'Meta+K' : 'Control+K'}>
                 ${icon('search', {size: 16})}
-                <span class="rx-search-hint">Search rules, flows, error codes…</span>
+                <span class="rx-search-hint">${beans ? 'Search beans, properties, constraints…' : 'Search rules, flows, error codes…'}</span>
                 <kbd class="rx-kbd">${IS_MAC ? '⌘K' : 'Ctrl K'}</kbd>
             </button>
             <div class="rx-spacer"></div>
@@ -36,6 +39,21 @@ class RxTopbar extends RxElement {
                 ${icon(dark ? 'sun' : 'moon', {size: 17, width: 1.8})}
             </button>
         </header>`;
+    }
+
+    /**
+     * The Rules / Beans switch (FR-70): present only when the descriptor carries beans, so an
+     * application without them sees the explorer exactly as before. Each section keeps its own
+     * addresses; the switch opens the other section's overview.
+     */
+    sectionSwitch() {
+        const {index, route} = this.state;
+        if (!index || !index.beans) return nothing;
+        const beans = route.section === 'beans';
+        return html`<div class="rx-seg rx-section-switch" role="group" aria-label="Section">
+            <a class="rx-seg-link" href=${routes.overview()} aria-current=${beans ? nothing : 'page'}>${glyph('rule', {size: 11})}Rules</a>
+            <a class="rx-seg-link" href=${routes.beans()} aria-current=${beans ? 'page' : nothing}>${glyph('bean', {size: 11})}Beans</a>
+        </div>`;
     }
 
     /** Where the descriptor comes from; opens the "Open a descriptor" dialog. Absent when the page allows only its own application. */

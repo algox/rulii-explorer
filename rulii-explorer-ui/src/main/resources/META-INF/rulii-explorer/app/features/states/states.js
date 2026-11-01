@@ -28,6 +28,8 @@ class RxStates extends RxElement {
             case 'unreachable': return this.unreachable();
             case 'unsupported': return this.unsupported();
             case 'pick-source': return this.pickSource();
+            case 'beans-empty': return this.beansEmpty();
+            case 'beans-absent': return this.beansAbsent();
             default: return this.missing();
         }
     }
@@ -259,6 +261,46 @@ class RxStates extends RxElement {
                 <div class="rx-state-actions">
                     <button type="button" class="rx-btn rx-btn-primary" @click=${() => this.store.set({sourceOpen: true})}>${icon('upload', {size: 14, width: 2})}Choose the file</button>
                     <button type="button" class="rx-btn rx-btn-secondary" @click=${() => openApplication()}>Back to this application</button>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    /** Beans are on and none was found (S-BeansEmpty). */
+    beansEmpty() {
+        const d = this.state.descriptor;
+        const name = d && d.application && d.application.name ? d.application.name : 'this application';
+        const config = '# application.properties\nrulii.explorer.beans.packages=com.acme.order,com.acme.billing\nrulii.explorer.beans.classes=com.legacy.Invoice';
+        return html`<div class="rx-state rx-state-center">
+            ${arcs(116)}
+            <div class="rx-state-body">
+                <h2>No beans in ${name} yet</h2>
+                <p>The explorer scanned the application’s packages and asked the validator, and found no class that declares a constraint, <span class="rx-chip">@Valid</span>, <span class="rx-chip">@Validate</span>, <span class="rx-chip">@Expr</span> or <span class="rx-chip">@Bind</span>. Beans appear here as soon as one does, or is validated.</p>
+                <p class="rx-small">Beans elsewhere? Name their packages or classes:</p>
+                <div class="rx-code-block"><code class="rx-code"><span class="rx-c-cm"># application.properties</span>\n<span class="rx-c-fn">rulii.explorer.beans.packages</span><span class="rx-c-kw">=</span><span class="rx-c-str">com.acme.order,com.acme.billing</span>\n<span class="rx-c-fn">rulii.explorer.beans.classes</span><span class="rx-c-kw">=</span><span class="rx-c-str">com.legacy.Invoice</span></code>
+                    <button type="button" class="rx-copy-btn" aria-label="Copy configuration" @click=${() => copyText(config, 'Configuration copied')}>${icon('copy', {size: 12})}Copy</button></div>
+                <div class="rx-state-actions">
+                    <button type="button" class="rx-btn rx-btn-secondary" @click=${() => location.reload()}>Reload</button>
+                    <a class="rx-link rx-link-arrow" href=${routes.overview()}>Back to the rules${icon('arrowRight', {size: 14})}</a>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    /** A Beans address was opened, but this descriptor has no beans section (the property is off, or the application has no rulii validator). */
+    beansAbsent() {
+        const config = '# application.properties\nrulii.explorer.beans.enabled=true';
+        return html`<div class="rx-state rx-state-center" style="align-items: flex-start">
+            <span class="rx-state-icon rx-state-icon-warning">${icon('warning', {size: 19})}</span>
+            <div class="rx-state-body">
+                <h2 class="rx-h-sm">Beans aren’t described here</h2>
+                <p>This descriptor has no Beans section. The explorer describes beans only when the application asks for it and validates with rulii bean validation:</p>
+                <div class="rx-code-block"><code class="rx-code"><span class="rx-c-cm"># application.properties</span>\n<span class="rx-c-fn">rulii.explorer.beans.enabled</span><span class="rx-c-kw">=</span><span class="rx-c-str">true</span></code>
+                    <button type="button" class="rx-copy-btn" aria-label="Copy configuration" @click=${() => copyText(config, 'Configuration copied')}>${icon('copy', {size: 12})}Copy</button></div>
+                <p class="rx-small">An application that opted out of rulii bean validation (<span class="rx-mono">rulii.validation.enabled=false</span>) has no validator to read beans through, and keeps this section off.</p>
+                <div class="rx-state-actions">
+                    <a class="rx-btn rx-btn-secondary" href=${routes.overview()}>Back to the rules</a>
+                    <button type="button" class="rx-btn rx-btn-ghost" @click=${() => location.reload()}>Reload</button>
                 </div>
             </div>
         </div>`;

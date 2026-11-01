@@ -1,5 +1,5 @@
 {
-  "descriptorVersion": "1.0",
+  "descriptorVersion": "1.1",
   "application": {
     "name": "order-service",
     "ruliiVersion": "unknown",
@@ -631,7 +631,9 @@
         "failOnNull": true,
         "settings": {
           "allowLocal": false,
-          "allowTopLevelDomain": false
+          "allowTopLevelDomain": false,
+          "anyDomain": false,
+          "flags": 0
         }
       }
     },
@@ -2830,6 +2832,22 @@
       "resolution": "direct"
     },
     {
+      "from": "com.acme.order.model.Order",
+      "to": "com.acme.order.model.Item",
+      "type": "cascades",
+      "async": false,
+      "path": "properties.items",
+      "resolution": "direct"
+    },
+    {
+      "from": "com.acme.order.model.Order",
+      "to": "ConsistentDatesRule",
+      "type": "runs",
+      "async": false,
+      "path": "validations[0]",
+      "resolution": "by-name"
+    },
+    {
       "from": "fulfilmentRules",
       "to": "ExpressShippingRule",
       "type": "contains",
@@ -3263,6 +3281,13 @@
     {
       "severity": "error",
       "code": "UNRESOLVED_TARGET",
+      "artifact": "com.acme.order.model.Customer",
+      "path": "properties.tier.validations[0]",
+      "message": "Runs 'tierPolicyRule', but nothing with that name is registered."
+    },
+    {
+      "severity": "error",
+      "code": "UNRESOLVED_TARGET",
       "artifact": "nightlyRepriceFlow",
       "path": "commands[1].body[1]",
       "message": "Runs 'prefixRule', but nothing with that name is registered."
@@ -3297,6 +3322,1659 @@
       "code": "UNUSED_RULE",
       "artifact": "rangeCheckRule",
       "message": "No rule set or flow references this rule."
+    }
+  ],
+  "beans": [
+    {
+      "id": "com.acme.order.model.Customer",
+      "name": "Customer",
+      "packageId": "com.acme.order.model",
+      "kind": "class",
+      "discovery": "scan",
+      "source": {
+        "type": "java",
+        "className": "com.acme.order.model.Customer"
+      },
+      "materialized": true,
+      "flow": {
+        "name": "customerValidationFlow"
+      },
+      "constraints": [ ],
+      "validations": [ ],
+      "expressions": [
+        {
+          "expression": {
+            "kind": "script",
+            "language": "js",
+            "text": "ctx.openBalance.compareTo(ctx.creditLimit) <= 0",
+            "plain": {
+              "complete": true,
+              "tokens": [
+                {
+                  "t": "binding",
+                  "text": "open balance",
+                  "path": [
+                    "openBalance"
+                  ]
+                },
+                {
+                  "t": "call",
+                  "text": "compared to"
+                },
+                {
+                  "t": "binding",
+                  "text": "credit limit",
+                  "path": [
+                    "creditLimit"
+                  ]
+                },
+                {
+                  "t": "op",
+                  "text": "is at most"
+                },
+                {
+                  "t": "literal",
+                  "text": "0"
+                }
+              ]
+            },
+            "reads": [
+              "creditLimit",
+              "openBalance"
+            ],
+            "writes": [ ]
+          },
+          "errorCode": "customer.credit.exceeded",
+          "message": "The open balance exceeds the credit limit.",
+          "severity": "ERROR",
+          "groups": [ ],
+          "applyTo": "IMPLICIT",
+          "skipNull": true,
+          "ruleId": "com.acme.order.model.Customer/rules/Customer_expr"
+        }
+      ],
+      "binds": [ ],
+      "properties": [
+        {
+          "name": "id",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Customer",
+            "methodName": "getId"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotBlank",
+              "name": "notBlank",
+              "attributes": { },
+              "plain": "is not blank",
+              "message": "{jakarta.validation.constraints.NotBlank.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Customer/rules/id_notBlank"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "age",
+          "type": "int",
+          "genericType": "int",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Customer",
+            "methodName": "getAge"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.Min",
+              "name": "min",
+              "attributes": {
+                "value": 18
+              },
+              "plain": "is at least 18",
+              "message": "{jakarta.validation.constraints.Min.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Customer/rules/age_min"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "email",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Customer",
+            "methodName": "getEmail"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotBlank",
+              "name": "notBlank",
+              "attributes": { },
+              "plain": "is not blank",
+              "message": "{jakarta.validation.constraints.NotBlank.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Customer/rules/email_notBlank"
+            },
+            {
+              "annotation": "jakarta.validation.constraints.Email",
+              "name": "email",
+              "attributes": {
+                "flags": [ ],
+                "regexp": ".*"
+              },
+              "plain": "is an email address",
+              "message": "{jakarta.validation.constraints.Email.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Customer/rules/email_email"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "phone",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Customer",
+            "methodName": "getPhone"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.Pattern",
+              "name": "pattern",
+              "attributes": {
+                "flags": [ ],
+                "regexp": "\\+?[0-9 ]{7,20}"
+              },
+              "plain": "matches \\+?[0-9 ]{7,20}",
+              "message": "{jakarta.validation.constraints.Pattern.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Customer/rules/phone_pattern"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "tier",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Customer",
+            "methodName": "getTier"
+          },
+          "constraints": [
+            {
+              "annotation": "org.rulii.validation.beans.constraints.In",
+              "name": "in",
+              "attributes": {
+                "value": [
+                  "STANDARD",
+                  "SILVER",
+                  "GOLD",
+                  "VIP"
+                ]
+              },
+              "plain": "is one of STANDARD, SILVER, GOLD, VIP",
+              "message": "{org.rulii.validation.beans.constraints.In.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Customer/rules/tier_in"
+            }
+          ],
+          "validations": [
+            {
+              "rules": [
+                "tierPolicyRule"
+              ],
+              "groups": [ ],
+              "applyTo": "IMPLICIT",
+              "targets": [
+                {
+                  "name": "tierPolicyRule"
+                }
+              ]
+            }
+          ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "openBalance",
+          "type": "java.math.BigDecimal",
+          "genericType": "java.math.BigDecimal",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Customer",
+            "methodName": "getOpenBalance"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.PositiveOrZero",
+              "name": "positiveOrZero",
+              "attributes": { },
+              "plain": "is zero or positive",
+              "message": "{jakarta.validation.constraints.PositiveOrZero.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Customer/rules/openBalance_positiveOrZero"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "creditLimit",
+          "type": "java.math.BigDecimal",
+          "genericType": "java.math.BigDecimal",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Customer",
+            "methodName": "getCreditLimit"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.PositiveOrZero",
+              "name": "positiveOrZero",
+              "attributes": { },
+              "plain": "is zero or positive",
+              "message": "{jakarta.validation.constraints.PositiveOrZero.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Customer/rules/creditLimit_positiveOrZero"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        }
+      ],
+      "executables": [ ],
+      "rules": [
+        {
+          "id": "com.acme.order.model.Customer/rules/id_notBlank",
+          "name": "id_notBlank",
+          "placement": {
+            "kind": "property",
+            "name": "id"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notBlank",
+            "errorCode": "jakarta.validation.constraints.NotBlank.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be blank.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "id"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Customer/rules/age_min",
+          "name": "age_min",
+          "placement": {
+            "kind": "property",
+            "name": "age"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "min",
+            "errorCode": "jakarta.validation.constraints.Min.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be greater than or equal to {1}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "age"
+            },
+            "failOnNull": false,
+            "settings": {
+              "min": 18
+            }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Customer/rules/email_notBlank",
+          "name": "email_notBlank",
+          "placement": {
+            "kind": "property",
+            "name": "email"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notBlank",
+            "errorCode": "jakarta.validation.constraints.NotBlank.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be blank.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "email"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Customer/rules/email_email",
+          "name": "email_email",
+          "placement": {
+            "kind": "property",
+            "name": "email"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "email",
+            "errorCode": "jakarta.validation.constraints.Email.message",
+            "severity": "ERROR",
+            "defaultMessage": "Invalid email address {0}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "email"
+            },
+            "failOnNull": false,
+            "settings": {
+              "allowLocal": false,
+              "allowTopLevelDomain": false,
+              "anyDomain": true,
+              "flags": 0
+            }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Customer/rules/phone_pattern",
+          "name": "phone_pattern",
+          "placement": {
+            "kind": "property",
+            "name": "phone"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "pattern",
+            "errorCode": "jakarta.validation.constraints.Pattern.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must match the required regex pattern {1}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "phone"
+            },
+            "failOnNull": false,
+            "settings": {
+              "caseSensitive": true,
+              "flags": 0,
+              "pattern": "\\+?[0-9 ]{7,20}"
+            }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Customer/rules/tier_in",
+          "name": "tier_in",
+          "placement": {
+            "kind": "property",
+            "name": "tier"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "in",
+            "errorCode": "org.rulii.validation.beans.constraints.In.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} not found in one of the given values {1}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "tier"
+            },
+            "failOnNull": false,
+            "settings": {
+              "values": [
+                "STANDARD",
+                "SILVER",
+                "GOLD",
+                "VIP"
+              ]
+            }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Customer/rules/openBalance_positiveOrZero",
+          "name": "openBalance_positiveOrZero",
+          "placement": {
+            "kind": "property",
+            "name": "openBalance"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "positiveOrZero",
+            "errorCode": "jakarta.validation.constraints.PositiveOrZero.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be greater than or equal to 0.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "openBalance"
+            },
+            "failOnNull": false,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Customer/rules/creditLimit_positiveOrZero",
+          "name": "creditLimit_positiveOrZero",
+          "placement": {
+            "kind": "property",
+            "name": "creditLimit"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "positiveOrZero",
+            "errorCode": "jakarta.validation.constraints.PositiveOrZero.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be greater than or equal to 0.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "creditLimit"
+            },
+            "failOnNull": false,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Customer/rules/Customer_expr",
+          "name": "Customer_expr",
+          "placement": {
+            "kind": "bean"
+          },
+          "kind": "java-builder",
+          "parameters": [ ],
+          "rule": {
+            "given": {
+              "kind": "script",
+              "language": "js",
+              "text": "ctx.openBalance.compareTo(ctx.creditLimit) <= 0",
+              "plain": {
+                "complete": true,
+                "tokens": [
+                  {
+                    "t": "binding",
+                    "text": "open balance",
+                    "path": [
+                      "openBalance"
+                    ]
+                  },
+                  {
+                    "t": "call",
+                    "text": "compared to"
+                  },
+                  {
+                    "t": "binding",
+                    "text": "credit limit",
+                    "path": [
+                      "creditLimit"
+                    ]
+                  },
+                  {
+                    "t": "op",
+                    "text": "is at most"
+                  },
+                  {
+                    "t": "literal",
+                    "text": "0"
+                  }
+                ]
+              },
+              "reads": [
+                "creditLimit",
+                "openBalance"
+              ],
+              "writes": [ ]
+            },
+            "then": [ ]
+          },
+          "validation": {
+            "errorCode": "customer.credit.exceeded",
+            "severity": "ERROR",
+            "errorMessage": "The open balance exceeds the credit limit.",
+            "defaultMessage": "Script condition is not satisfied.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "$this"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        }
+      ]
+    },
+    {
+      "id": "com.acme.order.model.Item",
+      "name": "Item",
+      "packageId": "com.acme.order.model",
+      "kind": "class",
+      "discovery": "scan",
+      "source": {
+        "type": "java",
+        "className": "com.acme.order.model.Item"
+      },
+      "materialized": true,
+      "flow": {
+        "name": "itemValidationFlow"
+      },
+      "constraints": [ ],
+      "validations": [ ],
+      "expressions": [ ],
+      "binds": [ ],
+      "properties": [
+        {
+          "name": "sku",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Item",
+            "methodName": "getSku"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotBlank",
+              "name": "notBlank",
+              "attributes": { },
+              "plain": "is not blank",
+              "message": "{jakarta.validation.constraints.NotBlank.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Item/rules/sku_notBlank"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "price",
+          "type": "java.math.BigDecimal",
+          "genericType": "java.math.BigDecimal",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Item",
+            "methodName": "getPrice"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.DecimalMin",
+              "name": "decimalMin",
+              "attributes": {
+                "inclusive": true,
+                "value": "0.01"
+              },
+              "plain": "is at least 0.01",
+              "message": "{jakarta.validation.constraints.DecimalMin.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Item/rules/price_decimalMin"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "quantity",
+          "type": "int",
+          "genericType": "int",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Item",
+            "methodName": "getQuantity"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.Min",
+              "name": "min",
+              "attributes": {
+                "value": 1
+              },
+              "plain": "is at least 1",
+              "message": "{jakarta.validation.constraints.Min.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Item/rules/quantity_min"
+            },
+            {
+              "annotation": "jakarta.validation.constraints.Max",
+              "name": "max",
+              "attributes": {
+                "value": 999
+              },
+              "plain": "is at most 999",
+              "message": "{jakarta.validation.constraints.Max.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Item/rules/quantity_max"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        }
+      ],
+      "executables": [ ],
+      "rules": [
+        {
+          "id": "com.acme.order.model.Item/rules/sku_notBlank",
+          "name": "sku_notBlank",
+          "placement": {
+            "kind": "property",
+            "name": "sku"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notBlank",
+            "errorCode": "jakarta.validation.constraints.NotBlank.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be blank.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "sku"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Item/rules/price_decimalMin",
+          "name": "price_decimalMin",
+          "placement": {
+            "kind": "property",
+            "name": "price"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "decimalMin",
+            "errorCode": "jakarta.validation.constraints.DecimalMin.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be greater than or equal to {1}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "price"
+            },
+            "failOnNull": false,
+            "settings": {
+              "inclusive": true,
+              "min": "0.01"
+            }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Item/rules/quantity_min",
+          "name": "quantity_min",
+          "placement": {
+            "kind": "property",
+            "name": "quantity"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "min",
+            "errorCode": "jakarta.validation.constraints.Min.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be greater than or equal to {1}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "quantity"
+            },
+            "failOnNull": false,
+            "settings": {
+              "min": 1
+            }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Item/rules/quantity_max",
+          "name": "quantity_max",
+          "placement": {
+            "kind": "property",
+            "name": "quantity"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "max",
+            "errorCode": "jakarta.validation.constraints.Max.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must not be less than or equal to {1}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "quantity"
+            },
+            "failOnNull": false,
+            "settings": {
+              "max": 999
+            }
+          },
+          "hosted": [ ]
+        }
+      ]
+    },
+    {
+      "id": "com.acme.order.model.Order",
+      "name": "Order",
+      "packageId": "com.acme.order.model",
+      "kind": "class",
+      "discovery": "scan",
+      "source": {
+        "type": "java",
+        "className": "com.acme.order.model.Order"
+      },
+      "materialized": true,
+      "flow": {
+        "name": "orderValidationFlow"
+      },
+      "constraints": [ ],
+      "validations": [
+        {
+          "rules": [
+            "ConsistentDatesRule"
+          ],
+          "groups": [ ],
+          "applyTo": "IMPLICIT",
+          "targets": [
+            {
+              "name": "ConsistentDatesRule",
+              "artifactId": "ConsistentDatesRule"
+            }
+          ]
+        }
+      ],
+      "expressions": [ ],
+      "binds": [ ],
+      "properties": [
+        {
+          "name": "id",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Order",
+            "methodName": "getId"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotBlank",
+              "name": "notBlank",
+              "attributes": { },
+              "plain": "is not blank",
+              "message": "{jakarta.validation.constraints.NotBlank.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Order/rules/id_notBlank"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "total",
+          "type": "java.math.BigDecimal",
+          "genericType": "java.math.BigDecimal",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Order",
+            "methodName": "getTotal"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotNull",
+              "name": "notNull",
+              "attributes": { },
+              "plain": "is not null",
+              "message": "{jakarta.validation.constraints.NotNull.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Order/rules/total_notNull"
+            },
+            {
+              "annotation": "jakarta.validation.constraints.DecimalMin",
+              "name": "decimalMin",
+              "attributes": {
+                "inclusive": true,
+                "value": "0.00"
+              },
+              "plain": "is at least 0.00",
+              "message": "{jakarta.validation.constraints.DecimalMin.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Order/rules/total_decimalMin"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "shippingAddress",
+          "type": "java.lang.String",
+          "genericType": "java.lang.String",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Order",
+            "methodName": "getShippingAddress"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotBlank",
+              "name": "notBlank",
+              "attributes": { },
+              "plain": "is not blank",
+              "message": "{jakarta.validation.constraints.NotBlank.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Order/rules/shippingAddress_notBlank"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "discount",
+          "type": "java.math.BigDecimal",
+          "genericType": "java.math.BigDecimal",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Order",
+            "methodName": "getDiscount"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.DecimalMin",
+              "name": "decimalMin",
+              "attributes": {
+                "inclusive": true,
+                "value": "0"
+              },
+              "plain": "is at least 0",
+              "message": "{jakarta.validation.constraints.DecimalMin.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Order/rules/discount_decimalMin"
+            },
+            {
+              "annotation": "jakarta.validation.constraints.DecimalMax",
+              "name": "decimalMax",
+              "attributes": {
+                "inclusive": true,
+                "value": "0.5"
+              },
+              "plain": "is at most 0.5",
+              "message": "{jakarta.validation.constraints.DecimalMax.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Order/rules/discount_decimalMax"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "shippingCost",
+          "type": "java.math.BigDecimal",
+          "genericType": "java.math.BigDecimal",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Order",
+            "methodName": "getShippingCost"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.PositiveOrZero",
+              "name": "positiveOrZero",
+              "attributes": { },
+              "plain": "is zero or positive",
+              "message": "{jakarta.validation.constraints.PositiveOrZero.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Order/rules/shippingCost_positiveOrZero"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "orderDate",
+          "type": "java.time.LocalDate",
+          "genericType": "java.time.LocalDate",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Order",
+            "methodName": "getOrderDate"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotNull",
+              "name": "notNull",
+              "attributes": { },
+              "plain": "is not null",
+              "message": "{jakarta.validation.constraints.NotNull.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Order/rules/orderDate_notNull"
+            },
+            {
+              "annotation": "jakarta.validation.constraints.PastOrPresent",
+              "name": "pastOrPresent",
+              "attributes": { },
+              "plain": "is in the past or the present",
+              "message": "{jakarta.validation.constraints.PastOrPresent.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Order/rules/orderDate_pastOrPresent"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "requestedDeliveryDate",
+          "type": "java.time.LocalDate",
+          "genericType": "java.time.LocalDate",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Order",
+            "methodName": "getRequestedDeliveryDate"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.Future",
+              "name": "future",
+              "attributes": { },
+              "plain": "is in the future",
+              "message": "{jakarta.validation.constraints.Future.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Order/rules/requestedDeliveryDate_future"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [
+            {
+              "expression": {
+                "kind": "script",
+                "language": "js",
+                "text": "ctx.orderDate == null || !ctx.requestedDeliveryDate.isBefore(ctx.orderDate)",
+                "plain": {
+                  "complete": true,
+                  "tokens": [
+                    {
+                      "t": "binding",
+                      "text": "order date",
+                      "path": [
+                        "orderDate"
+                      ]
+                    },
+                    {
+                      "t": "op",
+                      "text": "is absent"
+                    },
+                    {
+                      "t": "op",
+                      "text": "or"
+                    },
+                    {
+                      "t": "binding",
+                      "text": "requested delivery date",
+                      "path": [
+                        "requestedDeliveryDate"
+                      ]
+                    },
+                    {
+                      "t": "call",
+                      "text": "is not before"
+                    },
+                    {
+                      "t": "binding",
+                      "text": "order date",
+                      "path": [
+                        "orderDate"
+                      ]
+                    }
+                  ]
+                },
+                "reads": [
+                  "orderDate",
+                  "requestedDeliveryDate"
+                ],
+                "writes": [ ]
+              },
+              "errorCode": "order.delivery.before.order",
+              "message": "The requested delivery date is before the order date.",
+              "severity": "ERROR",
+              "groups": [ ],
+              "applyTo": "IMPLICIT",
+              "skipNull": true,
+              "ruleId": "com.acme.order.model.Order/rules/requestedDeliveryDate_expr"
+            }
+          ],
+          "containerElements": [ ]
+        },
+        {
+          "name": "items",
+          "type": "java.util.List",
+          "genericType": "java.util.List<com.acme.order.model.Item>",
+          "declaredOn": "field",
+          "source": {
+            "type": "java",
+            "className": "com.acme.order.model.Order",
+            "methodName": "getItems"
+          },
+          "constraints": [
+            {
+              "annotation": "jakarta.validation.constraints.NotEmpty",
+              "name": "notEmpty",
+              "attributes": { },
+              "plain": "is not empty",
+              "message": "{jakarta.validation.constraints.NotEmpty.message}",
+              "groups": [ ],
+              "severity": "ERROR",
+              "payload": [ ],
+              "reportAsSingleViolation": false,
+              "composing": [ ],
+              "ruleId": "com.acme.order.model.Order/rules/items_notEmpty"
+            }
+          ],
+          "validations": [ ],
+          "expressions": [ ],
+          "cascade": {
+            "beanId": "com.acme.order.model.Item",
+            "targetType": "java.util.List<com.acme.order.model.Item>",
+            "groupConversions": [ ]
+          },
+          "containerElements": [
+            {
+              "name": "List<0>",
+              "containerType": "java.util.List",
+              "typeArgumentIndex": 0,
+              "type": "com.acme.order.model.Item",
+              "constraints": [
+                {
+                  "annotation": "jakarta.validation.constraints.NotNull",
+                  "name": "notNull",
+                  "attributes": { },
+                  "plain": "is not null",
+                  "message": "{jakarta.validation.constraints.NotNull.message}",
+                  "groups": [ ],
+                  "severity": "ERROR",
+                  "payload": [ ],
+                  "reportAsSingleViolation": false,
+                  "composing": [ ],
+                  "ruleId": "com.acme.order.model.Order/rules/items_List0_notNull"
+                }
+              ],
+              "children": [ ]
+            }
+          ]
+        }
+      ],
+      "executables": [ ],
+      "rules": [
+        {
+          "id": "com.acme.order.model.Order/rules/id_notBlank",
+          "name": "id_notBlank",
+          "placement": {
+            "kind": "property",
+            "name": "id"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notBlank",
+            "errorCode": "jakarta.validation.constraints.NotBlank.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be blank.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "id"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Order/rules/total_notNull",
+          "name": "total_notNull",
+          "placement": {
+            "kind": "property",
+            "name": "total"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notNull",
+            "errorCode": "jakarta.validation.constraints.NotNull.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be null.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "total"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Order/rules/total_decimalMin",
+          "name": "total_decimalMin",
+          "placement": {
+            "kind": "property",
+            "name": "total"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "decimalMin",
+            "errorCode": "jakarta.validation.constraints.DecimalMin.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be greater than or equal to {1}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "total"
+            },
+            "failOnNull": false,
+            "settings": {
+              "inclusive": true,
+              "min": "0.00"
+            }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Order/rules/shippingAddress_notBlank",
+          "name": "shippingAddress_notBlank",
+          "placement": {
+            "kind": "property",
+            "name": "shippingAddress"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notBlank",
+            "errorCode": "jakarta.validation.constraints.NotBlank.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be blank.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "shippingAddress"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Order/rules/discount_decimalMin",
+          "name": "discount_decimalMin",
+          "placement": {
+            "kind": "property",
+            "name": "discount"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "decimalMin",
+            "errorCode": "jakarta.validation.constraints.DecimalMin.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be greater than or equal to {1}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "discount"
+            },
+            "failOnNull": false,
+            "settings": {
+              "inclusive": true,
+              "min": "0"
+            }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Order/rules/discount_decimalMax",
+          "name": "discount_decimalMax",
+          "placement": {
+            "kind": "property",
+            "name": "discount"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "decimalMax",
+            "errorCode": "jakarta.validation.constraints.DecimalMax.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must not be greater than {1}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "discount"
+            },
+            "failOnNull": false,
+            "settings": {
+              "inclusive": true,
+              "max": "0.5"
+            }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Order/rules/shippingCost_positiveOrZero",
+          "name": "shippingCost_positiveOrZero",
+          "placement": {
+            "kind": "property",
+            "name": "shippingCost"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "positiveOrZero",
+            "errorCode": "jakarta.validation.constraints.PositiveOrZero.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be greater than or equal to 0.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "shippingCost"
+            },
+            "failOnNull": false,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Order/rules/orderDate_notNull",
+          "name": "orderDate_notNull",
+          "placement": {
+            "kind": "property",
+            "name": "orderDate"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notNull",
+            "errorCode": "jakarta.validation.constraints.NotNull.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be null.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "orderDate"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Order/rules/orderDate_pastOrPresent",
+          "name": "orderDate_pastOrPresent",
+          "placement": {
+            "kind": "property",
+            "name": "orderDate"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "pastOrPresent",
+            "errorCode": "jakarta.validation.constraints.PastOrPresent.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be in the present or in the past. Current clock {1}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "orderDate"
+            },
+            "failOnNull": false,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Order/rules/requestedDeliveryDate_future",
+          "name": "requestedDeliveryDate_future",
+          "placement": {
+            "kind": "property",
+            "name": "requestedDeliveryDate"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "future",
+            "errorCode": "jakarta.validation.constraints.Future.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must be in the future. Current clock {1}.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "requestedDeliveryDate"
+            },
+            "failOnNull": false,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Order/rules/requestedDeliveryDate_expr",
+          "name": "requestedDeliveryDate_expr",
+          "placement": {
+            "kind": "property",
+            "name": "requestedDeliveryDate"
+          },
+          "kind": "java-builder",
+          "parameters": [ ],
+          "rule": {
+            "given": {
+              "kind": "script",
+              "language": "js",
+              "text": "ctx.orderDate == null || !ctx.requestedDeliveryDate.isBefore(ctx.orderDate)",
+              "plain": {
+                "complete": true,
+                "tokens": [
+                  {
+                    "t": "binding",
+                    "text": "order date",
+                    "path": [
+                      "orderDate"
+                    ]
+                  },
+                  {
+                    "t": "op",
+                    "text": "is absent"
+                  },
+                  {
+                    "t": "op",
+                    "text": "or"
+                  },
+                  {
+                    "t": "binding",
+                    "text": "requested delivery date",
+                    "path": [
+                      "requestedDeliveryDate"
+                    ]
+                  },
+                  {
+                    "t": "call",
+                    "text": "is not before"
+                  },
+                  {
+                    "t": "binding",
+                    "text": "order date",
+                    "path": [
+                      "orderDate"
+                    ]
+                  }
+                ]
+              },
+              "reads": [
+                "orderDate",
+                "requestedDeliveryDate"
+              ],
+              "writes": [ ]
+            },
+            "then": [ ]
+          },
+          "validation": {
+            "errorCode": "order.delivery.before.order",
+            "severity": "ERROR",
+            "errorMessage": "The requested delivery date is before the order date.",
+            "defaultMessage": "Script condition is not satisfied.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "requestedDeliveryDate"
+            },
+            "failOnNull": false,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Order/rules/items_notEmpty",
+          "name": "items_notEmpty",
+          "placement": {
+            "kind": "property",
+            "name": "items"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notEmpty",
+            "errorCode": "jakarta.validation.constraints.NotEmpty.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value {0} must not be empty.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "items"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        },
+        {
+          "id": "com.acme.order.model.Order/rules/items_List0_notNull",
+          "name": "items_List0_notNull",
+          "placement": {
+            "kind": "bean"
+          },
+          "kind": "predefined-validator",
+          "parameters": [ ],
+          "rule": {
+            "then": [ ]
+          },
+          "validation": {
+            "validator": "notNull",
+            "errorCode": "jakarta.validation.constraints.NotNull.message",
+            "severity": "ERROR",
+            "defaultMessage": "Value must not be null.",
+            "valueSource": {
+              "kind": "binding",
+              "name": "items"
+            },
+            "failOnNull": true,
+            "settings": { }
+          },
+          "hosted": [ ]
+        }
+      ]
     }
   ]
 }

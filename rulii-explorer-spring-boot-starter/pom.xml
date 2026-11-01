@@ -84,6 +84,20 @@
             <artifactId>spring-boot-starter-security</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Beans (descriptor 1.1): Boot's validation module activates rulii-spring's validator; Hibernate Validator
+             stands in for the opt-out case of the matrix (rulii.validation.enabled=false). -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-validation</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <!-- The version rulii-spring tests against; its dependencies are the ones already resolved locally. -->
+            <version>9.0.1.Final</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

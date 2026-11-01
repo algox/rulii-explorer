@@ -27,22 +27,26 @@ import java.util.List;
  * <p>Output is stable (FR-43): lists are sorted, keys are in declaration order, and nothing in
  * the body depends on when it was built.
  *
- * @param descriptorVersion the contract version, {@code "1.0"}; additive changes bump the minor and keep the major.
+ * @param descriptorVersion the contract version, {@code "1.1"}; additive changes bump the minor and keep the major.
  * @param application       the application and the library versions.
  * @param packages          every package an artifact belongs to, sorted by id.
  * @param artifacts         every artifact, sorted by type then id.
  * @param references        every resolved reference, sorted by from, path, to.
  * @param bindings          binding usage, sorted by name.
  * @param problems          problems found, most severe first.
+ * @param beans             the beans validated with rulii-bean-validation, sorted by id (1.1); null, and
+ *                          absent from the JSON, when beans were not described (FR-83). An empty list means
+ *                          they were, and none was found.
  *
  * @author Algorithmx Development Team
  * @since 1.0
  */
 public record Descriptor(String descriptorVersion, ApplicationInfo application, List<PackageInfo> packages,
                          List<Artifact> artifacts, List<Reference> references, List<BindingUsage> bindings,
-                         List<Problem> problems) {
+                         List<Problem> problems, List<BeanInfo> beans) {
 
     public Descriptor {
+        beans = beans == null ? null : Lists.copy(beans);
         packages = Lists.copy(packages);
         artifacts = Lists.copy(artifacts);
         references = Lists.copy(references);

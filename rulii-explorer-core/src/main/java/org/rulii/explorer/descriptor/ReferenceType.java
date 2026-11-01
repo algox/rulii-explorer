@@ -28,8 +28,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum ReferenceType {
     /** A rule set contains a member rule. */
     CONTAINS("contains"),
-    /** A rule flow runs a rule, rule set or rule flow. */
-    RUNS("runs");
+    /** A rule flow runs a rule, rule set or rule flow; also a bean's {@code @Validate} naming a registry artifact. */
+    RUNS("runs"),
+    /** A bean cascades ({@code @Valid}) into another bean (1.1). */
+    CASCADES("cascades");
 
     private final String json;
 

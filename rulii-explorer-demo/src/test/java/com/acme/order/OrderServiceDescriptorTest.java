@@ -95,10 +95,14 @@ class OrderServiceDescriptorTest {
                 .collect(Collectors.groupingBy(Problem::severity));
 
         List<Problem> errors = bySeverity.get(ProblemSeverity.ERROR);
-        assertEquals(1, errors.size());
+        assertEquals(2, errors.size(), "the flow's missing rule, and the Customer bean's (descriptor 1.1)");
         assertEquals(ProblemCodes.UNRESOLVED_TARGET, errors.get(0).code());
-        assertEquals("nightlyRepriceFlow", errors.get(0).artifact());
-        assertTrue(errors.get(0).message().contains("prefixRule"));
+        assertEquals("com.acme.order.model.Customer", errors.get(0).artifact());
+        assertEquals("properties.tier.validations[0]", errors.get(0).path());
+        assertTrue(errors.get(0).message().contains("tierPolicyRule"));
+        assertEquals(ProblemCodes.UNRESOLVED_TARGET, errors.get(1).code());
+        assertEquals("nightlyRepriceFlow", errors.get(1).artifact());
+        assertTrue(errors.get(1).message().contains("prefixRule"));
 
         List<Problem> warnings = bySeverity.get(ProblemSeverity.WARNING);
         assertEquals(1, warnings.size());

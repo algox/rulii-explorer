@@ -78,13 +78,13 @@ test('the source comes from the address, then the session, then the page', () =>
 });
 
 test('routes parse and build', () => {
-    eq(parseRoute(''), {name: 'overview', query: {}});
-    eq(parseRoute('#/'), {name: 'overview', query: {}});
-    eq(parseRoute('#/rule/MinTotalRule'), {name: 'artifact', type: 'rule', id: 'MinTotalRule', query: {}});
-    eq(parseRoute(routes.package('rules/order')), {name: 'package', id: 'rules/order', query: {}});
-    eq(parseRoute(routes.category('Pricing/Loyalty')), {name: 'category', id: 'Pricing/Loyalty', query: {}});
+    eq(parseRoute(''), {name: 'overview', section: 'rules', query: {}});
+    eq(parseRoute('#/'), {name: 'overview', section: 'rules', query: {}});
+    eq(parseRoute('#/rule/MinTotalRule'), {name: 'artifact', section: 'rules', type: 'rule', id: 'MinTotalRule', query: {}});
+    eq(parseRoute(routes.package('rules/order')), {name: 'package', section: 'rules', id: 'rules/order', query: {}});
+    eq(parseRoute(routes.category('Pricing/Loyalty')), {name: 'category', section: 'rules', id: 'Pricing/Loyalty', query: {}});
     eq(parseRoute(routes.artifact('ruleflow', 'nightlyRepriceFlow', {step: 'commands[1].body[1]'})).query.step, 'commands[1].body[1]');
-    eq(parseRoute('#/problems?severity=error'), {name: 'problems', query: {severity: 'error'}});
+    eq(parseRoute('#/problems?severity=error'), {name: 'problems', section: 'rules', query: {severity: 'error'}});
     eq(parseRoute('#/nope').name, 'missing');
     eq(routes.binding('order'), '#/binding/order');
 });
@@ -159,7 +159,7 @@ test('index numbers flow steps by path', () => {
     eq(steps.get('commands[6].otherwise[0]').number, '7.2');
     eq(steps.get('commands[3].handler.body[0]').number, '4.1');
     eq(steps.get('commands[3].handler.body[0]').parent.branch, 'on FraudServiceException');
-    const chain = problemPath(index, descriptor.problems.find(p => p.code === 'UNRESOLVED_TARGET'));
+    const chain = problemPath(index, descriptor.problems.find(p => p.code === 'UNRESOLVED_TARGET' && p.artifact === 'nightlyRepriceFlow'));
     eq(chain.map(e => e.number), ['2', '2.2']);
 });
 
@@ -362,6 +362,141 @@ test('layout helpers', () => {
     const abs = absolutePositions({id: 'root', width: 100, height: 50, children: [{id: 'g', x: 10, y: 10, width: 50, height: 30, children: [{id: 'a', x: 5, y: 5, width: 10, height: 10}]}], edges: [{id: 'e', container: 'g', sections: [{startPoint: {x: 0, y: 0}, endPoint: {x: 5, y: 5}}]}]});
     eq(abs.nodes.get('a').x, 15);
     eq(abs.routes.get('e'), [[10, 10], [15, 15]]);
+});
+
+import {beanDeclarations, beanMember, constraintFamily} from '/rulii-explorer/app/descriptor/indexes.js';
+import {beanSummary, beansOverviewSubtitle, constraintKindsCaption, problemExplanation} from '/rulii-explorer/app/descriptor/summaries.js';
+import {beanKindLabel, beanExpressionsOf} from '/rulii-explorer/app/descriptor/format.js';
+import {buildBeansMap} from '/rulii-explorer/app/features/bean/overview.js';
+import {beansGraph, focusBeansGraph, toElkBeans, describeBeansGraph} from '/rulii-explorer/app/features/bean/graph-model.js';
+
+test('beans routes parse and build (descriptor 1.1)', () => {
+    eq(parseRoute('#/beans'), {name: 'beans', section: 'beans', query: {}});
+    eq(parseRoute('#/beans/problems?severity=error'), {name: 'problems', section: 'beans', query: {severity: 'error'}});
+    eq(parseRoute(routes.bean('com.acme.order.model.Order', {member: 'properties.total'})), {name: 'bean', section: 'beans', id: 'com.acme.order.model.Order', query: {member: 'properties.total'}});
+    eq(parseRoute('#/').section, 'rules');
+    eq(parseRoute('#/rule/MinTotalRule').section, 'rules');
+    eq(parseRoute('#/beans/nope'), {name: 'missing', section: 'beans', id: 'beans/nope', query: {}});
+    eq(routes.beansProblems(), '#/beans/problems');
+});
+
+test('beans index: the section, its packages, cascades, runs and problems', () => {
+    const b = index.beans;
+    ok(b, 'the demo describes beans');
+    eq(b.list.map(x => x.id), ['com.acme.order.model.Customer', 'com.acme.order.model.Item', 'com.acme.order.model.Order']);
+    eq(b.packages.map(p => p.id), ['com.acme.order.model']);
+    eq(b.packages[0].beans.map(x => x.name), ['Customer', 'Item', 'Order']);
+    eq(b.counts.beans, 3);
+    eq(b.counts.scan, 3);
+    eq(b.counts.cascades, 1);
+    eq(b.cascadesTo.get('com.acme.order.model.Order').map(r => r.to), ['com.acme.order.model.Item']);
+    eq(b.cascadedFrom.get('com.acme.order.model.Item').map(r => r.from), ['com.acme.order.model.Order']);
+    eq(b.runs.get('com.acme.order.model.Order').map(r => r.to), ['ConsistentDatesRule']);
+    ok(index.usedBy.get('ConsistentDatesRule').some(r => r.from === 'com.acme.order.model.Order'), 'a rule knows the bean that runs it');
+    // The beans' problems are theirs; the Rules section's counts do not change because beans exist
+    eq(b.problemCounts, {error: 1, warning: 0, info: 0, total: 1});
+    eq(b.problems[0].artifact, 'com.acme.order.model.Customer');
+    eq(b.worstByBean.get('com.acme.order.model.Customer'), 'error');
+    eq(index.problemCounts, {error: 1, warning: 1, info: 4, total: 6}, 'the Rules section ignores bean problems');
+    eq(index.problems.length, 6);
+    ok(!index.worstByArtifact.has('com.acme.order.model.Customer'));
+    eq(b.constraintKinds.validate, 2);
+    eq(b.constraintKinds.expr, 2);
+    ok(b.constraintKinds.jakarta >= 15 && b.constraintKinds.rulii === 1, JSON.stringify(b.constraintKinds));
+    eq(constraintFamily('jakarta.validation.constraints.NotNull'), 'jakarta');
+    eq(constraintFamily('org.rulii.validation.beans.constraints.In'), 'rulii');
+    eq(constraintFamily('com.acme.Code'), 'other');
+    // Without beans the section is absent and nothing else changes
+    const without = JSON.parse(JSON.stringify(descriptor));
+    delete without.beans;
+    without.problems = without.problems.filter(p => !String(p.artifact || '').startsWith('com.acme.order.model.'));
+    const plain = buildIndex(without);
+    eq(plain.beans, null);
+    eq(plain.problemCounts, index.problemCounts);
+    eq(plain.byType.rule.length, index.byType.rule.length);
+});
+
+test('bean declarations, members and labels', () => {
+    const order = index.beans.byId.get('com.acme.order.model.Order');
+    const decls = beanDeclarations(order);
+    ok(decls.some(d => d.kind === 'validate' && d.path === ''), 'the class-level @Validate');
+    ok(decls.some(d => d.kind === 'constraint' && d.path === 'properties.items.containerElements[0]' && d.constraint.name === 'notNull'), 'a container element constraint');
+    ok(decls.some(d => d.kind === 'expr' && d.path === 'properties.requestedDeliveryDate'), 'an @Expr on a property');
+    eq(beanMember(order, 'properties.total'), {label: 'property total', member: 'properties.total'});
+    eq(beanMember(order, 'validations[0]'), null, 'the bean itself');
+    eq(beanKindLabel(order), 'class · found by scan');
+    eq(beanExpressionsOf(order).map(e => e.label), ['requestedDeliveryDate · @Expr']);
+    const customer = index.beans.byId.get('com.acme.order.model.Customer');
+    eq(beanExpressionsOf(customer).map(e => e.label), ['Customer · @Expr']);
+    eq(beanMember(customer, 'properties.tier.validations[0]').label, 'property tier');
+});
+
+test('bean summaries and problem explanations', () => {
+    const order = index.beans.byId.get('com.acme.order.model.Order');
+    const parts = beanSummary(order, index);
+    const text = parts.map(p => p.text !== undefined ? p.text : p.bean ? p.bean.name : p.artifact ? p.artifact.name : p.missing).join('');
+    eq(text, '8 properties carry 13 constraints, its items cascade into Item, and ConsistentDatesRule runs on the whole order.');
+    ok(parts.some(p => p.bean && p.bean.name === 'Item') && parts.some(p => p.artifact && p.artifact.id === 'ConsistentDatesRule'), 'names come as links');
+    const customer = index.beans.byId.get('com.acme.order.model.Customer');
+    const ctext = beanSummary(customer, index).map(p => p.text !== undefined ? p.text : p.missing).join('');
+    eq(ctext, '7 properties carry 9 constraints, and 1 expression checks the whole customer.', 'the missing @Validate sits on a property, so the summary does not name it');
+    eq(beansOverviewSubtitle(index.beans).slice(0, 44), '3 beans carrying ' + index.beans.counts.constraints + ' constraints in 1 package');
+    has(constraintKindsCaption(index.beans), '2 @Expr · 2 @Validate');
+    const e = problemExplanation(index.beans.problems[0], index);
+    has(e.why, 'Validating a Customer runs ‘tierPolicyRule’ by name');
+    has(e.fix, 'change the @Validate');
+});
+
+test('search answers for one section at a time', () => {
+    const rules = search.query('order');
+    ok(!rules.some(g => g.type === 'bean'), 'the Rules section never lists a bean');
+    const beans = search.query('order', {section: 'beans'});
+    eq(beans.map(g => g.type), ['bean']);
+    eq(beans[0].hits[0].bean.name, 'Order');
+    eq(beans[0].hits[0].nameMatches, [[0, 5]]);
+    ok(search.query('notblank', {section: 'beans'})[0].hits.length === 3, 'a constraint name finds every bean that uses it');
+    eq(search.query('tier', {section: 'beans'})[0].hits[0].bean.name, 'Customer', 'a property name');
+    eq(search.query('consistentdates', {section: 'beans'})[0].hits[0].bean.name, 'Order', 'the rule a bean runs');
+    eq(search.query('zzzz', {section: 'beans'}), []);
+    ok(!search.query('nightly', {section: 'beans'}).length, 'rules are not in the beans index');
+});
+
+test('the validation map lays out beans, cascades and rules', () => {
+    const m = buildBeansMap(index);
+    eq(m.rows.map(r => r.bean.name), ['Customer', 'Item', 'Order']);
+    eq(m.targets.map(t => t.bean.name), ['Item']);
+    eq(m.rules.map(r => r.name + (r.missing ? ' · missing' : '')), ['tierPolicyRule · missing', 'ConsistentDatesRule']);
+    eq(m.edges.filter(e => e.kind === 'cascade').length, 1);
+    eq(m.edges.filter(e => e.kind === 'runs').length, 2);
+    eq(m.hidden, 0);
+});
+
+test('beans graph model: beans, cascades, the rules run and the missing one; focus', () => {
+    eq(parseRoute('#/beans/graph?focus=com.acme.order.model.Order&depth=2'), {name: 'graph', section: 'beans', query: {focus: 'com.acme.order.model.Order', depth: '2'}});
+    eq(routes.beansGraph({focus: 'x'}), '#/beans/graph?focus=x');
+    const full = beansGraph(index);
+    eq([...full.nodes.values()].map(n => n.type + ':' + n.name).sort(), ['bean:Customer', 'bean:Item', 'bean:Order', 'missing:tierPolicyRule', 'rule:ConsistentDatesRule']);
+    eq(full.edges.map(e => e.type + (e.resolution === 'unresolved' ? '!' : '') + ' ' + e.from.replace('com.acme.order.model.', '') + '>' + e.to), [
+        'runs! Customer>missing:tierPolicyRule',
+        'cascades Order>com.acme.order.model.Item',
+        'runs Order>ConsistentDatesRule'
+    ]);
+    eq(full.edges[1].label, 'items', 'a cascade edge is labelled with the member');
+    const order = full.nodes.get('com.acme.order.model.Order');
+    eq(order.caption, '8 properties · 14 constraints');
+    eq(order.problem, undefined);
+    eq(full.nodes.get('com.acme.order.model.Customer').problem, 'error', 'the bean with the unresolved @Validate carries its worst problem');
+    eq(full.nodes.get('ConsistentDatesRule').caption, '@Rule class');
+    ok(order.width >= 120 && order.height === 54, 'measured');
+    const focus = focusBeansGraph(full, order.id, '1');
+    eq([...focus.nodes.keys()].sort(), ['ConsistentDatesRule', 'com.acme.order.model.Item', 'com.acme.order.model.Order']);
+    eq(focus.hidden, 2);
+    eq(focusBeansGraph(full, 'com.acme.order.model.Customer', 'all').nodes.size, 2);
+    const elk = toElkBeans(full);
+    eq(elk.children.map(c => c.id), ['com.acme.order.model.Customer', 'com.acme.order.model.Item', 'com.acme.order.model.Order', 'ConsistentDatesRule', 'missing:tierPolicyRule'], 'beans, then rules, then missing');
+    eq(elk.edges.length, 3);
+    eq(describeBeansGraph(full, null), 'Beans graph: 3 beans, 1 rule, 3 connections.');
+    eq(describeBeansGraph(focus, order), 'Beans graph around Order: 2 beans, 1 rule, 2 connections.');
 });
 
 async function run() {

@@ -18,6 +18,7 @@
 package org.rulii.explorer.boot;
 
 import org.rulii.explorer.Explorer;
+import org.rulii.explorer.builder.BeanSource;
 import org.rulii.explorer.builder.DescriptorBuilder;
 import org.rulii.explorer.builder.PlaceholderFilter;
 import org.rulii.explorer.descriptor.Descriptor;
@@ -73,6 +74,7 @@ public class DescriptorService {
     private final PlaceholderFilter placeholderValues;
     private final List<ExpressionAnalyzer> analyzers;
     private final List<ProblemCheck> checks;
+    private final BeanSource beans;
 
     private volatile Snapshot snapshot;
 
@@ -85,7 +87,7 @@ public class DescriptorService {
      */
     public DescriptorService(RuleRegistry registry, String applicationName, boolean includeSources,
                              List<ExpressionAnalyzer> analyzers, List<ProblemCheck> checks) {
-        this(registry, applicationName, includeSources, null, analyzers, checks);
+        this(registry, applicationName, includeSources, null, analyzers, checks, null);
     }
 
     /**
@@ -98,6 +100,21 @@ public class DescriptorService {
      */
     public DescriptorService(RuleRegistry registry, String applicationName, boolean includeSources,
                              PlaceholderFilter placeholderValues, List<ExpressionAnalyzer> analyzers, List<ProblemCheck> checks) {
+        this(registry, applicationName, includeSources, placeholderValues, analyzers, checks, null);
+    }
+
+    /**
+     * @param registry          the registry to describe; must not be null.
+     * @param applicationName   the application name to report; may be null.
+     * @param includeSources    whether to include file, line and class names.
+     * @param placeholderValues which placeholder values to show; null shows none.
+     * @param analyzers         the expression analyzers, in order; the defaults are appended.
+     * @param checks            the problem checks; the defaults are appended.
+     * @param beans             the beans to describe (descriptor 1.1); null for no beans section.
+     */
+    public DescriptorService(RuleRegistry registry, String applicationName, boolean includeSources,
+                             PlaceholderFilter placeholderValues, List<ExpressionAnalyzer> analyzers, List<ProblemCheck> checks,
+                             BeanSource beans) {
         super();
         this.registry = registry;
         this.applicationName = applicationName;
@@ -105,6 +122,7 @@ public class DescriptorService {
         this.placeholderValues = placeholderValues;
         this.analyzers = List.copyOf(analyzers);
         this.checks = List.copyOf(checks);
+        this.beans = beans;
     }
 
     /**
@@ -141,10 +159,11 @@ public class DescriptorService {
                     .placeholderValues(placeholderValues)
                     .analyzers(analyzers)
                     .checks(checks)
+                    .beans(beans)
                     .build();
             JsonNode json = DescriptorJson.mapper().valueToTree(descriptor);
-            LOGGER.info("rulii explorer described {} artifacts with {} problems", descriptor.artifacts().size(),
-                    descriptor.problems().size());
+            LOGGER.info("rulii explorer described {} artifacts{} with {} problems", descriptor.artifacts().size(),
+                    descriptor.beans() == null ? "" : " and " + descriptor.beans().size() + " beans", descriptor.problems().size());
             return new Snapshot(descriptor, json, etag(json), now, null);
         } catch (RuntimeException e) {
             LOGGER.error("rulii explorer could not build the descriptor", e);

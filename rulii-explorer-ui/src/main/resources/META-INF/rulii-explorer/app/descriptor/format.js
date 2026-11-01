@@ -9,8 +9,43 @@ const TYPE_LABELS = {
     rule: {one: 'Rule', many: 'Rules', group: 'Rules'},
     ruleset: {one: 'Rule set', many: 'Rule sets', group: 'Rule sets'},
     ruleflow: {one: 'Rule flow', many: 'Rule flows', group: 'Rule flows'},
-    binding: {one: 'Binding', many: 'Bindings', group: 'Bindings'}
+    binding: {one: 'Binding', many: 'Bindings', group: 'Bindings'},
+    bean: {one: 'Bean', many: 'Beans', group: 'Beans'}
 };
+
+const BEAN_KINDS = {class: 'class', record: 'record', interface: 'interface', 'abstract-class': 'abstract class'};
+const DISCOVERY = {scan: 'found by scan', configured: 'configured', validated: 'validated by the application', cascade: 'reached by cascade'};
+
+/** "class · found by scan", "record · reached by cascade" (descriptor 1.1). */
+export function beanKindLabel(bean) {
+    return (BEAN_KINDS[bean.kind] || bean.kind) + ' · ' + (DISCOVERY[bean.discovery] || bean.discovery);
+}
+
+/** "found by scan", "reached by cascade" ... */
+export function discoveryLabel(discovery) {
+    return DISCOVERY[discovery] || discovery;
+}
+
+/**
+ * Every expression a bean carries (descriptor 1.1), with the member it sits on: the `@Expr`
+ * conditions and the `@Bind` expressions of the bean, its properties and its executables.
+ */
+export function beanExpressionsOf(bean) {
+    const out = [];
+    const add = (label, expression) => { if (expression) out.push({label, expression}); };
+    const slot = (holder, where) => {
+        for (const e of holder.expressions || []) add(where + ' · @Expr', e.expression);
+        for (const b of holder.binds || []) add(where + ' · @Bind ' + b.name, b.expression);
+    };
+    slot(bean, bean.name);
+    for (const p of bean.properties || []) slot(p, p.name);
+    for (const e of bean.executables || []) {
+        slot(e, e.name + '()');
+        if (e.crossParameter) slot(e.crossParameter, e.name + '()');
+        if (e.returnValue) slot(e.returnValue, e.name + '() result');
+    }
+    return out;
+}
 
 export function typeLabel(type, plural = false) {
     const t = TYPE_LABELS[type] || TYPE_LABELS.rule;

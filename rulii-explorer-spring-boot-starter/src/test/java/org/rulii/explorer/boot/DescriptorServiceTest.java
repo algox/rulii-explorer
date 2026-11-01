@@ -69,6 +69,8 @@ class DescriptorServiceTest {
     void honoursTheProperties() {
         Descriptor descriptor = service.snapshot().descriptor();
         assertEquals("named-by-property", descriptor.application().name());
+        assertNull(descriptor.beans(), "beans are off unless rulii.explorer.beans.enabled=true (FR-83)");
+        assertEquals(0, context.getBeanNamesForType(org.rulii.explorer.builder.BeanSource.class).length);
         assertTrue(descriptor.artifacts().stream().allMatch(a -> a.source() == null), "include-sources=false");
         assertFalse(descriptor.application().placeholderValues(), "placeholder values are off unless asked for");
     }
@@ -81,7 +83,7 @@ class DescriptorServiceTest {
         RuliiDescriptors.write(context, file);
 
         String json = Files.readString(file, StandardCharsets.UTF_8);
-        assertTrue(json.startsWith("{\n  \"descriptorVersion\": \"1.0\""), json.substring(0, 60));
+        assertTrue(json.startsWith("{\n  \"descriptorVersion\": \"1.1\""), json.substring(0, 60));
         assertEquals(service.snapshot().descriptor(), DescriptorJson.fromJson(json));
     }
 }

@@ -1,4 +1,4 @@
-import {TYPE_ORDER, compareNatural, expressionsOf, walkCommands, sourceText} from './format.js';
+import {TYPE_ORDER, compareNatural, expressionsOf, walkCommands, sourceText, beanExpressionsOf} from './format.js';
 
 /**
  * Indexes built once when the descriptor loads (SOLUTION §9.2). Every view reads these; nothing
@@ -9,17 +9,19 @@ import {TYPE_ORDER, compareNatural, expressionsOf, walkCommands, sourceText} fro
  * @property {{rule: object[], ruleset: object[], ruleflow: object[]}} byType
  * @property {Map<string, {pkg: object, artifacts: object[], counts: object, files: Set<string>}>} byPackage
  * @property {object[]} packages           the descriptor's packages in natural order, each with artifact counts
- * @property {Map<string, object[]>} usedBy   references pointing at an artifact (its "used by")
+ * @property {Map<string, object[]>} usedBy   references pointing at an artifact (its "used by"), beans' included
  * @property {Map<string, object[]>} uses     references leaving an artifact
  * @property {Map<string, object>} bindings   binding usages by name
  * @property {Map<string, {reads: Set<string>, writes: Set<string>}>} bindingPaths  dotted paths read and written per binding
  * @property {Map<string, object[]>} problemsByArtifact
  * @property {Map<string, 'error'|'warning'|'info'>} worstByArtifact
- * @property {{error: number, warning: number, info: number, total: number}} problemCounts
+ * @property {{error: number, warning: number, info: number, total: number}} problemCounts   the Rules section's problems only
+ * @property {object[]} problems             the Rules section's problems: everything that is not about a bean
  * @property {Set<string>} undescribed       artifacts with an UNDESCRIBABLE problem
  * @property {Map<string, object>} kindCounts  per type: kind → count
  * @property {Map<string, Map<string, {command: object, number: string, parent: object}>>} commandsByPath  per flow id
  * @property {Categories} categories   the category tree, tags, and which artifact sits where
+ * @property {Beans|null} beans        the Beans section (descriptor 1.1); null when the descriptor has no beans
  *
  * @typedef {object} Categories
  * @property {boolean} has                 whether any artifact declares a category; the sidebar and graph group by it when true
@@ -37,6 +39,21 @@ import {TYPE_ORDER, compareNatural, expressionsOf, walkCommands, sourceText} fro
  * @property {object[]} artifacts          directly in this category, flows then sets then rules
  * @property {{rule: number, ruleset: number, ruleflow: number, total: number}} counts   direct
  * @property {{rule: number, ruleset: number, ruleflow: number, total: number}} totals   including sub-categories
+ *
+ * @typedef {object} Beans
+ * @property {object[]} list               the beans, sorted by id
+ * @property {Map<string, object>} byId
+ * @property {Array<{id: string, beans: object[]}>} packages   beans grouped by package, packages in natural order
+ * @property {Map<string, object[]>} cascadesTo   bean id → the cascade references leaving it
+ * @property {Map<string, object[]>} cascadedFrom bean id → the cascade references reaching it
+ * @property {Map<string, object[]>} runs         bean id → the runs references leaving it (its @Validate targets)
+ * @property {Map<string, object[]>} problemsByBean
+ * @property {Map<string, 'error'|'warning'|'info'>} worstByBean
+ * @property {{error: number, warning: number, info: number, total: number}} problemCounts
+ * @property {object[]} problems           the problems about beans
+ * @property {Set<string>} undescribed     beans with an UNDESCRIBABLE problem
+ * @property {{beans: number, constraints: number, cascades: number, executables: number, packages: number, scan: number, configured: number, validated: number, cascade: number}} counts
+ * @property {{jakarta: number, rulii: number, other: number, expr: number, validate: number}} constraintKinds
  */
 
 export function buildIndex(d) {
@@ -86,13 +103,19 @@ export function buildIndex(d) {
         }
     }
 
+    // Beans (descriptor 1.1): their problems are theirs, not the Rules section's.
+    const beanIds = new Set((d.beans || []).map(b => b.id));
+
     // Problems
     const problemsByArtifact = new Map();
     const worstByArtifact = new Map();
     const problemCounts = {error: 0, warning: 0, info: 0, total: 0};
     const undescribed = new Set();
+    const problems = [];
     const rank = {error: 0, warning: 1, info: 2};
     for (const p of d.problems) {
+        if (p.artifact && beanIds.has(p.artifact)) continue;
+        problems.push(p);
         problemCounts[p.severity] = (problemCounts[p.severity] || 0) + 1;
         problemCounts.total++;
         if (p.artifact) {
@@ -122,9 +145,11 @@ export function buildIndex(d) {
     // Categories and tags
     const categories = buildCategories(d.artifacts, usedBy);
 
+    const beans = d.beans ? buildBeans(d, usedBy, uses) : null;
+
     return {
         descriptor: d, byId, byType, byPackage, packages, usedBy, uses, bindings, bindingPaths,
-        problemsByArtifact, worstByArtifact, problemCounts, undescribed, kindCounts, commandsByPath, categories,
+        problemsByArtifact, worstByArtifact, problemCounts, problems, undescribed, kindCounts, commandsByPath, categories, beans,
         counts: {rule: byType.rule.length, ruleset: byType.ruleset.length, ruleflow: byType.ruleflow.length, packages: packages.length}
     };
 }
@@ -180,6 +205,98 @@ function buildCategories(artifacts, usedBy) {
     return {has: own > 0, roots, byPath, of, uncategorised, tags: new Map([...tags.entries()].sort((x, y) => compareNatural(x[0], y[0])))};
 }
 
+/**
+ * The Beans section (descriptor 1.1): the beans by id and by package, the cascades between them,
+ * the registry rules they run, and their own problems. Nothing here is read by the Rules section.
+ */
+function buildBeans(d, usedBy, uses) {
+    const list = [...d.beans].sort((a, b) => compareNatural(a.id, b.id));
+    const byId = new Map(list.map(b => [b.id, b]));
+    const byPackage = new Map();
+    for (const b of list) push(byPackage, b.packageId || '', b);
+    const packages = [...byPackage.entries()].sort((x, y) => compareNatural(x[0], y[0])).map(([id, beans]) => ({id, beans: beans.sort((a, b) => compareNatural(a.name, b.name) || compareNatural(a.id, b.id))}));
+
+    const cascadesTo = new Map();
+    const cascadedFrom = new Map();
+    const runs = new Map();
+    for (const b of list) {
+        for (const ref of uses.get(b.id) || []) {
+            if (ref.type === 'cascades') { push(cascadesTo, b.id, ref); push(cascadedFrom, ref.to, ref); }
+            else if (ref.type === 'runs') push(runs, b.id, ref);
+        }
+    }
+
+    const problemsByBean = new Map();
+    const worstByBean = new Map();
+    const problemCounts = {error: 0, warning: 0, info: 0, total: 0};
+    const undescribed = new Set();
+    const problems = [];
+    const rank = {error: 0, warning: 1, info: 2};
+    for (const p of d.problems) {
+        if (!p.artifact || !byId.has(p.artifact)) continue;
+        problems.push(p);
+        problemCounts[p.severity] = (problemCounts[p.severity] || 0) + 1;
+        problemCounts.total++;
+        push(problemsByBean, p.artifact, p);
+        const current = worstByBean.get(p.artifact);
+        if (current === undefined || rank[p.severity] < rank[current]) worstByBean.set(p.artifact, p.severity);
+        if (p.code === 'UNDESCRIBABLE') undescribed.add(p.artifact);
+    }
+
+    const counts = {beans: list.length, constraints: 0, cascades: 0, executables: 0, packages: packages.length, scan: 0, configured: 0, validated: 0, cascade: 0};
+    const constraintKinds = {jakarta: 0, rulii: 0, other: 0, expr: 0, validate: 0};
+    for (const b of list) {
+        counts[b.discovery] = (counts[b.discovery] || 0) + 1;
+        counts.executables += (b.executables || []).length;
+        for (const {kind, constraint} of beanDeclarations(b)) {
+            counts.constraints++;
+            if (kind === 'constraint') constraintKinds[constraintFamily(constraint.annotation)]++;
+            else constraintKinds[kind]++;
+        }
+    }
+    for (const refs of cascadesTo.values()) counts.cascades += refs.length;
+
+    return {list, byId, packages, cascadesTo, cascadedFrom, runs, problemsByBean, worstByBean, problemCounts, problems, undescribed, counts, constraintKinds};
+}
+
+/**
+ * Every declaration a bean carries, flattened: constraints (composed ones count once, as the
+ * reader wrote them), `@Expr` and `@Validate`, on the bean, its properties, their container
+ * elements, and its executables' parameters, cross-parameter slots and return values.
+ *
+ * @returns {Array<{kind: 'constraint'|'expr'|'validate', constraint?: object, expr?: object, validation?: object, path: string, owner: string}>}
+ */
+export function beanDeclarations(bean) {
+    const out = [];
+    const slot = (holder, path, owner) => {
+        for (const c of holder.constraints || []) out.push({kind: 'constraint', constraint: c, path, owner});
+        for (const e of holder.expressions || []) out.push({kind: 'expr', expr: e, path, owner});
+        for (const v of holder.validations || []) out.push({kind: 'validate', validation: v, path, owner});
+        (holder.containerElements || []).forEach((el, i) => elements(el, path + '.containerElements[' + i + ']', owner));
+    };
+    const elements = (el, path, owner) => {
+        for (const c of el.constraints || []) out.push({kind: 'constraint', constraint: c, path, owner});
+        (el.children || []).forEach((ch, i) => elements(ch, path + '.children[' + i + ']', owner));
+    };
+    slot(bean, '', bean.name);
+    for (const p of bean.properties || []) slot(p, 'properties.' + p.name, p.name);
+    for (const e of bean.executables || []) {
+        const base = 'executables.' + e.key;
+        for (const p of e.parameters || []) slot(p, base + '.parameters[' + p.index + ']', e.name + '(' + p.name + ')');
+        if (e.crossParameter) slot(e.crossParameter, base + '.crossParameter', e.name + '()');
+        if (e.returnValue) slot(e.returnValue, base + '.returnValue', e.name + '() result');
+    }
+    return out;
+}
+
+/** Where a constraint annotation comes from: Jakarta's built-ins, rulii's own, or the application's. */
+export function constraintFamily(annotation) {
+    if (!annotation) return 'other';
+    if (annotation.startsWith('jakarta.validation.constraints.')) return 'jakarta';
+    if (annotation.startsWith('org.rulii.validation.beans.constraints.')) return 'rulii';
+    return 'other';
+}
+
 /** The parents of a category path, shortest first: "Pricing/Loyalty/Gold" → ["Pricing", "Pricing/Loyalty"]. */
 export function categoryParents(path) {
     const levels = path.split('/');
@@ -217,7 +334,33 @@ export function problemPath(index, problem) {
     return chain;
 }
 
+/**
+ * The member a bean problem path points at, as the reader would name it: "property tier",
+ * "placeOrder(order)", "placeOrder() result", or null for the bean itself.
+ *
+ * @returns {{label: string, member: string}|null}  `member` is the `?member=` value that scrolls to it
+ */
+export function beanMember(bean, path) {
+    if (!bean || !path) return null;
+    let m = /^properties\.([^.[]+)/.exec(path);
+    if (m) return {label: 'property ' + m[1], member: 'properties.' + m[1]};
+    m = /^executables\.([^.[]+)(?:\.parameters\[(\d+)\]|\.(crossParameter|returnValue))?/.exec(path);
+    if (m) {
+        const e = (bean.executables || []).find(x => x.key === m[1]);
+        const name = e ? e.name : m[1];
+        if (m[2] !== undefined) {
+            const p = e && e.parameters.find(x => String(x.index) === m[2]);
+            return {label: name + '(' + (p ? p.name : m[2]) + ')', member: 'executables.' + m[1] + '.parameters[' + m[2] + ']'};
+        }
+        if (m[3] === 'returnValue') return {label: name + '() result', member: 'executables.' + m[1] + '.returnValue'};
+        return {label: name + '()', member: 'executables.' + m[1]};
+    }
+    return null;
+}
+
 /** The source files of a package (XML) as short names. */
 export function packageFiles(entry) {
     return [...entry.files].map(r => sourceText({resource: r}).split('/').pop()).sort(compareNatural);
 }
+
+export {beanExpressionsOf};

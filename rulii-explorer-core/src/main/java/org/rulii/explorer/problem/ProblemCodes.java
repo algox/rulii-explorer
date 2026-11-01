@@ -37,6 +37,8 @@ public final class ProblemCodes {
     public static final String UNUSED_RULE = "UNUSED_RULE";
     /** info: no description. */
     public static final String MISSING_DESCRIPTION = "MISSING_DESCRIPTION";
+    /** error: a bean whose definition loads but whose rules the library cannot build; shown from its definition alone. */
+    public static final String BEAN_NOT_MATERIALIZED = "BEAN_NOT_MATERIALIZED";
     /** info: no category, in an application where other artifacts have one. Silent until categories are used at all. */
     public static final String UNCATEGORISED = "UNCATEGORISED";
 

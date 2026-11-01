@@ -22,6 +22,14 @@
             <artifactId>rulii</artifactId>
         </dependency>
 
+        <!-- Bean Validation on rulii: optional. Only org.rulii.explorer.beans touches it, and only when the
+             application hands the builder a bean source; the descriptor records never reference it. -->
+        <dependency>
+            <groupId>org.rulii</groupId>
+            <artifactId>rulii-bean-validation</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- SpEL parser only: expression analysis for the "el" language. Not the container. -->
         <dependency>
             <groupId>org.springframework</groupId>

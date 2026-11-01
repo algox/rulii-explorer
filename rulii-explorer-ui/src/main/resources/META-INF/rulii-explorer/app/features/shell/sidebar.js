@@ -16,6 +16,7 @@ class RxSidebar extends RxElement {
 
     render() {
         const {status, index, route, descriptor, expanded} = this.state;
+        if (route.section === 'beans' && index && index.beans) return this.beansNav(index, route, descriptor, expanded);
         const current = route.name === 'artifact' ? route.id : null;
         const loading = status === 'loading';
         const ready = !!index;
@@ -31,6 +32,50 @@ class RxSidebar extends RxElement {
             ${ready ? this.rules(index, current, expanded) : nothing}
             <div class="rx-sidebar-foot">${descriptor ? html`Descriptor ${descriptor.descriptorVersion}${descriptor.application && descriptor.application.ruliiVersion && descriptor.application.ruliiVersion !== 'unknown' ? html` · rulii ${descriptor.application.ruliiVersion}` : nothing}` : 'Descriptor 1.0'}</div>
         </nav>`;
+    }
+
+    /**
+     * The Beans section's sidebar (FR-70): its overview and problems, then the beans by package,
+     * each package a folder. A bean reached only by cascade says so; a problem shows as a dot.
+     */
+    beansNav(index, route, descriptor, expanded) {
+        const beans = index.beans;
+        const current = route.name === 'bean' ? route.id : null;
+        const keys = beans.packages.map(p => 'bpkg:' + p.id);
+        return html`<nav class="rx-sidebar" aria-label="Beans">
+            <div class="rx-nav-group">
+                <a class="rx-nav-link" href=${routes.beans()} aria-current=${route.name === 'beans' ? 'page' : nothing}>${icon('grid', {size: 16, width: 1.8})}<span class="rx-name">Overview</span></a>
+                <a class="rx-nav-link" href=${routes.beansProblems()} aria-current=${route.name === 'problems' ? 'page' : nothing}>${icon('warning', {size: 16, width: 1.8})}<span class="rx-name">Problems</span>${this.problemCount(false, beans)}</a>
+            </div>
+            <div class="rx-nav-group">
+                <div class="rx-nav-head rx-overline"><span>Beans</span><span class="rx-nav-head-end">${keys.length > 1 ? this.allButtons(keys, 'packages', expanded) : nothing}${beans.list.length}</span></div>
+                ${beans.packages.map(p => {
+                    const key = 'bpkg:' + p.id;
+                    const open = expanded.has(key) || beans.packages.length === 1;
+                    const worst = open ? null : worstOfBeans(p.beans, beans);
+                    return html`
+                        <button type="button" class="rx-nav-row rx-nav-row-pkg rx-nav-row-folder" aria-expanded=${open} @click=${() => this.store.toggleExpanded(key)} title=${p.id || 'the default package'}>
+                            ${icon(open ? 'chevronDown' : 'chevronRight', {size: 12, width: 2.2})}
+                            <span class="rx-name rx-mono">${p.id || '(default package)'}</span>
+                            ${worst ? html`<span class=${'rx-dot rx-dot-' + worst} aria-label=${worst}></span>` : nothing}
+                            <span class="rx-nav-count">${p.beans.length}</span>
+                        </button>
+                        ${open ? html`<div class="rx-nav-children">${p.beans.map(b => this.beanRow(b, current, beans))}</div>` : nothing}`;
+                })}
+            </div>
+            <div class="rx-sidebar-foot">${descriptor ? html`Descriptor ${descriptor.descriptorVersion}${descriptor.application && descriptor.application.ruliiVersion && descriptor.application.ruliiVersion !== 'unknown' ? html` · rulii ${descriptor.application.ruliiVersion}` : nothing}` : nothing}</div>
+        </nav>`;
+    }
+
+    beanRow(b, current, beans) {
+        const worst = beans.worstByBean.get(b.id);
+        const undescribed = beans.undescribed.has(b.id);
+        return html`<a class="rx-nav-row rx-nav-row-child" href=${routes.bean(b)} aria-current=${current === b.id ? 'page' : nothing} title=${b.id}>
+            ${glyph('bean', {size: 10, undescribed})}
+            <span class="rx-name">${b.name}</span>
+            ${b.discovery === 'cascade' ? html`<span class="rx-nav-note">cascade</span>` : !b.materialized && !undescribed ? html`<span class="rx-nav-note">not built</span>` : nothing}
+            ${undescribed ? html`<span class="rx-nav-undescribed">not described</span>` : worst ? html`<span class=${'rx-dot rx-dot-' + worst} aria-label=${worst} title=${worst}></span>` : nothing}
+        </a>`;
     }
 
     problemCount(loading, index) {
@@ -167,6 +212,16 @@ function worstOf(list, index) {
     let worst = null;
     for (const a of list) {
         const w = index.worstByArtifact.get(a.id);
+        if (w && (worst === null || rank[w] < rank[worst])) worst = w;
+    }
+    return worst;
+}
+
+function worstOfBeans(list, beans) {
+    const rank = {error: 0, warning: 1, info: 2};
+    let worst = null;
+    for (const b of list) {
+        const w = beans.worstByBean.get(b.id);
         if (w && (worst === null || rank[w] < rank[worst])) worst = w;
     }
     return worst;

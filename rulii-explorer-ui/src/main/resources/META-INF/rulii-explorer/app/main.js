@@ -5,6 +5,7 @@
 import './features/shell/app.js';
 import './features/shell/topbar.js';
 import './features/shell/sidebar.js';
+import './features/shell/resize.js';
 import './features/shell/palette.js';
 import './features/shell/help.js';
 import './features/shell/source.js';
@@ -17,6 +18,9 @@ import './features/artifact/artifact.js';
 import './features/artifact/package.js';
 import './features/artifact/category.js';
 import './features/binding/binding.js';
+import './features/bean/overview.js';
+import './features/bean/bean.js';
+import './features/bean/graph.js';
 import './features/states/states.js';
 
 import {store} from './state/store.js';
@@ -24,6 +28,7 @@ import {startRouter} from './routing/router.js';
 import {boot, openApplication, openFile, openUrl} from './boot.js';
 
 store.applyTheme(store.state.theme);
+store.applySidebarWidth(store.state.sidebarWidth);
 startRouter(store);
 
 /** A hook for the browser tests and the console: the store and the source switches. */

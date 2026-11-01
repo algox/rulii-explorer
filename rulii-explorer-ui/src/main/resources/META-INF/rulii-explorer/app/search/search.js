@@ -1,14 +1,20 @@
-import {expressionsOf, identifierWords, plainText, typeLabel, compareNatural} from '../descriptor/format.js';
+import {expressionsOf, identifierWords, plainText, typeLabel, compareNatural, beanExpressionsOf} from '../descriptor/format.js';
+import {beanDeclarations} from '../descriptor/indexes.js';
 
 /**
  * The in-memory search index (SOLUTION §9.1): field-weighted, prefix and light fuzzy matching
  * over artifact names, descriptions, plain-English expressions, error codes and bindings. A
  * thousand artifacts need no library.
  *
+ * The Beans section (descriptor 1.1) has its own documents: bean names, their properties and
+ * executables, the constraint names (`notBlank`, `decimalMin`) and the rules their `@Validate`
+ * names. A query is answered for one section at a time, so the Rules section never lists a bean.
+ *
  * @typedef {object} Hit
- * @property {'artifact'|'binding'} kind
+ * @property {'artifact'|'binding'|'bean'} kind
  * @property {object} [artifact]
  * @property {object} [binding]
+ * @property {object} [bean]
  * @property {number} score
  * @property {Array<[number, number]>} nameMatches   character ranges to highlight in the name
  * @property {{label: string, expression?: object, text?: string}|null} snippet
@@ -39,18 +45,20 @@ export function buildSearch(descriptor, index) {
     const docs = [];
     for (const a of descriptor.artifacts) docs.push(artifactDoc(a, index));
     for (const b of descriptor.bindings) docs.push(bindingDoc(b, index));
+    const beanDocs = (descriptor.beans || []).map(b => beanDoc(b, index));
     return {
         /**
          * @param {string} query   the text (filters already split off by {@link parseQuery})
-         * @param {{limit?: number, type?: string, tags?: string[], category?: string|null}} [options]
+         * @param {{limit?: number, type?: string, tags?: string[], category?: string|null, section?: 'rules'|'beans'}} [options]
          * @returns {Array<{type: string, label: string, hits: Hit[]}>} groups in sidebar order
          */
         query(query, options = {}) {
             const terms = identifierWords(query).filter(Boolean);
             const filtered = (options.tags && options.tags.length > 0) || !!options.category;
             if (!terms.length && !filtered) return [];
+            const beans = options.section === 'beans';
             const hits = [];
-            for (const doc of docs) {
+            for (const doc of beans ? beanDocs : docs) {
                 if (options.type && doc.type !== options.type) continue;
                 if (filtered && (doc.kind !== 'artifact' || !matchesFilters(doc, options))) continue;
                 const hit = terms.length ? score(doc, terms, query.trim().toLowerCase()) : listed(doc);
@@ -64,7 +72,7 @@ export function buildSearch(descriptor, index) {
                 if (!grouped.has(key)) grouped.set(key, {type: key, label: typeLabel(key, true), hits: []});
                 grouped.get(key).hits.push(hit);
             }
-            const order = ['rule', 'ruleset', 'ruleflow', 'binding'];
+            const order = ['rule', 'ruleset', 'ruleflow', 'binding', 'bean'];
             return [...grouped.values()].sort((a, b) => order.indexOf(a.type) - order.indexOf(b.type));
         }
     };
@@ -102,6 +110,34 @@ function artifactDoc(a, index) {
     };
 }
 
+/**
+ * A bean: its name and class, its members' names (as binding paths, so `order.total` finds the
+ * total property), its constraint names and error codes, and the rules it runs by name.
+ */
+function beanDoc(b, index) {
+    const keywords = [b.id.toLowerCase(), b.kind, b.discovery, 'bean'];
+    const paths = new Set();
+    for (const p of b.properties || []) paths.add(p.name.toLowerCase());
+    for (const e of b.executables || []) {
+        paths.add(e.name.toLowerCase());
+        for (const p of e.parameters || []) paths.add(p.name.toLowerCase());
+    }
+    for (const decl of beanDeclarations(b)) {
+        if (decl.kind === 'constraint') keywords.push(decl.constraint.name.toLowerCase(), decl.constraint.annotation.toLowerCase());
+        else if (decl.kind === 'expr') { if (decl.expr.errorCode) keywords.push(decl.expr.errorCode.toLowerCase()); }
+        else for (const t of decl.validation.targets || []) keywords.push(t.name.toLowerCase());
+    }
+    for (const bind of b.binds || []) keywords.push(bind.name.toLowerCase());
+    const expressions = beanExpressionsOf(b)
+        .map(e => ({label: e.label, expression: e.expression, text: plainText(e.expression).toLowerCase(), raw: (e.expression.text || '').toLowerCase()}));
+    return {
+        kind: 'bean', type: 'bean', bean: b,
+        name: b.name, nameLower: b.name.toLowerCase(), nameWords: identifierWords(b.name),
+        description: '', packageId: (b.packageId || '').toLowerCase(), category: '', tags: [],
+        expressions, keywords: [...new Set(keywords)], paths: [...paths]
+    };
+}
+
 function matchesFilters(doc, options) {
     for (const t of options.tags || []) if (!doc.tags.includes(t)) return false;
     const c = options.category;
@@ -111,7 +147,7 @@ function matchesFilters(doc, options) {
 
 /** A hit for a filter-only query: every match listed, in name order, with its description as the snippet. */
 function listed(doc) {
-    return {kind: doc.kind, type: doc.type, artifact: doc.artifact, binding: doc.binding, name: doc.name, score: 1, nameMatches: [],
+    return {kind: doc.kind, type: doc.type, artifact: doc.artifact, binding: doc.binding, bean: doc.bean, name: doc.name, score: 1, nameMatches: [],
         snippet: doc.description ? {label: null, text: doc.description} : null};
 }
 
@@ -147,7 +183,7 @@ function score(doc, terms, whole) {
             if (k === term) best = Math.max(best, 65);
             else if (k.includes(term)) best = Math.max(best, 45);
         }
-        // Binding paths
+        // Binding paths, and a bean's members
         for (const p of doc.paths) {
             if (p === term) best = Math.max(best, 50);
             else if (p.split('.').some(seg => seg.startsWith(term))) best = Math.max(best, 40);
@@ -178,7 +214,7 @@ function score(doc, terms, whole) {
     }
     if (doc.nameLower === whole) total += 40;
     return {
-        kind: doc.kind, type: doc.type, artifact: doc.artifact, binding: doc.binding, name: doc.name,
+        kind: doc.kind, type: doc.type, artifact: doc.artifact, binding: doc.binding, bean: doc.bean, name: doc.name,
         score: total, nameMatches: merge(nameMatches),
         snippet: bestSnippet || (doc.description ? {label: null, text: doc.description} : null)
     };

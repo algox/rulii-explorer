@@ -65,6 +65,7 @@ class RxHelp extends RxElement {
                 ${row(html`<span class="rx-help-word">Drag</span><span class="rx-help-word">Wheel</span>`, 'Pan and zoom a flowchart or graph')}
                 ${row(html`<span class="rx-help-word">Double-click</span>`, 'A graph node: focus the graph on it')}
                 ${row(html`<span class="rx-help-word">Hover</span>`, 'Any artifact link: a card with its summary')}
+                ${row(html`<span class="rx-help-word">Drag</span>${k('←')}${k('→')}`, 'The sidebar’s right edge: make it wider or narrower; double-click puts it back')}
             </dl>
         </section>`;
     }
@@ -86,6 +87,9 @@ class RxHelp extends RxElement {
                 ${row('#/binding/{name}', 'Who writes and reads a binding')}
                 ${row('#/package/{id}', 'A package and what it defines')}
                 ${row('#/category/{path}', 'A category, such as Pricing/Loyalty, and what is in it')}
+                ${row('#/beans', 'The Beans section: what the application validates with rulii bean validation')}
+                ${row('#/bean/{class}?member=properties.total', 'A bean by its class name, scrolled to one of its members')}
+                ${row('#/beans/graph?focus={class}', 'The Beans graph around a bean: its cascades and the rules it runs')}
             </dl>
         </section>`;
     }

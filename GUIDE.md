@@ -19,7 +19,8 @@ guide covers using the screens. Press `?` on any screen for the short version.
   the light/dark switch. The theme follows the operating system until you choose.
 - **Sidebar**: Overview and Problems, then every rule flow, every rule set, and the rules grouped
   by the package they are defined in. A coloured dot next to a name is its worst problem; "not
-  described" means the artifact's definition could not be read.
+  described" means the artifact's definition could not be read. Drag its right edge to make it
+  wider when a deep category tree needs the room.
 - **Overview**: the counts, the application map of which flows run which rule sets and rules,
   the problems, and the packages with what each one holds.
 - **A rule**: one sentence saying what it checks, then the condition and actions as plain text or
@@ -37,6 +38,9 @@ guide covers using the screens. Press `?` on any screen for the short version.
 - **A package**: what it defines, with the same dots and kinds as the sidebar.
 - **Problems**: everything the checks found, grouped by severity, each with why it matters and
   how to fix it.
+- **Beans**: when the application opted in, a second section behind the Rules / Beans switch in
+  the top bar: the classes validated with rulii-bean-validation, their constraints and the rules
+  behind them. See "Beans" below.
 
 Hovering any artifact link shows a card with its type, kind and summary.
 
@@ -129,6 +133,41 @@ a file name. Without any categories the sidebar falls back to grouping rules by 
 runs them, with the ones in no rule set listed separately, and the overview shows where artifacts
 are defined instead.
 
+## Beans
+
+An application that validates with
+[rulii-bean-validation](https://github.com/algox/rulii-bean-validation) can show those classes
+too. It is opt-in (`rulii.explorer.beans.enabled=true`; README.md has the properties) and lives
+in a section of its own: a **Rules / Beans** switch appears in the top bar, and the Rules section
+is exactly what it was without it, down to its counts and its problems.
+
+- **Overview**: how many beans, constraints, cascades and methods there are, the validation map
+  of which beans cascade into which and which registry rules they run, the bean problems, the
+  beans by package, and how they were found: the package scan, `rulii.explorer.beans.classes`, or
+  the validator having validated them.
+- **A bean**: what is declared on the class itself, then every property with its constraints,
+  `@Expr` expressions and `@Validate` rules, container elements and cascades (`@Valid`) included,
+  then the methods and constructors with their parameter, cross-parameter and return-value
+  constraints. A constraint chip opens the rule the library built for it, read the way a rule
+  page reads: what it checks, the error code, the message and the settings; an `@Expr` has the
+  Plain / Raw switch. The right column says which beans cascade into this one, which beans and
+  rules it reaches, the flow the library runs for it, and where it is defined. `?member=` in the
+  address scrolls to one member and highlights it.
+- **The Beans graph**: every bean, the cascades between them, and the registry rules they run as
+  leaf nodes that open in the Rules section; or one bean and its neighbourhood, with the same
+  depth control, selection and double-click as the dependency graph. A red dashed node is a
+  `@Validate` name nothing is registered under.
+- **Search** in the Beans section looks at beans only: class, property and method names,
+  constraint names (`notblank` finds every bean that uses `@NotBlank`) and the rules a bean runs.
+  The type filter is off here.
+- **Problems** in this section are the beans': a bean the library could not build rules for, a
+  `@Validate` name that is not registered, a configured class that declares nothing. They are not
+  counted in the Rules section.
+
+A bean the library could not build (`BEAN_NOT_MATERIALIZED`) is still shown from its
+declarations, with a note saying so; a bean that could not be read at all is marked "not
+described", as an artifact is. A rule page's Used by names the beans that `@Validate` it.
+
 ## Opening another descriptor
 
 ![The Open a descriptor dialog](guide/source.png)
@@ -165,8 +204,11 @@ ignored.
 | `?` | The help sheet |
 | `F` | Fit a flowchart or graph to the screen |
 | `Tab` then `↵` or `Space` | Select a flowchart step or a graph node; its panel opens on the right |
+| `←` `→` on the sidebar's edge | Make the sidebar narrower or wider (`⇧` for bigger steps; `Home` and `End` for the limits) |
 
 Everything else is reachable with `Tab`, including the sidebar, the tabs and the outline steps.
+The sidebar's right edge can also be dragged, and a double-click on it puts the width back; the
+browser remembers the choice.
 
 ## Addresses
 
@@ -184,6 +226,9 @@ Every screen has an address that survives a reload and can be pasted into a revi
 | `#/binding/{name}` | A binding |
 | `#/package/{id}` | A package |
 | `#/category/{path}` | A category, such as `#/category/Pricing/Loyalty` |
+| `#/beans` | The Beans overview; `#/beans/problems` its problems |
+| `#/bean/{class}?member=properties.total` | A bean by its class name, scrolled to one member; `executables.{key}...` for a method's |
+| `#/beans/graph?focus={class}&depth=2` | The Beans graph around a bean; without `focus`, every bean |
 | `?descriptor={url}#/…` | Any screen, read from another application's descriptor or a saved JSON at that address (before the `#`) |
 
 Step addresses follow the flow's structure: `commands[1]` is the second top-level step,
@@ -209,6 +254,10 @@ the flow reaches the step it stops with an error. In the demo, `nightlyRepriceFl
 *Fix*: register a rule under that name (or of that class), or point the step at a rule that
 exists. If the rule is a Spring bean, check that the bean name is the one the step uses.
 
+A bean's `@Validate` names are checked the same way: the library looks them up when the bean is
+validated, so validating fails there. In the demo, `Customer.tier` runs `tierPolicyRule`, which
+is not registered.
+
 ### `UNDESCRIBABLE` (error)
 
 Reading the artifact's definition threw an exception. The explorer shows the artifact with what
@@ -217,6 +266,21 @@ application is unaffected, and so is the application itself; only the descriptio
 
 *Fix*: the message is the exception from the application. Fix the definition it points at, or
 report it to the rulii project if the definition looks right.
+
+For a bean, the same code as a *warning* means a class named in `rulii.explorer.beans.classes`
+declares no constraint, `@Valid`, `@Validate`, `@Expr` or `@Bind`. *Fix*: remove it from the
+list, or add the constraints it should carry.
+
+### `BEAN_NOT_MATERIALIZED` (error)
+
+rulii-bean-validation could not build the rules of a bean, or of one of its methods or
+constructors, from its declarations: the message carries the library's exception. Validating
+that bean, or calling that method through the validator, fails the same way. The explorer shows
+the bean from its declarations alone, with a note; the constraints have no rule to open.
+
+*Fix*: the message names what the library rejected, such as a constraint on a type it does not
+apply to or an `@Expr` that does not compile. Fix that declaration, or report it to the rulii
+project if the declaration looks right.
 
 ### `NAME_MISMATCH_LOOKUP` (warning)
 
@@ -301,6 +365,11 @@ categories are adopted.
   holding it directly. "Direct" steps are wired at build time.
 - **Sources**: the file and line, or the class, where an artifact is defined. They are included
   unless the application sets `rulii.explorer.include-sources=false`.
+- **Bean**: a class the application validates with rulii-bean-validation, shown in the Beans
+  section. Its glyph is a diamond; a dashed diamond is a bean that could not be described. Its
+  id is the class name. A **constraint** is a Jakarta or rulii annotation on a member; the
+  library builds a rule for each, and the bean page opens it. A **cascade** is a `@Valid`: the
+  member's bean is validated with its owner.
 - **Descriptor**: the JSON document the explorer reads. Its version is in the sidebar footer with
   the rulii version.
 
@@ -338,5 +407,7 @@ When the descriptor comes from another address, the messages name that address i
 Everything the explorer shows is in one document at `/actuator/rulii`, following the schema
 shipped in `rulii-explorer-core` as `rulii-descriptor-1.schema.json`. It is stable in order and
 free of timestamps, so two versions can be diffed. The README shows how to write it from a test so
-that a review sees exactly which rules changed between releases.
+that a review sees exactly which rules changed between releases. With beans described the
+document is version 1.1 and adds a `beans` array, every bean with its members, constraints, the
+rules behind them and its references; a reader of 1.0 can ignore it.
 

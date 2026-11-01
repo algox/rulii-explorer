@@ -17,19 +17,46 @@
  */
 package com.acme.order.model;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.PositiveOrZero;
+import org.rulii.validation.beans.Expr;
+import org.rulii.validation.beans.Validate;
+import org.rulii.validation.beans.constraints.In;
+
 import java.math.BigDecimal;
 
 /**
- * The customer placing an order.
+ * The customer placing an order. Its {@code tier} runs a {@code @Validate} naming a rule nobody
+ * registered, on purpose: the explorer reports it before a customer is ever validated.
  */
+@Expr(value = "ctx.openBalance.compareTo(ctx.creditLimit) <= 0", lang = "js", errorCode = "customer.credit.exceeded",
+        message = "The open balance exceeds the credit limit.")
 public class Customer {
 
+    @NotBlank
     private String id;
+
+    @Min(18)
     private int age;
+
+    @NotBlank
+    @Email
     private String email;
+
+    @Pattern(regexp = "\\+?[0-9 ]{7,20}")
     private String phone;
+
+    @In({"STANDARD", "SILVER", "GOLD", "VIP"})
+    @Validate("tierPolicyRule")
     private String tier = "STANDARD";
+
+    @PositiveOrZero
     private BigDecimal openBalance = BigDecimal.ZERO;
+
+    @PositiveOrZero
     private BigDecimal creditLimit = BigDecimal.ZERO;
 
     public Customer() {

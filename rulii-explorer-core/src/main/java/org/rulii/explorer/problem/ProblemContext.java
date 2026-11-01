@@ -18,6 +18,7 @@
 package org.rulii.explorer.problem;
 
 import org.rulii.explorer.descriptor.Artifact;
+import org.rulii.explorer.descriptor.BeanInfo;
 import org.rulii.explorer.descriptor.Reference;
 
 import java.util.List;
@@ -26,7 +27,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * What a {@link ProblemCheck} can look at: the described artifacts and the resolved references.
+ * What a {@link ProblemCheck} can look at: the described artifacts, the resolved references and,
+ * when beans were described (1.1), the beans.
  *
  * @author Algorithmx Development Team
  * @since 1.0
@@ -35,12 +37,23 @@ public final class ProblemContext {
 
     private final List<Artifact> artifacts;
     private final List<Reference> references;
+    private final List<BeanInfo> beans;
     private final Map<String, Artifact> byId;
 
     public ProblemContext(List<Artifact> artifacts, List<Reference> references) {
+        this(artifacts, references, null);
+    }
+
+    /**
+     * @param artifacts  the described artifacts.
+     * @param references the resolved references, beans' included.
+     * @param beans      the described beans; null when beans were not described.
+     */
+    public ProblemContext(List<Artifact> artifacts, List<Reference> references, List<BeanInfo> beans) {
         super();
         this.artifacts = List.copyOf(artifacts);
         this.references = List.copyOf(references);
+        this.beans = beans == null ? null : List.copyOf(beans);
         this.byId = this.artifacts.stream().collect(Collectors.toUnmodifiableMap(Artifact::id, Function.identity()));
     }
 
@@ -50,6 +63,13 @@ public final class ProblemContext {
 
     public List<Reference> references() {
         return references;
+    }
+
+    /**
+     * @return the described beans, sorted by id; null when beans were not described (FR-83).
+     */
+    public List<BeanInfo> beans() {
+        return beans;
     }
 
     /**

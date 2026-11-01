@@ -17,9 +17,11 @@
  */
 package org.rulii.explorer.boot;
 
+import org.rulii.explorer.beans.Beans;
 import org.rulii.explorer.boot.ui.UiMvcConfiguration;
 import org.rulii.explorer.boot.ui.UiPage;
 import org.rulii.explorer.boot.ui.UiWebFluxConfiguration;
+import org.rulii.explorer.builder.BeanSource;
 import org.rulii.explorer.builder.PlaceholderFilter;
 import org.rulii.explorer.expression.ExpressionAnalyzer;
 import org.rulii.explorer.expression.ExpressionAnalyzers;
@@ -27,21 +29,28 @@ import org.rulii.explorer.problem.ProblemCheck;
 import org.rulii.explorer.problem.ProblemChecks;
 import org.rulii.registry.RuleRegistry;
 import org.rulii.spring.config.RuleConfig;
+import org.rulii.spring.validation.BeanValidationConfig;
+import org.rulii.validation.beans.BeanValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.actuate.endpoint.SanitizableData;
 import org.springframework.boot.actuate.endpoint.Sanitizer;
 import org.springframework.boot.actuate.endpoint.SanitizingFunction;
 import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnAvailableEndpoint;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ResourceLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,11 +77,11 @@ import java.util.Objects;
  * @since 1.0
  */
 
-@AutoConfiguration(after = RuleConfig.class)
+@AutoConfiguration(after = {RuleConfig.class, BeanValidationConfig.class})
 @ConditionalOnBean(RuleRegistry.class)
 @ConditionalOnProperty(prefix = "rulii.explorer", name = "enabled", havingValue = "true")
 @EnableConfigurationProperties(RuliiExplorerProperties.class)
-@Import({UiMvcConfiguration.class, UiWebFluxConfiguration.class})
+@Import({UiMvcConfiguration.class, UiWebFluxConfiguration.class, RuliiExplorerAutoConfiguration.BeansConfiguration.class})
 public class RuliiExplorerAutoConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RuliiExplorerAutoConfiguration.class);
@@ -86,7 +95,8 @@ public class RuliiExplorerAutoConfiguration {
     public DescriptorService ruliiDescriptorService(RuleRegistry ruleRegistry, RuliiExplorerProperties properties,
                                                     Environment environment, ObjectProvider<ExpressionAnalyzer> analyzers,
                                                     ObjectProvider<ProblemCheck> checks,
-                                                    ObjectProvider<SanitizingFunction> sanitizingFunctions) {
+                                                    ObjectProvider<SanitizingFunction> sanitizingFunctions,
+                                                    ObjectProvider<BeanSource> beans) {
         String applicationName = properties.getApplicationName() != null
                 ? properties.getApplicationName() : environment.getProperty("spring.application.name");
 
@@ -99,7 +109,7 @@ public class RuliiExplorerAutoConfiguration {
         PlaceholderFilter placeholderValues = placeholderFilter(properties.getPlaceholders(), sanitizingFunctions.orderedStream().toList());
 
         return new DescriptorService(ruleRegistry, applicationName, properties.isIncludeSources(), placeholderValues,
-                allAnalyzers, allChecks);
+                allAnalyzers, allChecks, beans.getIfAvailable());
     }
 
     /**
@@ -133,5 +143,53 @@ public class RuliiExplorerAutoConfiguration {
     @ConditionalOnProperty(prefix = "rulii.explorer.ui", name = "enabled", havingValue = "true", matchIfMissing = true)
     public UiPage ruliiExplorerUiPage(RuliiExplorerProperties properties) {
         return UiPage.forVersion(properties.getUi().getPath(), properties.getUi().isExternalSources());
+    }
+
+    /**
+     * The beans section (descriptor 1.1, section 17.6): on only when {@code rulii.explorer.beans.enabled}
+     * is true (FR-83) and the application validates with rulii, that is when rulii-spring's
+     * {@link BeanValidationConfig} defined its {@link BeanValidator} bean. An application that opted out
+     * ({@code rulii.validation.enabled=false}) or has no Boot validation module gets no bean source and
+     * no section, without a log line: it asked for nothing the explorer can give.
+     *
+     * <p>Discovery happens inside the first descriptor build, not here (NFR-40): the source lists its
+     * classes when asked, scanning the configured packages, or the auto-configuration packages, with
+     * Spring's resource resolver so packaged Boot jars work.
+     */
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(name = "org.rulii.validation.beans.BeanValidator")
+    @ConditionalOnProperty(prefix = "rulii.explorer.beans", name = "enabled", havingValue = "true")
+    public static class BeansConfiguration {
+
+        public BeansConfiguration() {
+            super();
+        }
+
+        @Bean
+        @ConditionalOnMissingBean
+        @ConditionalOnBean(BeanValidator.class)
+        public BeanSource ruliiBeanSource(BeanValidator validator, RuliiExplorerProperties properties, BeanFactory beanFactory,
+                                          ResourceLoader resourceLoader) {
+            RuliiExplorerProperties.Beans settings = properties.getBeans();
+            List<String> packages = settings.getPackages() == null || settings.getPackages().isEmpty()
+                    ? autoConfigurationPackages(beanFactory) : settings.getPackages();
+            LOGGER.info("rulii explorer describes beans: scanning {}, {} configured class(es){}", packages,
+                    settings.getClasses() == null ? 0 : settings.getClasses().size(),
+                    settings.isIncludeValidated() ? ", and what the validator has validated" : "");
+            return Beans.of(validator)
+                    .scan(packages, resourceLoader.getClassLoader() != null ? resourceLoader.getClassLoader() : BeansConfiguration.class.getClassLoader())
+                    .files(new ResourceClassFileSource(resourceLoader))
+                    .classes(settings.getClasses() == null ? List.of() : settings.getClasses())
+                    .validated(settings.isIncludeValidated())
+                    .build();
+        }
+
+        private static List<String> autoConfigurationPackages(BeanFactory beanFactory) {
+            if (!AutoConfigurationPackages.has(beanFactory)) {
+                LOGGER.warn("rulii explorer has no package to scan for beans: no auto-configuration package is registered and rulii.explorer.beans.packages is empty");
+                return List.of();
+            }
+            return AutoConfigurationPackages.get(beanFactory);
+        }
     }
 }

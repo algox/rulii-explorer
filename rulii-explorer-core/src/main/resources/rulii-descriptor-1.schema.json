@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://www.rulii.org/explorer/rulii-descriptor-1.schema.json",
   "title": "rulii explorer descriptor",
-  "description": "Everything a rulii application holds: artifacts, references, bindings and problems. Version 1.x is additive: readers must ignore properties they do not know.",
+  "description": "Everything a rulii application holds: artifacts, references, bindings and problems, and (1.1) the beans it validates with rulii-bean-validation. Version 1.x is additive: readers must ignore properties they do not know.",
   "type": "object",
   "required": ["descriptorVersion", "application", "packages", "artifacts", "references", "bindings", "problems"],
   "properties": {
@@ -12,7 +12,8 @@
     "artifacts": { "type": "array", "items": { "$ref": "#/$defs/artifact" } },
     "references": { "type": "array", "items": { "$ref": "#/$defs/reference" } },
     "bindings": { "type": "array", "items": { "$ref": "#/$defs/bindingUsage" } },
-    "problems": { "type": "array", "items": { "$ref": "#/$defs/problem" } }
+    "problems": { "type": "array", "items": { "$ref": "#/$defs/problem" } },
+    "beans": { "type": "array", "items": { "$ref": "#/$defs/bean" }, "description": "1.1. Absent when beans were not described; empty when they were and none was found." }
   },
   "$defs": {
     "application": {
@@ -262,7 +263,7 @@
       "properties": {
         "from": { "type": "string" },
         "to": { "type": "string" },
-        "type": { "enum": ["contains", "runs"] },
+        "type": { "enum": ["contains", "runs", "cascades"] },
         "async": { "type": "boolean" },
         "path": { "type": "string" },
         "resolution": { "enum": ["direct", "by-name", "by-class"] }
@@ -284,9 +285,226 @@
       "properties": {
         "severity": { "enum": ["error", "warning", "info"] },
         "code": { "type": "string" },
-        "artifact": { "type": "string" },
+        "artifact": { "type": "string", "description": "An artifact id, or (1.1) a bean id for a bean problem." },
         "path": { "type": "string" },
         "message": { "type": "string" }
+      }
+    },
+    "bean": {
+      "type": "object",
+      "required": ["id", "name", "packageId", "kind", "discovery", "materialized", "flow", "constraints", "validations", "expressions", "binds", "properties", "executables", "rules"],
+      "properties": {
+        "id": { "type": "string", "description": "The class name; kept with include-sources=false." },
+        "name": { "type": "string" },
+        "packageId": { "type": "string" },
+        "kind": { "enum": ["class", "record", "interface", "abstract-class"] },
+        "discovery": { "enum": ["scan", "configured", "validated", "cascade"] },
+        "source": { "$ref": "#/$defs/source" },
+        "groupSequence": { "type": "array", "items": { "type": "string" }, "minItems": 1, "description": "Simple class names; absent unless redefined." },
+        "materialized": { "type": "boolean" },
+        "flow": { "$ref": "#/$defs/flowRef" },
+        "constraints": { "type": "array", "items": { "$ref": "#/$defs/constraint" } },
+        "validations": { "type": "array", "items": { "$ref": "#/$defs/validation" } },
+        "expressions": { "type": "array", "items": { "$ref": "#/$defs/expr" } },
+        "binds": { "type": "array", "items": { "$ref": "#/$defs/contextBind" } },
+        "properties": { "type": "array", "items": { "$ref": "#/$defs/property" } },
+        "executables": { "type": "array", "items": { "$ref": "#/$defs/executable" } },
+        "rules": { "type": "array", "items": { "$ref": "#/$defs/beanRule" } }
+      }
+    },
+    "flowRef": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" }
+      }
+    },
+    "constraint": {
+      "type": "object",
+      "required": ["annotation", "name", "attributes", "plain", "groups", "payload", "reportAsSingleViolation", "composing"],
+      "properties": {
+        "annotation": { "type": "string" },
+        "name": { "type": "string", "description": "Simple name with a lower-case initial: the search token." },
+        "attributes": { "type": "object" },
+        "plain": { "type": "string" },
+        "message": { "type": "string" },
+        "groups": { "type": "array", "items": { "type": "string" } },
+        "severity": { "enum": ["FATAL", "ERROR", "WARNING", "INFO"] },
+        "payload": { "type": "array", "items": { "type": "string" } },
+        "reportAsSingleViolation": { "type": "boolean" },
+        "composing": { "type": "array", "items": { "$ref": "#/$defs/constraint" } },
+        "ruleId": { "type": "string" }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["rules", "groups", "applyTo", "targets"],
+      "properties": {
+        "rules": { "type": "array", "items": { "type": "string" } },
+        "groups": { "type": "array", "items": { "type": "string" } },
+        "applyTo": { "type": "string" },
+        "targets": { "type": "array", "items": { "$ref": "#/$defs/validationTarget" } }
+      }
+    },
+    "validationTarget": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "artifactId": { "type": "string", "description": "Absent when nothing is registered under the name." }
+      }
+    },
+    "expr": {
+      "type": "object",
+      "required": ["expression", "errorCode", "groups", "applyTo", "skipNull"],
+      "properties": {
+        "expression": { "$ref": "#/$defs/expression" },
+        "errorCode": { "type": "string" },
+        "message": { "type": "string" },
+        "severity": { "enum": ["FATAL", "ERROR", "WARNING", "INFO"] },
+        "groups": { "type": "array", "items": { "type": "string" } },
+        "applyTo": { "type": "string" },
+        "skipNull": { "type": "boolean" },
+        "ruleId": { "type": "string" }
+      }
+    },
+    "contextBind": {
+      "type": "object",
+      "required": ["name", "type", "kind"],
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "kind": { "enum": ["literal", "expression"] },
+        "literal": { "type": "string" },
+        "expression": { "$ref": "#/$defs/expression" },
+        "applyTo": { "type": "string" },
+        "declaredOn": { "type": "string" }
+      }
+    },
+    "cascade": {
+      "type": "object",
+      "required": ["targetType", "groupConversions"],
+      "properties": {
+        "beanId": { "type": "string", "description": "Absent when the target type is not a described bean." },
+        "targetType": { "type": "string" },
+        "groupConversions": { "type": "array", "items": { "$ref": "#/$defs/groupConversion" } }
+      }
+    },
+    "groupConversion": {
+      "type": "object",
+      "required": ["from", "to"],
+      "properties": {
+        "from": { "type": "string" },
+        "to": { "type": "string" }
+      }
+    },
+    "containerElement": {
+      "type": "object",
+      "required": ["name", "containerType", "typeArgumentIndex", "type", "constraints", "children"],
+      "properties": {
+        "name": { "type": "string" },
+        "containerType": { "type": "string" },
+        "typeArgumentIndex": { "type": "integer", "minimum": 0 },
+        "type": { "type": "string" },
+        "constraints": { "type": "array", "items": { "$ref": "#/$defs/constraint" } },
+        "cascade": { "$ref": "#/$defs/cascade" },
+        "children": { "type": "array", "items": { "$ref": "#/$defs/containerElement" } }
+      }
+    },
+    "property": {
+      "type": "object",
+      "required": ["name", "type", "declaredOn", "constraints", "validations", "expressions", "containerElements"],
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "genericType": { "type": "string" },
+        "declaredOn": { "enum": ["field", "getter", "record-component"] },
+        "declaringClass": { "type": "string" },
+        "source": { "$ref": "#/$defs/source" },
+        "constraints": { "type": "array", "items": { "$ref": "#/$defs/constraint" } },
+        "validations": { "type": "array", "items": { "$ref": "#/$defs/validation" } },
+        "expressions": { "type": "array", "items": { "$ref": "#/$defs/expr" } },
+        "cascade": { "$ref": "#/$defs/cascade" },
+        "containerElements": { "type": "array", "items": { "$ref": "#/$defs/containerElement" } }
+      }
+    },
+    "executable": {
+      "type": "object",
+      "required": ["name", "key", "kind", "signature", "parameters", "binds", "rules"],
+      "properties": {
+        "name": { "type": "string" },
+        "key": { "type": "string" },
+        "kind": { "enum": ["method", "constructor", "getter"] },
+        "signature": { "type": "string" },
+        "source": { "$ref": "#/$defs/source" },
+        "parameters": { "type": "array", "items": { "$ref": "#/$defs/beanParameter" } },
+        "crossParameter": { "$ref": "#/$defs/crossParameter" },
+        "returnValue": { "$ref": "#/$defs/returnValue" },
+        "binds": { "type": "array", "items": { "$ref": "#/$defs/contextBind" } },
+        "parametersFlow": { "$ref": "#/$defs/flowRef" },
+        "returnValueFlow": { "$ref": "#/$defs/flowRef" },
+        "rules": { "type": "array", "items": { "$ref": "#/$defs/beanRule" } }
+      }
+    },
+    "beanParameter": {
+      "type": "object",
+      "required": ["index", "name", "type", "constraints", "validations", "expressions", "containerElements"],
+      "properties": {
+        "index": { "type": "integer", "minimum": 0 },
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "genericType": { "type": "string" },
+        "constraints": { "type": "array", "items": { "$ref": "#/$defs/constraint" } },
+        "validations": { "type": "array", "items": { "$ref": "#/$defs/validation" } },
+        "expressions": { "type": "array", "items": { "$ref": "#/$defs/expr" } },
+        "cascade": { "$ref": "#/$defs/cascade" },
+        "containerElements": { "type": "array", "items": { "$ref": "#/$defs/containerElement" } }
+      }
+    },
+    "crossParameter": {
+      "type": "object",
+      "required": ["constraints", "validations", "expressions"],
+      "properties": {
+        "constraints": { "type": "array", "items": { "$ref": "#/$defs/constraint" } },
+        "validations": { "type": "array", "items": { "$ref": "#/$defs/validation" } },
+        "expressions": { "type": "array", "items": { "$ref": "#/$defs/expr" } }
+      }
+    },
+    "returnValue": {
+      "type": "object",
+      "required": ["type", "constraints", "validations", "expressions", "containerElements", "binds"],
+      "properties": {
+        "type": { "type": "string" },
+        "genericType": { "type": "string" },
+        "constraints": { "type": "array", "items": { "$ref": "#/$defs/constraint" } },
+        "validations": { "type": "array", "items": { "$ref": "#/$defs/validation" } },
+        "expressions": { "type": "array", "items": { "$ref": "#/$defs/expr" } },
+        "cascade": { "$ref": "#/$defs/cascade" },
+        "containerElements": { "type": "array", "items": { "$ref": "#/$defs/containerElement" } },
+        "binds": { "type": "array", "items": { "$ref": "#/$defs/contextBind" } }
+      }
+    },
+    "beanRule": {
+      "type": "object",
+      "required": ["id", "name", "placement", "kind", "parameters", "hosted"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "placement": { "$ref": "#/$defs/placement" },
+        "kind": { "enum": ["xml-script", "xml", "rule-class", "java-builder", "predefined-validator", "unknown"] },
+        "parameters": { "type": "array", "items": { "$ref": "#/$defs/parameter" } },
+        "rule": { "$ref": "#/$defs/ruleDetails" },
+        "validation": { "$ref": "#/$defs/validationDetails" },
+        "hosted": { "type": "array", "items": { "$ref": "#/$defs/beanRule" } }
+      }
+    },
+    "placement": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["property", "parameter", "return-value", "cross-parameter", "bean"] },
+        "name": { "type": "string" },
+        "index": { "type": "integer", "minimum": 0 }
       }
     }
   }

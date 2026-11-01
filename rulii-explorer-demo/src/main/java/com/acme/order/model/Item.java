@@ -17,15 +17,26 @@
  */
 package com.acme.order.model;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+
 import java.math.BigDecimal;
 
 /**
- * A catalog item, also an order line.
+ * A catalog item, also an order line. Reached by cascade from an order's items.
  */
 public class Item {
 
+    @NotBlank
     private String sku;
+
+    @DecimalMin("0.01")
     private BigDecimal price = BigDecimal.ZERO;
+
+    @Min(1)
+    @Max(999)
     private int quantity = 1;
 
     public Item() {

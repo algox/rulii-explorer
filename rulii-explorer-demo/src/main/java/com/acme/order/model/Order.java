@@ -17,24 +17,60 @@
  */
 package com.acme.order.model;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.PositiveOrZero;
+import org.rulii.validation.beans.Expr;
+import org.rulii.validation.beans.Validate;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An incoming order.
+ * An incoming order. Its constraints are validated with rulii-bean-validation: the Jakarta
+ * annotations say what a well-formed order looks like, {@code @Validate} runs the registered
+ * {@code ConsistentDatesRule} on the whole order, and the items cascade.
  */
+@Validate("ConsistentDatesRule")
 public class Order {
 
+    @NotBlank
     private String id;
+
+    @NotNull
+    @DecimalMin("0.00")
     private BigDecimal total = BigDecimal.ZERO;
+
+    @NotBlank
     private String shippingAddress;
+
+    @DecimalMin("0")
+    @DecimalMax("0.5")
     private BigDecimal discount = BigDecimal.ZERO;
+
+    @PositiveOrZero
     private BigDecimal shippingCost = BigDecimal.ZERO;
+
+    @NotNull
+    @PastOrPresent
     private LocalDate orderDate;
+
+    @Future
+    @Expr(value = "ctx.orderDate == null || !ctx.requestedDeliveryDate.isBefore(ctx.orderDate)", lang = "js",
+            errorCode = "order.delivery.before.order", message = "The requested delivery date is before the order date.")
     private LocalDate requestedDeliveryDate;
-    private List<Item> items = new ArrayList<>();
+
+    @NotEmpty
+    @Valid
+    private List<@NotNull Item> items = new ArrayList<>();
 
     public Order() {
         super();

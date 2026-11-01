@@ -63,6 +63,10 @@
   --rx-flow-text: #07706D;
   --rx-flow-soft: #E6F6F5;
   --rx-flow-line: #A9DEDB;
+  --rx-bean: #C9456E;          /* diamond: a bean validated with rulii-bean-validation (1.1) */
+  --rx-bean-text: #A3365A;
+  --rx-bean-soft: #FCEEF2;
+  --rx-bean-line: #F3C2D2;
   --rx-binding: #EEEAF3;       /* neutral chip */
   --rx-binding-ink: #3E3450;
 
@@ -202,6 +206,10 @@
   --rx-flow-text: #72DAD3;
   --rx-flow-soft: #17363A;
   --rx-flow-line: #2A5E60;
+  --rx-bean: #E98AA8;
+  --rx-bean-text: #F3B3C8;
+  --rx-bean-soft: #45283A;
+  --rx-bean-line: #6E3C53;
   --rx-binding: #3A2E4E;
   --rx-binding-ink: #E0D7EA;
   --rx-error: #FF8F80;
@@ -235,6 +243,7 @@
     --rx-rule: #B98AE6; --rx-rule-text: #CFAAF0; --rx-rule-soft: #35224F; --rx-rule-line: #5E4180;
     --rx-ruleset: #FF9A3D; --rx-ruleset-text: #FFB673; --rx-ruleset-soft: #3E2A22; --rx-ruleset-line: #6E4829;
     --rx-flow: #3FCBC2; --rx-flow-text: #72DAD3; --rx-flow-soft: #17363A; --rx-flow-line: #2A5E60;
+    --rx-bean: #E98AA8; --rx-bean-text: #F3B3C8; --rx-bean-soft: #45283A; --rx-bean-line: #6E3C53;
     --rx-binding: #3A2E4E; --rx-binding-ink: #E0D7EA;
     --rx-error: #FF8F80; --rx-error-soft: #45222B; --rx-warning: #F5C451; --rx-warning-soft: #3A3016;
     --rx-info: #CFC3DD; --rx-info-soft: #352A48; --rx-success: #6FD3A0; --rx-success-soft: #1C3A2C;

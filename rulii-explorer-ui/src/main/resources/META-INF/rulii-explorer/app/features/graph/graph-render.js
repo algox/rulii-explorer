@@ -88,6 +88,15 @@ export function renderDependencyGraph({d3, graph, layout, index, grouped, select
             g.append('circle').attr('class', 'rx-gdot-missing').attr('cx', 15).attr('cy', 15).attr('r', 5);
             g.append('text').attr('class', 'rx-gname').attr('x', 28).attr('y', 19.5).text(clipText(n.name, w - 34, FONT_NAME));
             g.append('text').attr('class', 'rx-gcap').attr('x', 0).attr('y', 44).text(n.caption);
+        } else if (n.type === 'bean') {
+            // A bean (Beans graph, FR-75): a box with the diamond glyph; dashed when it could not be described
+            g.append('rect').attr('class', 'rx-gnode-ring').attr('x', -4).attr('y', -4).attr('width', w + 8).attr('height', boxH + 8).attr('rx', 12);
+            g.append('rect').attr('class', 'rx-gbox').attr('width', w).attr('height', boxH).attr('rx', 8);
+            g.append('polygon').attr('class', n.undescribed ? 'rx-gglyph rx-gglyph-undescribed' : 'rx-gglyph').attr('points', diamond(20, boxH / 2, 6.5));
+            const textW = w - 34 - 12 - (n.problem ? 12 : 0);
+            g.append('text').attr('class', 'rx-gname').attr('x', 34).attr('y', boxH / 2 + 4.5).text(clipText(n.name, textW, FONT_NAME));
+            g.append('text').attr('class', 'rx-gcap').attr('x', 0).attr('y', boxH + 14).text(clipText(n.caption, w, FONT_CAPTION));
+            if (n.problem) g.append('circle').attr('class', 'rx-gproblem rx-gproblem-' + n.problem).attr('cx', w - 10).attr('cy', boxH / 2).attr('r', 3.5);
         } else {
             const pill = n.type === 'ruleflow';
             g.append('rect').attr('class', 'rx-gnode-ring').attr('x', -4).attr('y', -4).attr('width', w + 8).attr('height', boxH + 8).attr('rx', pill ? 19 : 12);
@@ -108,6 +117,10 @@ function marker(defs, id, cls) {
     defs.append('marker').attr('id', id).attr('viewBox', '0 0 10 10').attr('refX', 9).attr('refY', 5)
         .attr('markerUnits', 'userSpaceOnUse').attr('markerWidth', 10).attr('markerHeight', 10).attr('orient', 'auto')
         .append('path').attr('d', 'M0 1L9 5L0 9z').attr('class', cls);
+}
+
+export function diamond(cx, cy, r = 6) {
+    return [[cx, cy - r], [cx + r, cy], [cx, cy + r], [cx - r, cy]].map(p => p.join(',')).join(' ');
 }
 
 export function hex(cx, cy, r = 6) {

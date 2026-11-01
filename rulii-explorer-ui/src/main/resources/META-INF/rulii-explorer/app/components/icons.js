@@ -57,6 +57,9 @@ export function icon(name, options = {}) {
 export function glyph(type, options = {}) {
     const size = options.size ?? 12;
     const cls = 'rx-glyph rx-glyph-' + type;
+    if (options.undescribed && type === 'bean') {
+        return html`<svg class=${cls} width=${size} height=${size} viewBox="0 0 12 12" aria-hidden="true"><polygon points="6,1 11,6 6,11 1,6" fill="none" stroke-dasharray="2 1.6" style="stroke: var(--rx-bean); stroke-width: 1.4"></polygon></svg>`;
+    }
     if (options.undescribed) {
         return html`<svg class=${cls} width=${size} height=${size} viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5" fill="none" stroke-dasharray="2 1.6" style="stroke: var(--rx-rule); stroke-width: 1.4"></circle></svg>`;
     }
@@ -67,6 +70,8 @@ export function glyph(type, options = {}) {
             return html`<svg class=${cls} width=${size} height=${size} viewBox="0 0 12 12" aria-hidden="true"><polygon points="6,0.8 10.5,3.4 10.5,8.6 6,11.2 1.5,8.6 1.5,3.4"></polygon></svg>`;
         case 'binding':
             return html`<svg class=${cls} width=${size} height=${size} viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="3.5"></circle></svg>`;
+        case 'bean':
+            return html`<svg class=${cls} width=${size} height=${size} viewBox="0 0 12 12" aria-hidden="true"><polygon points="6,1 11,6 6,11 1,6"></polygon></svg>`;
         default:
             return html`<svg class=${cls} width=${size} height=${size} viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5"></circle></svg>`;
     }

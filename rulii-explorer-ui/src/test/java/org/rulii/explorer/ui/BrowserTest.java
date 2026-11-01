@@ -327,6 +327,7 @@ class BrowserTest {
                 screen("missing", "ok", "/rule/Nope", ".rx-state", false),
                 screen("sidebar-categories", "ok", "/rule/LoyaltyPointsRule", ".rx-summary", true),
                 screen("sidebar-expanded", "ok", "/category/Pricing", ".rx-rows", false, p -> { p.click("button[aria-label='Expand all categories']"); p.waitForFunction("() => [...document.querySelectorAll('.rx-nav-row-cat')].every(e => e.getAttribute('aria-expanded') === 'true')"); }),
+                screen("sidebar-resized", "ok", "/category/Pricing", ".rx-rows", false, p -> { p.click("button[aria-label='Expand all categories']"); p.mouse().move(264, 500); p.mouse().down(); p.mouse().move(400, 500); p.mouse().up(); p.waitForFunction("() => document.querySelector('.rx-sidebar').getBoundingClientRect().width === 400"); }),
                 screen("category", "ok", "/category/Pricing", ".rx-rows", true),
                 screen("category-leaf", "ok", "/category/Pricing/Loyalty", ".rx-rows", false),
                 screen("search-tag", "ok", "", ".rx-stats", false, p -> { p.keyboard().press("Control+k"); p.waitForSelector(".rx-palette[open]"); p.keyboard().type("tag:vip"); p.waitForSelector(".rx-option"); }),
@@ -339,8 +340,127 @@ class BrowserTest {
                 screen("state-remote-missing", "ok", withDescriptor(remote + "/cors/missing", "/"), ".rx-state", false),
                 screen("state-remote-sign-in", "ok", withDescriptor(remote + "/cors/unauthorized", "/"), ".rx-state", false),
                 screen("state-remote-not-descriptor", "ok", withDescriptor(remote + "/cors/page", "/"), ".rx-state", false),
-                screen("state-cors", "ok", withDescriptor(remote + "/nocors/descriptor", "/"), ".rx-state", false)
+                screen("state-cors", "ok", withDescriptor(remote + "/nocors/descriptor", "/"), ".rx-state", false),
+                // The Beans section (descriptor 1.1)
+                screen("beans-overview", "ok", "/beans", ".rx-bmap", true),
+                screen("bean", "ok", "/bean/com.acme.order.model.Order", ".rx-props", true),
+                screen("bean-constraint-open", "ok", "/bean/com.acme.order.model.Order?member=properties.total", ".rx-prop-current", false, p -> { p.locator(".rx-prop-current .rx-con").nth(1).click(); p.waitForSelector(".rx-con-detail"); }),
+                screen("bean-raw", "ok", "/bean/com.acme.order.model.Order?member=properties.requestedDeliveryDate", ".rx-prop-current", false, p -> { p.click(".rx-seg button:nth-child(2)"); p.click(".rx-prop-current .rx-con-expr"); p.waitForSelector(".rx-con-detail"); }),
+                screen("bean-problem", "ok", "/bean/com.acme.order.model.Customer?member=properties.tier", ".rx-prop-current", false, p -> { p.click(".rx-prop-current .rx-con-missing"); p.waitForSelector(".rx-con-detail"); }),
+                screen("beans-problems", "ok", "/beans/problems", ".rx-article", true),
+                screen("beans-search", "ok", "/beans", ".rx-bmap", false, p -> { p.keyboard().press("Control+k"); p.waitForSelector(".rx-palette[open]"); p.keyboard().type("notblank"); p.waitForSelector(".rx-option"); }),
+                screen("beans-empty", "beansempty", "/beans", ".rx-state", true),
+                screen("beans-absent", "nobeans", "/beans", ".rx-state", false),
+                screen("rule-used-by-bean", "ok", "/rule/ConsistentDatesRule", ".rx-summary", false),
+                screen("beans-graph", "ok", "/beans/graph", ".rx-gnode", true),
+                screen("beans-graph-focus", "ok", "/beans/graph?focus=com.acme.order.model.Order", ".rx-gnode", false),
+                screen("beans-graph-selected", "ok", "/beans/graph?selected=com.acme.order.model.Customer", ".rx-gnode", false, p -> p.waitForSelector(".rx-gaside"))
         ).flatMap(s -> s);
+    }
+
+    /**
+     * The Beans section is a separate section (FR-70): the switch appears only with beans, the
+     * Rules section renders the same with and without them, and a bean deep link highlights its
+     * member.
+     */
+    @Test
+    void beansSection() {
+        try (BrowserContext context = browser.newContext(new Browser.NewContextOptions().setViewportSize(1440, 900))) {
+            Page page = context.newPage();
+            List<String> errors = watch(page);
+            // Without beans: no switch, and the beans address explains itself
+            page.navigate(base + "/case/nobeans/#/");
+            page.waitForSelector(".rx-stats");
+            assertEquals(0, page.locator(".rx-section-switch").count(), "no switch without beans");
+            String sidebarWithout = page.innerText(".rx-sidebar");
+            String statsWithout = page.innerText(".rx-stats");
+            page.navigate(base + "/case/nobeans/#/beans");
+            page.waitForSelector(".rx-state");
+            assertTrue(page.textContent(".rx-state h2").contains("Beans aren’t described"), page.textContent(".rx-state h2"));
+            // With beans: the Rules section is unchanged, the switch moves between the sections
+            page.navigate(base + "/case/ok/#/");
+            page.waitForSelector(".rx-section-switch");
+            assertEquals(sidebarWithout, page.innerText(".rx-sidebar"), "the Rules sidebar does not change because beans exist");
+            assertEquals(statsWithout, page.innerText(".rx-stats"), "nor do the Rules counts");
+            page.click(".rx-section-switch a[href='#/beans']");
+            page.waitForSelector(".rx-bmap");
+            assertTrue(page.url().endsWith("#/beans"), page.url());
+            assertEquals("3", page.textContent(".rx-stat-bean .rx-stat-num").trim());
+            assertTrue(page.innerText(".rx-sidebar").contains("com.acme.order.model"), "beans by package");
+            // The palette searches beans only here, and opens one
+            page.keyboard().press("Control+k");
+            page.waitForSelector(".rx-palette[open]");
+            page.keyboard().type("order");
+            page.waitForSelector(".rx-option");
+            assertEquals("Beans", page.textContent(".rx-palette-group span").trim());
+            page.keyboard().press("Enter");
+            page.waitForSelector(".rx-props");
+            assertTrue(page.url().contains("#/bean/com.acme.order.model.Order"), page.url());
+            // A member deep link highlights the member; a constraint opens into its rule
+            page.navigate(base + "/case/ok/#/bean/com.acme.order.model.Order?member=properties.total");
+            page.waitForSelector(".rx-prop-current");
+            assertEquals("total", page.textContent(".rx-prop-current .rx-prop-name").trim());
+            page.locator(".rx-prop-current .rx-con").nth(1).click();
+            page.waitForSelector(".rx-con-detail");
+            assertTrue(page.textContent(".rx-con-detail").contains("total_decimalMin"), page.textContent(".rx-con-detail"));
+            // The rule page names the bean that runs it, and the bean's problem links back to the member
+            page.navigate(base + "/case/ok/#/rule/ConsistentDatesRule");
+            page.waitForSelector(".rx-summary");
+            assertTrue(page.innerText("aside[aria-label='Connections']").contains("Order"), "Used by names the bean");
+            page.navigate(base + "/case/ok/#/beans/problems");
+            page.waitForSelector(".rx-article");
+            page.click(".rx-article .rx-link");
+            page.waitForSelector(".rx-prop-current");
+            assertEquals("tier", page.textContent(".rx-prop-current .rx-prop-name").trim());
+            page.click(".rx-section-switch a[href='#/']");
+            page.waitForSelector(".rx-stats");
+            assertEquals(List.of(), errors, "console errors");
+        }
+    }
+
+    /**
+     * The sidebar's right edge resizes it: by drag, by the arrow keys on the handle, double-click
+     * to put it back; the width survives a reload and the default is not stored.
+     */
+    @Test
+    void sidebarResize() {
+        try (BrowserContext context = browser.newContext(new Browser.NewContextOptions().setViewportSize(1440, 900))) {
+            Page page = context.newPage();
+            List<String> errors = watch(page);
+            page.navigate(base + "/case/ok/#/category/Pricing");
+            page.waitForSelector(".rx-rows");
+            assertEquals(264.0, sidebarWidth(page));
+            // Drag the edge
+            page.mouse().move(264, 500);
+            page.mouse().down();
+            page.mouse().move(300, 500);
+            page.mouse().move(380, 500);
+            page.mouse().up();
+            assertEquals(380.0, sidebarWidth(page), "dragged");
+            page.reload();
+            page.waitForSelector(".rx-rows");
+            assertEquals(380.0, sidebarWidth(page), "remembered");
+            // The keyboard on the handle
+            page.focus(".rx-sidebar-handle");
+            page.keyboard().press("ArrowLeft");
+            assertEquals(364.0, sidebarWidth(page), "one step narrower");
+            page.keyboard().press("End");
+            assertEquals(480.0, sidebarWidth(page), "the maximum");
+            page.mouse().move(900, 500);
+            page.mouse().down();
+            page.mouse().move(100, 500);
+            page.mouse().up();
+            assertEquals(480.0, sidebarWidth(page), "a drag that did not start on the handle does nothing");
+            // Double-click puts it back, and the default is not stored
+            page.dblclick(".rx-sidebar-handle");
+            assertEquals(264.0, sidebarWidth(page), "reset");
+            assertEquals("", page.evaluate("() => localStorage.getItem('rx.sidebarWidth') || ''"));
+            assertEquals(List.of(), errors, "console errors");
+        }
+    }
+
+    private static double sidebarWidth(Page page) {
+        return ((Number) page.evaluate("() => document.querySelector('.rx-sidebar').getBoundingClientRect().width")).doubleValue();
     }
 
     private interface Action {
@@ -478,10 +598,21 @@ class BrowserTest {
                 send(exchange, 200, "application/json", golden);
             }
             case "nocategories" -> send(exchange, 200, "application/json", withoutCategories(golden));
+            case "nobeans" -> send(exchange, 200, "application/json", withoutBeans(golden));
+            case "beansempty" -> send(exchange, 200, "application/json", withoutBeans(golden).replace("\n  \"problems\": [", "\n  \"beans\": [],\n  \"problems\": ["));
             case "partial" -> send(exchange, 200, "application/json", golden.replace("\"problems\": [",
                     "\"problems\": [ {\"severity\": \"error\", \"code\": \"UNDESCRIBABLE\", \"artifact\": \"StockAvailableRule\", \"message\": \"IllegalStateException: Could not read the rule definition of bean 'StockAvailableRule'\"},"));
             default -> send(exchange, 200, "application/json", golden);
         }
+    }
+
+    /** The golden descriptor as an application that does not describe beans: no beans section, no bean problems, no bean references. */
+    static String withoutBeans(String json) {
+        int beans = json.indexOf("\n  \"beans\": [");
+        String cut = beans < 0 ? json : json.substring(0, beans).replaceAll(",\\s*$", "") + "\n}\n";
+        return cut.replaceAll(",?\\s*\\{\\s*\"severity\": \"[a-z]+\",\\s*\"code\": \"[A-Z_]+\",\\s*\"artifact\": \"com\\.acme\\.order\\.model\\.[^\"]*\"[^}]*\\}", "")
+                .replaceAll(",?\\s*\\{\\s*\"from\": \"com\\.acme\\.order\\.model\\.[^\"]*\"[^}]*\\}", "")
+                .replaceAll("\\[\\s*,", "[");
     }
 
     /** The golden descriptor as an application that never categorised anything: no categories, no tags, no UNCATEGORISED problems. */

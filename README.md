@@ -56,6 +56,12 @@ mvn -pl rulii-explorer-demo spring-boot:run
   instead of its registry name, duplicate names, unused rules, missing descriptions, and artifacts
   that could not be described. Each one says why it matters and how to fix it.
 - **Search** across names, conditions, error codes and bindings: the search field or Ctrl/⌘ K.
+- **Beans** (opt-in): the classes the application validates with
+  [rulii-bean-validation](https://github.com/algox/rulii-bean-validation), in a section of their
+  own. Each bean lists its properties, methods and constructors with their constraints, `@Expr`
+  expressions and the `@Validate` rules they run; every constraint opens the rule the library
+  built for it; cascades (`@Valid`) link bean to bean, and a graph shows which beans cascade into
+  which and which registry rules they run. The Rules section is exactly what it was without them.
 - Every screen has an address you can share. Light and dark themes follow the operating system
   unless you choose. Press `?` for the keyboard, the addresses and the flowchart legend;
   [GUIDE.md](GUIDE.md) is the full guide, with a reference for every problem the checks report.
@@ -108,6 +114,10 @@ artifact.
 | `rulii.explorer.placeholders.show-values` | `never` | `always` shows the value each `${key:default}` placeholder compiled with, next to the key and default. |
 | `rulii.explorer.placeholders.exclude` | `*password*,*secret*,*token*,*credential*,*private*` | Key globs whose values stay hidden (case-insensitive, whole key). Setting it replaces the list. |
 | `rulii.explorer.placeholders.additional-exclude` | | Key globs hidden on top of `exclude`, such as `pricing.vipDiscount`. |
+| `rulii.explorer.beans.enabled` | `false` | Describe the beans validated with rulii-bean-validation and show the Beans section. Needs the application to validate with rulii-spring's validator (the default with `spring-boot-starter-validation`; `rulii.validation.enabled=false` leaves the section off). |
+| `rulii.explorer.beans.packages` | the auto-configuration packages | Packages to scan for beans, sub-packages included. The scan reads class files, not classes, so nothing is loaded that is not a bean. |
+| `rulii.explorer.beans.classes` | | Classes to describe whether or not the scan finds them. |
+| `rulii.explorer.beans.include-validated` | `true` | Also describe the classes the validator had validated by the time the descriptor was built. |
 
 Context paths, a custom `management.endpoints.web.base-path` and a separate `management.server.port`
 are all respected; with a separate management port the UI is served there too, next to the endpoint.
@@ -151,7 +161,9 @@ class DescriptorSnapshotTest {
 }
 ```
 
-The document follows `rulii-descriptor-1.schema.json`, shipped in `rulii-explorer-core`.
+The document follows `rulii-descriptor-1.schema.json`, shipped in `rulii-explorer-core`. With
+`rulii.explorer.beans.enabled=true` it also carries the `beans` section (descriptor version 1.1,
+same schema), so a review sees changed constraints as well as changed rules.
 
 ## Opening another application's descriptor
 
@@ -189,8 +201,9 @@ Spring Boot involved.
 ## Requirements
 
 - Java 17
-- rulii and rulii-spring 2.1+
+- rulii and rulii-spring 2.2+ (2.1+ for explorer 1.0)
 - Spring Boot 4.1+
+- rulii-bean-validation 1.0+ for the Beans section; without it the section stays off
 
 ## Building and testing
 

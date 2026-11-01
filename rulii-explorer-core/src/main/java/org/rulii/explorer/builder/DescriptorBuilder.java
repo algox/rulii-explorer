@@ -55,6 +55,7 @@ public final class DescriptorBuilder {
     private List<ProblemCheck> checks = ProblemChecks.defaults();
     private boolean includeSources = true;
     private PlaceholderFilter placeholderValues;
+    private BeanSource beans;
 
     private DescriptorBuilder(RuleRegistry registry) {
         super();
@@ -114,12 +115,24 @@ public final class DescriptorBuilder {
     }
 
     /**
+     * Also describes the beans validated with rulii-bean-validation (descriptor 1.1, FR-60): the
+     * descriptor gains {@code beans}, the references they make and the problems they have. Needs
+     * the library on the class path. Default: null, no beans section (FR-83).
+     *
+     * @param beans the beans and their validator, from {@code org.rulii.explorer.beans.Beans}; null for none.
+     */
+    public DescriptorBuilder beans(BeanSource beans) {
+        this.beans = beans;
+        return this;
+    }
+
+    /**
      * Describes the registry.
      *
      * @return the descriptor; never null.
      */
     public Descriptor build() {
-        return new Describer(registry, analyzers, placeholderValues, includeSources, applicationName, ruliiVersion, checks).describe();
+        return new Describer(registry, analyzers, placeholderValues, includeSources, applicationName, ruliiVersion, checks, beans).describe();
     }
 
     private static String ruliiVersionFromManifest() {

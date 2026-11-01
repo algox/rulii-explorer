@@ -121,3 +121,9 @@ export function severityDots(counts) {
 export function requiredPill(parameter) {
     return parameter.required === false ? html`<span class="rx-pill">Optional</span>` : html`<span class="rx-pill">Required</span>`;
 }
+
+/** A link to a bean with the diamond glyph (descriptor 1.1); hover shows its card. */
+export function beanLink(bean, options = {}) {
+    if (!bean) return nothing;
+    return html`<a class=${options.class || 'rx-art-link rx-art-link-bean'} href=${routes.bean(bean)} data-hover=${bean.id}>${options.glyph === false ? nothing : glyph('bean', {size: options.glyphSize || 11})}${options.text || bean.name}</a>`;
+}

@@ -8,7 +8,7 @@
 .rx-canvas-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .rx-canvas-main > .rx-flow-head { flex-shrink: 0; }
 .rx-canvas-main > .rx-flow-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
-rx-flowchart, rx-graph { display: contents; }
+rx-flowchart, rx-graph, rx-beans-graph { display: contents; }
 .rx-stage-wrap { flex: 1 1 auto; min-height: 0; position: relative; overflow: hidden; }
 .rx-stage {
   position: absolute; inset: 0; overflow: hidden; touch-action: none; cursor: grab;
@@ -50,6 +50,7 @@ rx-flowchart, rx-graph { display: contents; }
 .rx-minimap .rx-mm-rule, .rx-minimap .rx-mm-step { fill: var(--rx-rule-line); }
 .rx-minimap .rx-mm-ruleset { fill: var(--rx-ruleset-line); }
 .rx-minimap .rx-mm-ruleflow { fill: var(--rx-flow-line); }
+.rx-minimap .rx-mm-bean { fill: var(--rx-bean-line); }
 .rx-minimap .rx-mm-missing { fill: var(--rx-error-soft); }
 .rx-minimap .rx-mm-group { fill: none; stroke: var(--rx-line-strong); stroke-width: 0.8; }
 .rx-minimap .rx-mm-selected { fill: var(--rx-accent); }
@@ -88,6 +89,10 @@ rx-flowchart, rx-graph { display: contents; }
 .rx-gnode-ruleflow .rx-gbox { fill: var(--rx-flow-soft); stroke: var(--rx-flow); }
 .rx-gnode-ruleflow .rx-gglyph { fill: var(--rx-flow); }
 .rx-gnode-ruleflow .rx-gname { fill: var(--rx-flow-text); }
+.rx-gnode-bean .rx-gbox { fill: var(--rx-bean-soft); stroke: var(--rx-bean); }
+.rx-gnode-bean .rx-gglyph { fill: var(--rx-bean); }
+.rx-gnode-bean .rx-gglyph-undescribed { fill: none; stroke: var(--rx-bean); stroke-width: 1.4; stroke-dasharray: 2 1.6; }
+.rx-gnode-bean .rx-gname { fill: var(--rx-bean-text); }
 .rx-gnode-missing .rx-gbox { fill: none; stroke: var(--rx-error); stroke-dasharray: 4 3; }
 .rx-gnode-missing .rx-gname { fill: var(--rx-error); }
 .rx-gnode.rx-hover .rx-gbox { filter: brightness(0.97); }

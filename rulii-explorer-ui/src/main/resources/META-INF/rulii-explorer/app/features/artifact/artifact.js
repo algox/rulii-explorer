@@ -5,6 +5,7 @@ import {artifactLink, breadcrumb, card, copyButton, copyLinkButton, graphButton,
 import {routes} from '../../routing/router.js';
 import {hasCompiled, hasScript, isCompiled, plainText, scriptLanguage, sourceText, typeLabel} from '../../descriptor/format.js';
 import {artifactSummary} from '../../descriptor/summaries.js';
+import {beanMember} from '../../descriptor/indexes.js';
 import {ruleBody, validatorBody, compiledBody} from './rule.js';
 import {ruleSetPage} from './ruleset.js';
 import {ruleFlowPage} from './ruleflow.js';
@@ -95,7 +96,13 @@ export function usedByCard(a, index, options = {}) {
     const refs = index.usedBy.get(a.id) || [];
     const rows = refs.map(ref => {
         const from = index.byId.get(ref.from);
-        if (!from) return nothing;
+        if (!from) {
+            // A bean's @Validate (descriptor 1.1, FR-71): the one place the Rules section names a bean.
+            const bean = index.beans ? index.beans.byId.get(ref.from) : null;
+            if (!bean) return nothing;
+            const member = beanMember(bean, ref.path);
+            return html`<a class="rx-used-row" href=${routes.bean(bean, member ? {member: member.member} : {})} data-hover=${bean.id}>${glyph('bean', {size: 12})}<span class="rx-name">${bean.name}</span><span class="rx-small">@Validate${member ? ' on ' + member.label : ' on the bean'}</span></a>`;
+        }
         let caption;
         if (ref.type === 'contains') {
             const n = from.ruleSet ? from.ruleSet.members.length : 0;
