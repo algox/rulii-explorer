@@ -1,6 +1,6 @@
 # Change log
 
-## 1.1.0 (unreleased)
+## 1.1.0 (2026-11-01)
 
 Requires rulii 2.2.0 and rulii-spring 2.2.0; the Beans section needs rulii-bean-validation 1.0.0.
 
