@@ -1,9 +1,30 @@
 # rulii explorer
 
+[![License](https://img.shields.io/badge/license-Apache%202.0-orange.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Maven Central Version](https://img.shields.io/maven-central/v/org.rulii/rulii-explorer-spring-boot-starter)](https://central.sonatype.com/artifact/org.rulii/rulii-explorer-spring-boot-starter)
+[![Javadoc](https://javadoc.io/badge2/org.rulii/rulii-explorer-spring-boot-starter/javadoc.svg)](https://javadoc.io/doc/org.rulii/rulii-explorer-spring-boot-starter/latest)
+![Build](https://github.com/algox/rulii-explorer/actions/workflows/maven.yml/badge.svg)
+[![codecov](https://codecov.io/gh/algox/rulii-explorer/branch/develop/graph/badge.svg)](https://codecov.io/gh/algox/rulii-explorer)
+
 Browse, search and visualise the rules, rule sets and rule flows of a running
 [rulii](https://www.rulii.org) application. The explorer reads the live rule registry, describes
 every artifact in plain English, draws the dependencies and the flowcharts, and points out what
 is likely to fail. It is read-only, built for developers and for the people who own the rules.
+
+## What's new in 1.1.0
+
+- **Beans** (opt-in): the classes validated with
+  [rulii-bean-validation](https://github.com/algox/rulii-bean-validation) get a section of their own, with
+  their constraints, `@Expr` expressions and `@Validate` rules, the rule the library built for each
+  constraint, a validation map, a graph of the cascades, search and problem checks. Set
+  `rulii.explorer.beans.enabled=true`; the descriptor becomes version 1.1 and gains a `beans` array.
+- **Result types**: what a rule set or flow returns and where the type came from (declared, derived, by
+  default, or unknown), on its page, in the hover card and in the graph panel; a flow step that keeps a
+  result under a name shows its type, and the flow page header lists the flow's inputs and result.
+- **Resizable sidebar**: drag its right edge; the width is remembered in the browser.
+- Requires rulii 2.2.0 and rulii-spring 2.2.0; the Beans section needs rulii-bean-validation 1.0.0.
+
+Full details in the [change log](CHANGELOG.md).
 
 ## Getting started
 
