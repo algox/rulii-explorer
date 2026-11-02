@@ -27,6 +27,7 @@ export function ruleFlowPage(a, host) {
     walkCommands(f.commands, () => steps++);
     const source = sourceText(a.source);
     const result = resultOf(a);
+    const start = startsWith(a, f);
     const selected = route.query.step || '';
     const aside = selected ? stepAside(a, selected, index, host) : nothing;
     const tabHref = (v) => routes.artifact(a, {view: v, step: selected});
@@ -41,8 +42,9 @@ export function ruleFlowPage(a, host) {
                 </div>
                 <div class="rx-flow-desc">
                     <p>${a.description || html`<span class="rx-muted">No description.</span>`}</p>
-                    <span>${plural(steps, 'step')}${result ? html` · returns ${result.type ? html`<span class="rx-mono" title=${result.full + (originWords(result.origin) ? ' · ' + originWords(result.origin) : '')}>${result.type}</span>` : 'a value of unknown type'}` : nothing}${source ? html` · <span class="rx-mono">${source}</span>` : nothing}</span>
+                    <span>${plural(steps, 'step')}${source ? html` · <span class="rx-mono">${source}</span>` : nothing}</span>
                 </div>
+                <div class="rx-flow-inputs" aria-label="Inputs and result">${start.text}${start.caption ? html`<span class="rx-flow-inputs-caption">${start.caption}</span>` : nothing}${result ? html`<span class="rx-flow-returns" title=${result.full ? 'Returns ' + result.full : 'Returns a value of unknown type'}>→ ${result.type ? html`<span class="rx-chip">${result.type}</span>` : html`<span class="rx-muted">unknown type</span>`}</span>${originWords(result.origin) ? html`<span class="rx-flow-inputs-caption">${originWords(result.origin)}</span>` : nothing}` : nothing}</div>
                 <div class="rx-flow-bar">
                     <div class="rx-tabs" role="tablist" aria-label="Views">
                         <a role="tab" class="rx-tab" aria-selected=${!outline} href=${tabHref('flowchart')}>Flowchart</a>
@@ -109,13 +111,19 @@ function outlineBody(a, f, host, view, selected, index) {
     </div>`;
 }
 
-function startRow(a, f) {
+/** "Starts with order: Order and customer: Customer" plus "both required": the flow header line and the outline START row share it. */
+function startsWith(a, f) {
     const params = a.parameters || [];
     const required = params.filter(p => p.required !== false).length;
     const text = params.length
         ? html`<span>Starts with</span>${params.map((p, i) => html`${i ? html`<span>${i === params.length - 1 ? 'and' : ','}</span>` : nothing}<span class="rx-chip" title=${p.description || p.type || ''}>${p.name}: ${shortType(p.type)}</span>`)}`
         : html`<span>Starts with ${f.context ? html`the bindings from <span class="rx-mono">${f.context}</span>` : 'whatever the caller binds'}</span>`;
     const caption = params.length ? (required === params.length ? (params.length === 1 ? 'required' : params.length === 2 ? 'both required' : 'all required') : required + ' of ' + params.length + ' required') : '';
+    return {text, caption};
+}
+
+function startRow(a, f) {
+    const {text, caption} = startsWith(a, f);
     return row({number: '', tag: 'START', tagClass: 'rx-step-tag-flow', text, caption, color: 'var(--rx-ink-2)'});
 }
 

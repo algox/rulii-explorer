@@ -47,7 +47,9 @@ mvn -pl rulii-explorer-demo spring-boot:run
   SpEL, JavaScript and Java scripts all read as sentences; anything the explorer cannot phrase is shown
   as written.
 - **Rule flows** as a flowchart (decisions, loops, scopes, an async lane, exception handlers) and as
-  an outline, the text equivalent. Clicking a step shows what it runs.
+  an outline, the text equivalent. Clicking a step shows what it runs. Rule sets and flows say what
+  they take and what they return, and whether the result type was declared, derived or is unknown
+  (rulii 2.2); a step that keeps a result under a name shows its type.
 - **Dependency graph** focused on one artifact and its neighbourhood, or the whole application
   grouped by package.
 - **Bindings**: who writes a value, who reads it, which properties, and where compiled code might

@@ -67,9 +67,12 @@ The flowchart is laid out top to bottom, one node per step:
   A global handler, which catches whatever any step throws, sits on its own.
 - **Exit**: a pill that stops the flow here, with or without a value. Start, Return and End are
   pills too: Start lists the flow's parameters, Return shows the expression. The flow's header
-  says what it returns ("returns `Boolean`"; hover for the full name and whether the type was
-  declared or derived), and the outline's Return row carries the same in its caption. A flow
-  without a Return gives back its rule context and says nothing.
+  lists its inputs with their types and, on the same line, what it returns: "Starts with
+  `order: Order` and `customer: Customer`, both required → `Boolean`, declared". A flow without
+  declared inputs starts with whatever the caller binds, or with the bindings of its own context;
+  "declared", "derived" or "unknown type" say where the result type came from, and hovering the
+  arrow shows the full class name. The outline's Start and Return rows carry the same. A flow
+  without a Return gives back its rule context and shows no arrow.
 - **Not registered**: a red dashed box. Nothing with that name exists, so the step fails when it
   runs. Problems says how to fix it.
 - **Dashed outline**: the target is looked up by name or class from the registry when the flow

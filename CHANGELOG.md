@@ -22,7 +22,11 @@ Requires rulii 2.2.0 and rulii-spring 2.2.0; the Beans section needs rulii-bean-
   `derived`, `default`, `unknown` or `none`); a flow's `resultType` is now absent when the type
   is not known, where 1.0 wrote `java.lang.Object`. The UI shows what a rule set or flow returns
   and where the type came from on its page, in the hover card and the graph panel, and a flow
-  step that keeps a result under a name shows the result's type.
+  step that keeps a result under a name shows the result's type. The flow page header now lists
+  the flow's inputs with their types, as the rule set page does, so the flowchart view no longer
+  shows parameter names only.
+- **Resizable sidebar**: drag the sidebar's right edge to make it wider when a deep category tree
+  needs the room; the width is remembered in the browser.
 
 ## 1.0.0 (2026-10-04)
 

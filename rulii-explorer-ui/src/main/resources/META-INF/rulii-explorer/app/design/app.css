@@ -640,6 +640,11 @@ a.rx-stat:hover { border-color: var(--rx-line-strong); }
 .rx-flow-desc p { flex-grow: 1; font-size: 14px; color: var(--rx-ink-2); }
 .rx-flow-desc span { font-size: 12px; color: var(--rx-ink-3); white-space: nowrap; }
 .rx-flow-desc span .rx-mono { font-size: 12px; }
+.rx-flow-inputs { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 13px; color: var(--rx-ink-2); }
+.rx-flow-inputs .rx-chip { font-size: 12px; }
+.rx-flow-inputs .rx-mono { font-size: 12.5px; }
+.rx-flow-inputs-caption { font-size: 12px; color: var(--rx-ink-3); margin-left: 4px; }
+.rx-flow-returns { display: inline-flex; align-items: center; gap: 6px; margin-left: 10px; color: var(--rx-ink-3); }
 .rx-flow-bar { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-top: 6px; }
 .rx-flow-tools { display: flex; align-items: center; gap: 8px; padding-bottom: 7px; }
 .rx-flow-body { padding: 18px 32px 24px; display: flex; flex-direction: column; gap: 16px; }
