@@ -38,6 +38,24 @@ Add one dependency to a Spring Boot application that already uses rulii-spring:
 </dependency>
 ```
 
+Or import the [rulii-bom](https://github.com/algox/rulii-bom) once and leave the versions off: it pins a
+matching set of rulii, rulii-spring, rulii-bean-validation and the explorer, and sits alongside the Spring
+Boot BOM without overlap:
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.rulii</groupId>
+            <artifactId>rulii-bom</artifactId>
+            <version>2.2.0</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
 Turn the explorer on and expose the endpoint, like any Actuator endpoint. The explorer is off by
 default, so a production deployment never shows its rules unless someone chose to:
 
